@@ -1,6 +1,6 @@
 #NoTrayIcon
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
-#AutoIt3Wrapper_outfile=..\WP7\InstalledPanels\miniCMD\miniShell.exe
+#AutoIt3Wrapper_outfile=..\REO\InstalledPanels\miniCMD\miniShell.exe
 #AutoIt3Wrapper_Res_Comment=Modified for Omnimo UI
 #AutoIt3Wrapper_Res_Description=miniShell
 #AutoIt3Wrapper_UseUpx=n

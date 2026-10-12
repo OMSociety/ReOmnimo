@@ -1,6 +1,6 @@
 #NoTrayIcon
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
-#AutoIt3Wrapper_Outfile=..\WP7\@Resources\Common\Background\Config.exe
+#AutoIt3Wrapper_Outfile=..\REO\@Resources\Common\Background\Config.exe
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Res_Comment=Made for Omnimo UI
 #AutoIt3Wrapper_Res_Description=Made for Omnimo UI
@@ -39,7 +39,7 @@ $Sections = IniReadSection($LangFile, "Variables")
 For $i = 1 To $Sections[0][0]
 	$Language.Add($Sections[$i][0], $Sections[$i][1])
 Next
-Const $scaledpi = IniRead($skinpath & "WP7\@Resources\Common\Variables\UserVariables.inc", "Variables", "ScaleDpi", "1")
+Const $scaledpi = IniRead($skinpath & "REO\@Resources\Common\Variables\UserVariables.inc", "Variables", "ScaleDpi", "1")
 
 
 
@@ -339,5 +339,5 @@ Func ApplySettings()
 	Else
 		IniWrite($VarFile, "Variables", "BackgroundImageHidden", "1")
 	EndIf
-	SendBang("!Refresh WP7\Background") ; refresh background
+	SendBang("!Refresh REO\Background") ; refresh background
 EndFunc   ;==>_ApplySettings

@@ -17,4 +17,4 @@ Thumbs.db
 # Per-machine overrides
 # A published calendar URL grants read access to that calendar, so a private
 # feed must stay out of the repository.
-WP7/@Resources/Config/Panels/Agenda/UserVariables.local.inc
+REO/@Resources/Config/Panels/Agenda/UserVariables.local.inc

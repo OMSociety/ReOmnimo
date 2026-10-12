@@ -28,7 +28,7 @@ $omnimoMode = switch ( $daySegment2 )
 
 
 
-$apppath = "WP7\@Resources\Common\OmnimoApp.exe"
+$apppath = "REO\@Resources\Common\OmnimoApp.exe"
 $both = join-path -path $rainmeterPath -childpath $apppath
 
 

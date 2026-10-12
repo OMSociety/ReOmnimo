@@ -15,7 +15,7 @@ If $CmdLine[0] < 5 Then OmnimoError("Omnimo Panel Config", "Too few command line
 ; Set up variables
 
 $dir = @ScriptDir
-$dirE = StringReplace($dir, 'WP7\@Resources\Common\Config', '')
+$dirE = StringReplace($dir, 'REO\@Resources\Common\Config', '')
 
 
 
@@ -30,8 +30,8 @@ Const $SettingsPath = $CmdLine[4]
 ;MsgBox($MB_SYSTEMMODAL, "Title", $sX & " " & $sY, 2)
 
 
-Const $colorvars = $skinpath & "WP7\@Resources\Common\Color\color.inc"
-Const $uservars = $skinpath & "WP7\@Resources\Common\Variables\UserVariables.inc"
+Const $colorvars = $skinpath & "REO\@Resources\Common\Color\color.inc"
+Const $uservars = $skinpath & "REO\@Resources\Common\Variables\UserVariables.inc"
 
 
 
@@ -39,8 +39,8 @@ FileDelete ( @ScriptDir & "\hue.ini" )
 
 
 
-Const $CurrentLanguage = IniRead( $skinpath & "WP7\@Resources\Common\Background\Varrar.inc", "Variables", "Language", "English")
-Const $LangFile = $skinpath & "WP7\@Resources\Common\Background\Language\" & $CurrentLanguage & ".cfg"
+Const $CurrentLanguage = IniRead( $skinpath & "REO\@Resources\Common\Background\Varrar.inc", "Variables", "Language", "English")
+Const $LangFile = $skinpath & "REO\@Resources\Common\Background\Language\" & $CurrentLanguage & ".cfg"
 
 
 
@@ -166,7 +166,7 @@ Func ReadActiveSkins()
 
 
 
-Const $scaledpi = IniRead($skinpath & "WP7\@Resources\Common\Variables\UserVariables.inc", "Variables", "ScaleDpi", "1")
+Const $scaledpi = IniRead($skinpath & "REO\@Resources\Common\Variables\UserVariables.inc", "Variables", "ScaleDpi", "1")
 $iCount = 0
 
 Global $movebyX = 160 * $scaledpi
@@ -195,9 +195,9 @@ $row8 = 0
 
 
 		; Only want panels here
-		If StringRegExp($Sections[$i], '^WP7\\(Installed|Donator)?Panels.*$') Then
+		If StringRegExp($Sections[$i], '^REO\\(Installed|Donator)?Panels.*$') Then
 			If IniRead($RainmeterINI, $Sections[$i], "Active", "0") <> "0" And FileExists($SkinPath & $Sections[$i]) Then
-				$config = StringReplace($Sections[$i], "WP7\", "WP7\@Resources\Config\") & "\RainConfigure.cfg"
+				$config = StringReplace($Sections[$i], "REO\", "REO\@Resources\Config\") & "\RainConfigure.cfg"
 				If IniRead($config, "Options", "Colorizable", "1") == "0" Then ContinueLoop
 
 
@@ -414,7 +414,7 @@ EndIf
 	;SendBang("!Move 100 " & "10R" & " " & $Sections[$i])
 
 
-				;GUICtrlSetData($PanelList, StringRegExpReplace($Sections[$i], "WP7\\(Installed|Donator)?Panels\\", ""))
+				;GUICtrlSetData($PanelList, StringRegExpReplace($Sections[$i], "REO\\(Installed|Donator)?Panels\\", ""))
 			;	$Panels[$NumPanels] = $Sections[$i]
 				;$NumPanels += 1
 			EndIf
@@ -436,11 +436,11 @@ $iCount = 0
 
 
 		; Only want panels here
-	;	If StringRegExp($Sections[$i], '^WP7\\(Installed|Donator)?Panels.*$') Then
+	;	If StringRegExp($Sections[$i], '^REO\\(Installed|Donator)?Panels.*$') Then
 
-	If StringRegExp($Sections[$i], '^WP7\\(Panels|InstalledPanels|DonatorPanels|TextItems).*$') Then
+	If StringRegExp($Sections[$i], '^REO\\(Panels|InstalledPanels|DonatorPanels|TextItems).*$') Then
 			If IniRead($RainmeterINI, $Sections[$i], "Active", "0") <> "0" And FileExists($SkinPath & $Sections[$i]) Then
-				$config = StringReplace($Sections[$i], "WP7\", "WP7\@Resources\Config\") & "\RainConfigure.cfg"
+				$config = StringReplace($Sections[$i], "REO\", "REO\@Resources\Config\") & "\RainConfigure.cfg"
 				If IniRead($config, "Options", "Colorizable", "1") == "0" Then ContinueLoop
 
 
@@ -462,7 +462,7 @@ EndIf
 	;SendBang("!Move 100 " & "10R" & " " & $Sections[$i])
 
 
-				;GUICtrlSetData($PanelList, StringRegExpReplace($Sections[$i], "WP7\\(Installed|Donator)?Panels\\", ""))
+				;GUICtrlSetData($PanelList, StringRegExpReplace($Sections[$i], "REO\\(Installed|Donator)?Panels\\", ""))
 			;	$Panels[$NumPanels] = $Sections[$i]
 				;$NumPanels += 1
 			EndIf

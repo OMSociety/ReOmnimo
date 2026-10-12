@@ -1,6 +1,6 @@
 #NoTrayIcon
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
-#AutoIt3Wrapper_Outfile=..\WP7\@Resources\Common\MultiManager\MultiManager.exe
+#AutoIt3Wrapper_Outfile=..\REO\@Resources\Common\MultiManager\MultiManager.exe
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Res_Comment=Made for Omnimo UI
 #AutoIt3Wrapper_Res_Description=Omnimo MultiManager
@@ -27,11 +27,11 @@ Const $skins    = $CmdLine[2]
 Const $command  = $CmdLine[3]
 Const $index    = $CmdLine[4]
 Const $wallpaper    = $CmdLine[5]
-Const $saved    = $skins & "WP7\Gallery\MultiManager\Saved\"
+Const $saved    = $skins & "REO\Gallery\MultiManager\Saved\"
 
 
-Const $CurrentLanguage = IniRead($skins & "WP7\@Resources\Common\Background\Varrar.inc", "Variables", "Language", "English")
-Const $LangFile = $skins & "WP7\@Resources\Common\Background\Language\" & $CurrentLanguage & ".cfg"
+Const $CurrentLanguage = IniRead($skins & "REO\@Resources\Common\Background\Varrar.inc", "Variables", "Language", "English")
+Const $LangFile = $skins & "REO\@Resources\Common\Background\Language\" & $CurrentLanguage & ".cfg"
 
 If Not FileExists($LangFile) Then OmnimoError("Error loading language", "Unable to load language file for " & $CurrentLanguage)
 
@@ -57,12 +57,12 @@ Switch $command
 		_SavehBitmapEx($hBitmap, $imagePath, 400, 400 / (@DesktopWidth / @DesktopHeight))
 		FileCopy($settings & "Rainmeter.ini", $saved & $index & "\Rainmeter.ini", 1)
 
-		FileCopy($skins & "WP7\@Resources\Common\Color\color.inc", $saved & $index & "\color.inc", 1)
+		FileCopy($skins & "REO\@Resources\Common\Color\color.inc", $saved & $index & "\color.inc", 1)
 
 
-	 IniWrite($saved & $index & "\Rainmeter.ini", "WP7\TextItems\Extra\Missing", "Active", "1")
+	 IniWrite($saved & $index & "\Rainmeter.ini", "REO\TextItems\Extra\Missing", "Active", "1")
 
-		 IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager", "Active", "0")
+		 IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager", "Active", "0")
 
     IniDelete($saved & $index & "\Rainmeter.ini", "Rainmeter", "SkinPath")
 	    IniDelete($saved & $index & "\Rainmeter.ini", "Rainmeter", "ConfigEditor")
@@ -71,7 +71,7 @@ Switch $command
 
 
 
-		SendBang("!Refresh WP7\Gallery\MultiManager")
+		SendBang("!Refresh REO\Gallery\MultiManager")
 
 
 
@@ -87,11 +87,11 @@ Switch $command
 		FileCopy($settings & "Rainmeter.ini", $saved & $index & "\Rainmeter.ini", 1)
 		FileCopy($wallpaper, $saved & $index & "\Wallpaper.bmp", 1)
 
-		FileCopy($skins & "WP7\@Resources\Common\Color\color.inc", $saved & $index & "\color.inc", 1)
+		FileCopy($skins & "REO\@Resources\Common\Color\color.inc", $saved & $index & "\color.inc", 1)
 
 
-		 IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager", "Active", "0")
-		 	 IniWrite($saved & $index & "\Rainmeter.ini", "WP7\TextItems\Extra\Missing", "Active", "1")
+		 IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager", "Active", "0")
+		 	 IniWrite($saved & $index & "\Rainmeter.ini", "REO\TextItems\Extra\Missing", "Active", "1")
 
 
 
@@ -100,7 +100,7 @@ Switch $command
 	   IniDelete($saved & $index & "\Rainmeter.ini", "Rainmeter", "TrayExecuteR")
 	      IniDelete($saved & $index & "\Rainmeter.ini", "Rainmeter", "Language")
 
-		SendBang("!Refresh WP7\Gallery\MultiManager")
+		SendBang("!Refresh REO\Gallery\MultiManager")
 
 
 
@@ -109,43 +109,43 @@ Switch $command
 
 
 
-$shortcutYes = IniRead($settings & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\1", "Active", "0")
+$shortcutYes = IniRead($settings & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\1", "Active", "0")
 
 		If $shortcutYes = 1 Then
-		   IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\1", "Active", "1")
-$shortcutX = IniRead($settings & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\1", "WindowX", "0")
-$shortcutY = IniRead($settings & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\1", "WindowY", "0")
-   IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\1", "WindowX", $shortcutX)
-   IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\1", "WindowY", $shortcutY)
+		   IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\1", "Active", "1")
+$shortcutX = IniRead($settings & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\1", "WindowX", "0")
+$shortcutY = IniRead($settings & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\1", "WindowY", "0")
+   IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\1", "WindowX", $shortcutX)
+   IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\1", "WindowY", $shortcutY)
 Else
-      IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\1", "Active", "0")
+      IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\1", "Active", "0")
 		 EndIf
 
 
-$shortcut2Yes = IniRead($settings & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\2", "Active", "0")
+$shortcut2Yes = IniRead($settings & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\2", "Active", "0")
 
 		If $shortcut2Yes = 1 Then
-		   IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\2", "Active", "1")
-$shortcut2X = IniRead($settings & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\2", "WindowX", "0")
-$shortcut2Y = IniRead($settings & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\2", "WindowY", "0")
-   IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\2", "WindowX", $shortcut2X)
-   IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\2", "WindowY", $shortcut2Y)
+		   IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\2", "Active", "1")
+$shortcut2X = IniRead($settings & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\2", "WindowX", "0")
+$shortcut2Y = IniRead($settings & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\2", "WindowY", "0")
+   IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\2", "WindowX", $shortcut2X)
+   IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\2", "WindowY", $shortcut2Y)
 
 Else
-      IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\2", "Active", "0")
+      IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\2", "Active", "0")
 		 EndIf
 
-$shortcut3Yes = IniRead($settings & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\3", "Active", "0")
+$shortcut3Yes = IniRead($settings & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\3", "Active", "0")
 
 		If $shortcut3Yes = 1 Then
-		   IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\3", "Active", "1")
-$shortcut3X = IniRead($settings & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\3", "WindowX", "0")
-$shortcut3Y = IniRead($settings & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\3", "WindowY", "0")
-   IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\3", "WindowX", $shortcut3X)
-   IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\3", "WindowY", $shortcut3Y)
+		   IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\3", "Active", "1")
+$shortcut3X = IniRead($settings & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\3", "WindowX", "0")
+$shortcut3Y = IniRead($settings & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\3", "WindowY", "0")
+   IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\3", "WindowX", $shortcut3X)
+   IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\3", "WindowY", $shortcut3Y)
 
 Else
-      IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\3", "Active", "0")
+      IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\3", "Active", "0")
    EndIf
 
 
@@ -159,7 +159,7 @@ Else
 			Exit
 		 EndIf
 
-		If FileCopy($saved & $index & "\color.inc", $skins & "WP7\@Resources\Common\Color\color.inc", 1) = 0 Then
+		If FileCopy($saved & $index & "\color.inc", $skins & "REO\@Resources\Common\Color\color.inc", 1) = 0 Then
 			MsgBox(0, "Debug", "Copying color.inc file failed")
 			Exit
 		EndIf
@@ -182,7 +182,7 @@ Else
 		 EndIf
 
 
-		If FileCopy($saved & $index & "\color.inc", $skins & "WP7\@Resources\Common\Color\color.inc", 1) = 0 Then
+		If FileCopy($saved & $index & "\color.inc", $skins & "REO\@Resources\Common\Color\color.inc", 1) = 0 Then
 			MsgBox(0, "Debug", "Copying color.inc file failed")
 			Exit
 		EndIf
@@ -201,8 +201,8 @@ Else
 
 
 
-FileCopy($skins & "WP7\Gallery\MultiManager\screenshot.png", $saved & $index & "\screenshot.png", 8)
-		SendBang("!Refresh WP7\Gallery\MultiManager")
+FileCopy($skins & "REO\Gallery\MultiManager\screenshot.png", $saved & $index & "\screenshot.png", 8)
+		SendBang("!Refresh REO\Gallery\MultiManager")
 
 
 

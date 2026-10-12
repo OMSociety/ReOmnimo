@@ -62,7 +62,7 @@ Func ApplyColors(ByRef $colors)
 		If Not StringInStr($var[$i], "Panels") Then ContinueLoop
 		$active = IniRead($_VarFile, $var[$i], "Active", "0")
 		If $active == "0" Then ContinueLoop
-		If IniRead($_SkinsPath & "\WP7\@Resources\Config\" & StringTrimLeft($var[$i], 4) & "\RainConfigure.cfg", "Options", "Colorizable", "1") = "0" Then ContinueLoop
+		If IniRead($_SkinsPath & "\REO\@Resources\Config\" & StringTrimLeft($var[$i], 4) & "\RainConfigure.cfg", "Options", "Colorizable", "1") = "0" Then ContinueLoop
 		$FileList = _FileListToArray($_SkinsPath & $var[$i], "*.ini", 1)
 		If @error Or Int($active) > $FileList[0] Then ContinueLoop
 		IniWrite($_SkinsPath & $var[$i] & "\" & $FileList[Int($active)], "Variables", "ColorSkin", HexToRGB($colors[Random(1, $numColors - 1, 1)]))

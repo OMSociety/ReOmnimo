@@ -1,7 +1,7 @@
 #NoTrayIcon
 #region ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_Icon=Icons\PanelCreator.ico
-#AutoIt3Wrapper_Outfile=..\WP7\@Resources\Common\PanelCreator\PanelCreator.exe
+#AutoIt3Wrapper_Outfile=..\REO\@Resources\Common\PanelCreator\PanelCreator.exe
 #AutoIt3Wrapper_UseUpx=n
 	#AutoIt3Wrapper_Res_HiDpi=n
 #AutoIt3Wrapper_Res_Comment=Made for Omnimo UI
@@ -43,22 +43,22 @@ For $i = 1 To $Sections[0][0]
 
 
 Const $SkinPath = $CmdLine[1]
-Const $PanelsInc = $SkinPath & "WP7\Gallery\panels.inc"
+Const $PanelsInc = $SkinPath & "REO\Gallery\panels.inc"
 Const $GDIFont = "Segoe UI"
-Const $scaledpi = IniRead($skinpath & "WP7\@Resources\Common\Variables\UserVariables.inc", "Variables", "ScaleDpi", "1")
+Const $scaledpi = IniRead($skinpath & "REO\@Resources\Common\Variables\UserVariables.inc", "Variables", "ScaleDpi", "1")
 
 ; Remove a created panel
 If $CmdLine[0] > 2 And $CmdLine[2] == "Delete" Then
 	$index = $CmdLine[3]
 	$path = IniRead($PanelsInc, "Variables", "Path" & $index, "")
 	If $path == "" Then Exit
-	If StringInStr($path, "..") Then Exit ; refuse a panels.inc Path that traverses outside WP7\Panels
-	DirRemove($SkinPath & "WP7\Panels\" & $path, 1)
+	If StringInStr($path, "..") Then Exit ; refuse a panels.inc Path that traverses outside REO\Panels
+	DirRemove($SkinPath & "REO\Panels\" & $path, 1)
 	IniDelete($PanelsInc, "Variables", "Name" & $index)
 	IniDelete($PanelsInc, "Variables", "Path" & $index)
 	IniDelete($PanelsInc, "Variables", "Icon" & $index)
-	SendBang("!DeactivateConfig WP7\Panels\" & $path)
-	SendBang("!Refresh WP7\Gallery")
+	SendBang("!DeactivateConfig REO\Panels\" & $path)
+	SendBang("!Refresh REO\Gallery")
 	Exit
 EndIf
 
@@ -275,7 +275,7 @@ While 1
 			$title = GUICtrlRead($name)
 			$foldername = StringRegExpReplace($title, '[\s\\/\*\?\:<>|\"]', "")
 
-			CreatePanel($title, $foldername, $SkinPath & 'WP7\Panels\' & $foldername)
+			CreatePanel($title, $foldername, $SkinPath & 'REO\Panels\' & $foldername)
 
 			; Write panel info to panels.inc
 			For $i = 1 To 32
@@ -297,7 +297,7 @@ While 1
 
 			; Activate panel
 			SendBang("!RefreshApp")
-			SendBang("!ActivateConfig WP7\Panels\" & $foldername & " default.ini")
+			SendBang("!ActivateConfig REO\Panels\" & $foldername & " default.ini")
 
 		   		   GUICtrlSetState ( $create,   $GUI_SHOW  )
 				   	   GUICtrlSetState ( $loadE,   $GUI_HIDE   )
@@ -325,9 +325,9 @@ _GDIPlus_StringFormatSetAlign($hFormat, 0)
 				FileCopy("Resources\RMSKIN.inc", "RmskinTemp\RMSKIN.ini", 1)
 				IniWrite("RmskinTemp\RMSKIN.ini", "rmskin", "Name", $title & " Panel")
 				IniWrite("RmskinTemp\RMSKIN.ini", "rmskin", "Author", $author)
-				IniWrite("RmskinTemp\RMSKIN.ini", "rmskin", "Load", "WP7\Panels\" & $foldername & "\default.ini")
+				IniWrite("RmskinTemp\RMSKIN.ini", "rmskin", "Load", "REO\Panels\" & $foldername & "\default.ini")
 
-				CreatePanel($title, $foldername, @ScriptDir & "\RmskinTemp\Skins\WP7\Panels\" & $foldername)
+				CreatePanel($title, $foldername, @ScriptDir & "\RmskinTemp\Skins\REO\Panels\" & $foldername)
 
 				; Rmskins are just zip files, so create one
 				_Zip_Create("RmskinTemp\Temp.zip", 1) ; Filename needs to end in .zip for some reason

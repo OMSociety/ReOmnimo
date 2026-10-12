@@ -1,7 +1,7 @@
 #NoTrayIcon
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_Icon=Icons\ColorChooser.ico
-#AutoIt3Wrapper_Outfile=..\WP7\@Resources\Common\Config\config.exe
+#AutoIt3Wrapper_Outfile=..\REO\@Resources\Common\Config\config.exe
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Res_Comment=Made for Omnimo UI
 #AutoIt3Wrapper_Res_Description=Omnimo Config Tool
@@ -40,8 +40,8 @@ Const $SkinPath   = $CmdLine[5]
 
 
 
-Const $CurrentLanguage = IniRead($skinpath & "WP7\@Resources\Common\Background\Varrar.inc", "Variables", "Language", "English")
-Const $LangFile = $skinpath & "WP7\@Resources\Common\Background\Language\" & $CurrentLanguage & ".cfg"
+Const $CurrentLanguage = IniRead($skinpath & "REO\@Resources\Common\Background\Varrar.inc", "Variables", "Language", "English")
+Const $LangFile = $skinpath & "REO\@Resources\Common\Background\Language\" & $CurrentLanguage & ".cfg"
 
 If Not FileExists($LangFile) Then OmnimoError("Error loading language", "Unable to load language file for " & $CurrentLanguage)
 
@@ -54,14 +54,14 @@ For $i = 1 To $Sections[0][0]
 
 
 
-Const $scaledpi = IniRead($skinpath & "WP7\@Resources\Common\Variables\UserVariables.inc", "Variables", "ScaleDpi", "1")
+Const $scaledpi = IniRead($skinpath & "REO\@Resources\Common\Variables\UserVariables.inc", "Variables", "ScaleDpi", "1")
 
-Const $Variables  = $SkinPath & "WP7\@Resources\Common\Variables\"
-Global $VarBaseFile = $SkinPath & "WP7\@Resources\Config" & StringTrimLeft($Config, 3) & "\UserVariables.inc"
+Const $Variables  = $SkinPath & "REO\@Resources\Common\Variables\"
+Global $VarBaseFile = $SkinPath & "REO\@Resources\Config" & StringTrimLeft($Config, 3) & "\UserVariables.inc"
 ; A panel may carry a local override file next to UserVariables.inc. The skin @includes both,
 ; with the local file later in the chain so its keys win; the settings tool therefore has to
 ; read and write that same file, or every edit is silently overridden by a stale local value.
-Global $VarOverrideFile = $SkinPath & "WP7\@Resources\Config" & StringTrimLeft($Config, 3) & "\UserVariables.local.inc"
+Global $VarOverrideFile = $SkinPath & "REO\@Resources\Config" & StringTrimLeft($Config, 3) & "\UserVariables.local.inc"
 Global $VarFile = $VarBaseFile
 Global $VarLocal = 0
 If FileExists($VarOverrideFile) Then
@@ -70,7 +70,7 @@ If FileExists($VarOverrideFile) Then
 EndIf
 
 ; Rainmeter.exe is located without guessing: current callers pass #PROGRAMPATH# as the
-; 6th argument (every Config\config.exe call site in WP7 does). Older or third-party
+; 6th argument (every Config\config.exe call site in REO does). Older or third-party
 ; call sites do not, so fall back to the usual install locations and then to PATH.
 Func _RainmeterExe()
 	If $CmdLine[0] >= 6 Then
@@ -203,7 +203,7 @@ Global $ColorSkinSet
 Global Enum $INPUT, $SLIDER, $CHECKBOX, $COLOR, $BROWSE
 
 ; Open configuration file for reading
-$CfgFile = FileOpen($SkinPath & "WP7\@Resources\Config" & StringTrimLeft($Config, 3) & "\RainConfigure.cfg", 0)
+$CfgFile = FileOpen($SkinPath & "REO\@Resources\Config" & StringTrimLeft($Config, 3) & "\RainConfigure.cfg", 0)
 If $CfgFile = -1 Then
 	$Colorizable = 1
 Else
@@ -383,7 +383,7 @@ GUICtrlSetBkColor(-1, $BgColor)
 If $Colorizable = 1 Then
 	; Read current panel color
 	$PanelColor = IniRead($SkinPath & $Config & "\" & $File, "Variables", "ColorSkin", "")
-	If $PanelColor == "" Then $PanelColor = IniRead($SkinPath & "WP7\@Resources\Common\Color\color.inc", "Variables", "ColorSkin", "0,0,0")
+	If $PanelColor == "" Then $PanelColor = IniRead($SkinPath & "REO\@Resources\Common\Color\color.inc", "Variables", "ColorSkin", "0,0,0")
 	$ColorData = $PanelColor
 	$Colorizable = 1
 	_CreateColorBox($PanelColor)
@@ -464,7 +464,7 @@ While 1
 
 		Case $ColorLabel
 			If $Colorizable = 1 Then
-				$value = IniRead($SkinPath & "WP7\@Resources\Common\Color\color.inc", "Variables", "ColorSkin", "0,0,0")
+				$value = IniRead($SkinPath & "REO\@Resources\Common\Color\color.inc", "Variables", "ColorSkin", "0,0,0")
 				$ColorSkinReset = True
 			Else
 				$value = $VarOpts[2]
@@ -904,7 +904,7 @@ While 1
 	Else
 		IniWrite($VarFile, "Variables", "BackgroundImageHidden", "1")
 	EndIf
-	SendBang("!Refresh WP7\Background") ; refresh background
+	SendBang("!Refresh REO\Background") ; refresh background
 
 
 
@@ -933,7 +933,7 @@ While 1
 	Else
 		IniWrite($VarFile, "Variables", "BackgroundImageHidden", "1")
 	EndIf
-	SendBang("!Refresh WP7\Background") ; refresh background
+	SendBang("!Refresh REO\Background") ; refresh background
 
 
 

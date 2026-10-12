@@ -1,0 +1,19 @@
+[Variables]
+Name1=Chrome
+Action1=chrome.exe
+Icon1=#SKINSPATH#\REO\Panels\Launcher\Icons\chrome.png
+Name2=Calculator
+Action2=%WINDIR%\system32\calc.exe
+Icon2=#SKINSPATH#\REO\Panels\Launcher\Icons\calc.png
+Name3=Media Player
+Action3=wmp.exe
+Icon3=#SKINSPATH#\REO\Panels\Launcher\Icons\wmp.png
+Name4=Skype
+Action4=skype.exe
+Icon4=#SKINSPATH#\REO\Panels\Launcher\Icons\skype.png
+Name5=Paint
+Action5=%WINDIR%\system32\mspaint.exe
+Icon5=#SKINSPATH#\REO\Panels\Launcher\Icons\paint.png
+FontFace=#FontFaceLight#
+Iconvisibility=180
+icondistance=5

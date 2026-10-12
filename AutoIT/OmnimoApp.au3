@@ -1,7 +1,7 @@
 #NoTrayIcon
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_Icon=Icons\OmnimoApp.ico
-#AutoIt3Wrapper_Outfile=..\WP7\@Resources\Common\OmnimoApp.exe
+#AutoIt3Wrapper_Outfile=..\REO\@Resources\Common\OmnimoApp.exe
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Res_Comment=Made for Omnimo UI
 #AutoIt3Wrapper_Res_Description=Made for Omnimo UI
@@ -32,7 +32,7 @@ Const $skins    = $CmdLine[6]
 Const $command  = $CmdLine[2]
 Const $index    = $CmdLine[3]
 Const $wallpaper    = $CmdLine[7]
-Const $saved    = $skins & "WP7\Gallery\MultiManager\Saved\"
+Const $saved    = $skins & "REO\Gallery\MultiManager\Saved\"
 
 
 Switch $command
@@ -46,12 +46,12 @@ Switch $command
 		_SavehBitmapEx($hBitmap, $imagePath, 400, 400 / (@DesktopWidth / @DesktopHeight))
 		FileCopy($settings & "Rainmeter.ini", $saved & $index & "\Rainmeter.ini", 1)
 
-		FileCopy($skins & "WP7\@Resources\Common\Color\color.inc", $saved & $index & "\color.inc", 1)
+		FileCopy($skins & "REO\@Resources\Common\Color\color.inc", $saved & $index & "\color.inc", 1)
 
 
-	 IniWrite($saved & $index & "\Rainmeter.ini", "WP7\TextItems\Extra\Missing", "Active", "1")
+	 IniWrite($saved & $index & "\Rainmeter.ini", "REO\TextItems\Extra\Missing", "Active", "1")
 
-		 IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager", "Active", "0")
+		 IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager", "Active", "0")
 
     IniDelete($saved & $index & "\Rainmeter.ini", "Rainmeter", "SkinPath")
 	    IniDelete($saved & $index & "\Rainmeter.ini", "Rainmeter", "ConfigEditor")
@@ -60,7 +60,7 @@ Switch $command
 
 
 
-		SendBang("!Refresh WP7\Gallery\MultiManager")
+		SendBang("!Refresh REO\Gallery\MultiManager")
 
 
 
@@ -78,11 +78,11 @@ Switch $command
 		FileCopy($settings & "Rainmeter.ini", $saved & $index & "\Rainmeter.ini", 1)
 		FileCopy($wallpaper, $saved & $index & "\Wallpaper.bmp", 1)
 
-		FileCopy($skins & "WP7\@Resources\Common\Color\color.inc", $saved & $index & "\color.inc", 1)
+		FileCopy($skins & "REO\@Resources\Common\Color\color.inc", $saved & $index & "\color.inc", 1)
 
 
-		 IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager", "Active", "0")
-		 	 IniWrite($saved & $index & "\Rainmeter.ini", "WP7\TextItems\Extra\Missing", "Active", "1")
+		 IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager", "Active", "0")
+		 	 IniWrite($saved & $index & "\Rainmeter.ini", "REO\TextItems\Extra\Missing", "Active", "1")
 
 
 
@@ -91,7 +91,7 @@ Switch $command
 	   IniDelete($saved & $index & "\Rainmeter.ini", "Rainmeter", "TrayExecuteR")
 	      IniDelete($saved & $index & "\Rainmeter.ini", "Rainmeter", "Language")
 
-		SendBang("!Refresh WP7\Gallery\MultiManager")
+		SendBang("!Refresh REO\Gallery\MultiManager")
 
 
 
@@ -100,43 +100,43 @@ Switch $command
 
 
 
-$shortcutYes = IniRead($settings & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\1", "Active", "0")
+$shortcutYes = IniRead($settings & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\1", "Active", "0")
 
 		If $shortcutYes = 1 Then
-		   IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\1", "Active", "1")
-$shortcutX = IniRead($settings & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\1", "WindowX", "0")
-$shortcutY = IniRead($settings & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\1", "WindowY", "0")
-   IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\1", "WindowX", $shortcutX)
-   IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\1", "WindowY", $shortcutY)
+		   IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\1", "Active", "1")
+$shortcutX = IniRead($settings & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\1", "WindowX", "0")
+$shortcutY = IniRead($settings & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\1", "WindowY", "0")
+   IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\1", "WindowX", $shortcutX)
+   IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\1", "WindowY", $shortcutY)
 Else
-      IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\1", "Active", "0")
+      IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\1", "Active", "0")
 		 EndIf
 
 
-$shortcut2Yes = IniRead($settings & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\2", "Active", "0")
+$shortcut2Yes = IniRead($settings & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\2", "Active", "0")
 
 		If $shortcut2Yes = 1 Then
-		   IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\2", "Active", "1")
-$shortcut2X = IniRead($settings & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\2", "WindowX", "0")
-$shortcut2Y = IniRead($settings & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\2", "WindowY", "0")
-   IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\2", "WindowX", $shortcut2X)
-   IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\2", "WindowY", $shortcut2Y)
+		   IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\2", "Active", "1")
+$shortcut2X = IniRead($settings & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\2", "WindowX", "0")
+$shortcut2Y = IniRead($settings & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\2", "WindowY", "0")
+   IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\2", "WindowX", $shortcut2X)
+   IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\2", "WindowY", $shortcut2Y)
 
 Else
-      IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\2", "Active", "0")
+      IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\2", "Active", "0")
 		 EndIf
 
-$shortcut3Yes = IniRead($settings & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\3", "Active", "0")
+$shortcut3Yes = IniRead($settings & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\3", "Active", "0")
 
 		If $shortcut3Yes = 1 Then
-		   IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\3", "Active", "1")
-$shortcut3X = IniRead($settings & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\3", "WindowX", "0")
-$shortcut3Y = IniRead($settings & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\3", "WindowY", "0")
-   IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\3", "WindowX", $shortcut3X)
-   IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\3", "WindowY", $shortcut3Y)
+		   IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\3", "Active", "1")
+$shortcut3X = IniRead($settings & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\3", "WindowX", "0")
+$shortcut3Y = IniRead($settings & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\3", "WindowY", "0")
+   IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\3", "WindowX", $shortcut3X)
+   IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\3", "WindowY", $shortcut3Y)
 
 Else
-      IniWrite($saved & $index & "\Rainmeter.ini", "WP7\Gallery\MultiManager\Shortcuts\3", "Active", "0")
+      IniWrite($saved & $index & "\Rainmeter.ini", "REO\Gallery\MultiManager\Shortcuts\3", "Active", "0")
    EndIf
 
 
@@ -150,7 +150,7 @@ Else
 			Exit
 		 EndIf
 
-		If FileCopy($saved & $index & "\color.inc", $skins & "WP7\@Resources\Common\Color\color.inc", 1) = 0 Then
+		If FileCopy($saved & $index & "\color.inc", $skins & "REO\@Resources\Common\Color\color.inc", 1) = 0 Then
 			MsgBox(0, "Debug", "Copying color.inc file failed")
 			Exit
 		EndIf
@@ -173,7 +173,7 @@ Else
 		 EndIf
 
 
-		If FileCopy($saved & $index & "\color.inc", $skins & "WP7\@Resources\Common\Color\color.inc", 1) = 0 Then
+		If FileCopy($saved & $index & "\color.inc", $skins & "REO\@Resources\Common\Color\color.inc", 1) = 0 Then
 			MsgBox(0, "Debug", "Copying color.inc file failed")
 			Exit
 		EndIf
@@ -189,8 +189,8 @@ Else
 
 
 
-FileCopy($skins & "WP7\Gallery\MultiManager\screenshot.png", $saved & $index & "\screenshot.png", 8)
-		SendBang("!Refresh WP7\Gallery\MultiManager")
+FileCopy($skins & "REO\Gallery\MultiManager\screenshot.png", $saved & $index & "\screenshot.png", 8)
+		SendBang("!Refresh REO\Gallery\MultiManager")
 
 
 	EndSwitch
@@ -217,7 +217,7 @@ Case 'PowerPlan'
     ElseIf $CmdLine[2] == 'PowerSaver' Then
         RunWait('powercfg /setactive a1841308-3541-4fab-bc81-f71556f20b4a ', "", @SW_HIDE)
     EndIf
-	SendBang("!Refresh WP7\Panels\PowerPlan")
+	SendBang("!Refresh REO\Panels\PowerPlan")
 
 
 ; Set display brightness
@@ -226,7 +226,7 @@ Case 'PowerPlan'
 ; [2] Brightness level
 Case 'Skin'
 	If $CmdLine[0] < 3 Then OmnimoError("Error", "Too few command line arguments specified.")
-    FileCopy($CmdLine[3] & '\WP7\@Resources\Common\Color\' & $CmdLine[2] & '.inc', $CmdLine[3] & '\WP7\@Resources\Common\Color\color.inc', 1)
+    FileCopy($CmdLine[3] & '\REO\@Resources\Common\Color\' & $CmdLine[2] & '.inc', $CmdLine[3] & '\REO\@Resources\Common\Color\color.inc', 1)
 	SendBang("!Refresh *")
 
 
@@ -239,7 +239,7 @@ Case 'Skin'
 ; [5] Skins path
 Case 'Tray'
 	If $CmdLine[0] < 5 Then OmnimoError("Error", "Too few command line arguments specified.")
-	Const $TraySection = IniReadSection($CmdLine[5] & "\WP7\@Resources\Common\Gallery\Tray\" & $CmdLine[2] & ".txt", "TrayMeasure")
+	Const $TraySection = IniReadSection($CmdLine[5] & "\REO\@Resources\Common\Gallery\Tray\" & $CmdLine[2] & ".txt", "TrayMeasure")
 	IniWriteSection($CmdLine[4] & "Rainmeter.ini", "TrayMeasure", $TraySection)
 	SendBangTray("!Quit")
     ProcessWaitClose("Rainmeter.exe")
@@ -306,20 +306,20 @@ Case 'ToggleIcons'
 		Case 'Toggle'
 			If $state = '7' Then
 				WinSetState($hListView, '', @SW_HIDE)
-						SendBangMulti("[!Show *][!Show WP7\Panels\ShowDesktop]")
+						SendBangMulti("[!Show *][!Show REO\Panels\ShowDesktop]")
 			ElseIf $state = '5' Then
 				WinSetState($hListView, '', @SW_SHOW)
-					SendBangMulti("[!Hide *][!Show WP7\Panels\ShowDesktop]")
+					SendBangMulti("[!Hide *][!Show REO\Panels\ShowDesktop]")
 
 		 EndIf
 
 		 		Case 'ToggleFade'
 			If $state = '7' Then
 				WinSetState($hListView, '', @SW_HIDE)
-						SendBangMulti("[!ShowFade *][!Show WP7\Panels\ShowDesktop]")
+						SendBangMulti("[!ShowFade *][!Show REO\Panels\ShowDesktop]")
 			ElseIf $state = '5' Then
 				WinSetState($hListView, '', @SW_SHOW)
-					SendBangMulti("[!HideFade *][!Show WP7\Panels\ShowDesktop]")
+					SendBangMulti("[!HideFade *][!Show REO\Panels\ShowDesktop]")
 
 
 			EndIf
@@ -331,7 +331,7 @@ Case 'Power'
 	If $CmdLine[0] < 3 Then OmnimoError("Error", "Too few command line arguments specified.")
 
 	Sleep(Int($CmdLine[3]) * 1000)
-	SendBang("!DeactivateConfig WP7\TextItems\Extra\PowerButtons\Dialogue")
+	SendBang("!DeactivateConfig REO\TextItems\Extra\PowerButtons\Dialogue")
 
 	Switch $CmdLine[2]
 		Case 'Shutdown'
@@ -352,7 +352,7 @@ Case 'Power'
 
 Case 'Screenshot'
 	If $CmdLine[0] < 2 Then OmnimoError("Error", "Too few command line arguments specified.")
-    $config = $CmdLine[2] & '\WP7\@Resources\Config\Panels\Camera\UserVariables.inc'
+    $config = $CmdLine[2] & '\REO\@Resources\Config\Panels\Camera\UserVariables.inc'
 
     ; Read variables
     $Delay = IniRead($config, 'Variables', 'Delay', '0')
@@ -420,7 +420,7 @@ Case 'Create'
 
 	SendBang("!RefreshApp")
 
-	SendBang("!ActivateConfig WP7\TextItems\Extra\ExtraBuilder\Created\" & $EscapedName)
+	SendBang("!ActivateConfig REO\TextItems\Extra\ExtraBuilder\Created\" & $EscapedName)
 
 ; File / Folder selector
 ; Command line arguments:
@@ -433,11 +433,11 @@ Case 'CreatePanel'
 
 
       Const $skinpath    = $CmdLine[5]
-Const $PanelsInc = $skinpath & "WP7\Gallery\panels.inc"
+Const $PanelsInc = $skinpath & "REO\Gallery\panels.inc"
 	If $CmdLine[0] < 3 Then OmnimoError("Error", "Too few command line arguments specified.")
 
 	Const $EscapedName = StringRegExpReplace($CmdLine[2], '[\s\\/\*\?\:<>|\"]', "")
-	Const $CreatedDir = $skinpath & "WP7\Panels\#CustomPanels\" & $EscapedName
+	Const $CreatedDir = $skinpath & "REO\Panels\#CustomPanels\" & $EscapedName
 	If FileExists($CreatedDir) Then
 		$answer = MsgBox(52, "Extra Builder", "An extra with the selected name already exists. Overwrite?")
 		If $answer = 7 Then Exit
@@ -473,7 +473,7 @@ IniWrite($CreatedDir & "\UserVariables.inc", "Variables", "IconLocation", "Item.
 
 	SendBang("!RefreshApp")
 
-	SendBang("!ActivateConfig WP7\Panels\#CustomPanels\" & $EscapedName)
+	SendBang("!ActivateConfig REO\Panels\#CustomPanels\" & $EscapedName)
 
 	Exit
 ; File / Folder selector
@@ -486,18 +486,18 @@ IniWrite($CreatedDir & "\UserVariables.inc", "Variables", "IconLocation", "Item.
 Case 'CreatePanelDelete'
 
       Const $skinpath    = $CmdLine[5]
-Const $PanelsInc = $skinpath & "WP7\Gallery\panels.inc"
+Const $PanelsInc = $skinpath & "REO\Gallery\panels.inc"
 
 $index = $CmdLine[2]
 	$path = IniRead($PanelsInc, "Variables", "Path" & $index, "")
 	If $path == "" Then Exit
 	If StringInStr($path, "..") Then Exit ; refuse a panels.inc Path that traverses outside the panels folder
-	DirRemove($SkinPath & "WP7\Panels\#CustomPanels\" & $path, 1)
+	DirRemove($SkinPath & "REO\Panels\#CustomPanels\" & $path, 1)
 	IniDelete($PanelsInc, "Variables", "Name" & $index)
 	IniDelete($PanelsInc, "Variables", "Path" & $index)
 	IniDelete($PanelsInc, "Variables", "Icon" & $index)
-	SendBang("!DeactivateConfig WP7\Panels\#CustomPanels\" & $path)
-	SendBang("!Refresh WP7\Gallery")
+	SendBang("!DeactivateConfig REO\Panels\#CustomPanels\" & $path)
+	SendBang("!Refresh REO\Gallery")
 	Exit
 
 
@@ -540,7 +540,7 @@ Case 'Select'
 			If @error Then Exit
 			$split = StringSplit($folder, "\")
 			$FolderName = UBound($split) - 1
-			$ConfigPath = StringReplace($CmdLine[4], "WP7\", "WP7\@Resources\Config\") & "\UserVariables.inc"
+			$ConfigPath = StringReplace($CmdLine[4], "REO\", "REO\@Resources\Config\") & "\UserVariables.inc"
 			IniWrite($ConfigPath, "Variables", $CmdLine[3], $folder)
 			IniWrite($ConfigPath, "Variables", "FolderName", $split[$FolderName])
 			SendBangLonger("!Refresh " & $CmdLine[5])
@@ -561,12 +561,12 @@ Case 'Select'
 				$info = $TestPath[3]
 			EndIf
 
-			$ConfigPath = StringReplace($CmdLine[7], "WP7\", "WP7\@Resources\Config\") & "\UserVariables.inc"
+			$ConfigPath = StringReplace($CmdLine[7], "REO\", "REO\@Resources\Config\") & "\UserVariables.inc"
 			IniWrite($ConfigPath, "Variables", $CmdLine[3], $path)
 			IniWrite($ConfigPath, "Variables", $CmdLine[4], $info)
 
 			; Open an icon select dialog
-			$icon = FileOpenDialog("Choose an icon", $CmdLine[6] & '\WP7\@Resources\Graphics\Panels\Launcher\Icons', "Images (*.png;*.jpg;*.jpeg;*.bmp)", 1)
+			$icon = FileOpenDialog("Choose an icon", $CmdLine[6] & '\REO\@Resources\Graphics\Panels\Launcher\Icons', "Images (*.png;*.jpg;*.jpeg;*.bmp)", 1)
 			If @error Then Exit
 
 			IniWrite($ConfigPath, "Variables", $CmdLine[5], $icon)
@@ -653,8 +653,8 @@ Func LockUnlockPanels()
 Const $skinpath    = $CmdLine[3]
 Const $SettingsPath    = $CmdLine[2]
 Const $Variant    = $CmdLine[5]
-Const $CurrentLanguage = IniRead( $skinpath & "WP7\@Resources\Common\Background\Varrar.inc", "Variables", "Language", "English")
-Const $LangFile = $skinpath & "WP7\@Resources\Common\Background\Language\" & $CurrentLanguage & ".cfg"
+Const $CurrentLanguage = IniRead( $skinpath & "REO\@Resources\Common\Background\Varrar.inc", "Variables", "Language", "English")
+Const $LangFile = $skinpath & "REO\@Resources\Common\Background\Language\" & $CurrentLanguage & ".cfg"
 
 
 
@@ -729,7 +729,7 @@ Const $sX = $CmdLine[7]
 
 
 
-Const $scaledpi = IniRead($skinpath & "WP7\@Resources\Common\Variables\UserVariables.inc", "Variables", "ScaleDpi", "1")
+Const $scaledpi = IniRead($skinpath & "REO\@Resources\Common\Variables\UserVariables.inc", "Variables", "ScaleDpi", "1")
 $iCount = 0
 
 Global $movebyX = 160 * $scaledpi
@@ -758,9 +758,9 @@ $row8 = 0
 
 
 		; Only want panels here
-		If StringRegExp($Sections[$i], '^WP7\\(Installed|Donator)?Panels.*$') Then
+		If StringRegExp($Sections[$i], '^REO\\(Installed|Donator)?Panels.*$') Then
 			If IniRead($RainmeterINI, $Sections[$i], "Active", "0") <> "0" And FileExists($SkinPath & $Sections[$i]) Then
-				$config = StringReplace($Sections[$i], "WP7\", "WP7\@Resources\Config\") & "\RainConfigure.cfg"
+				$config = StringReplace($Sections[$i], "REO\", "REO\@Resources\Config\") & "\RainConfigure.cfg"
 				If IniRead($config, "Options", "Colorizable", "1") == "0" Then ContinueLoop
 
 
@@ -977,7 +977,7 @@ EndIf
 	;SendBang("!Move 100 " & "10R" & " " & $Sections[$i])
 
 
-				;GUICtrlSetData($PanelList, StringRegExpReplace($Sections[$i], "WP7\\(Installed|Donator)?Panels\\", ""))
+				;GUICtrlSetData($PanelList, StringRegExpReplace($Sections[$i], "REO\\(Installed|Donator)?Panels\\", ""))
 			;	$Panels[$NumPanels] = $Sections[$i]
 				;$NumPanels += 1
 			EndIf
@@ -989,7 +989,7 @@ EndIf
 Func Missing()
 
    Const $skinpath    = $CmdLine[2]
-   Const $uservars = $skinpath & "WP7\@Resources\Common\Variables\UserVariables.inc"
+   Const $uservars = $skinpath & "REO\@Resources\Common\Variables\UserVariables.inc"
 
 
 IniWrite ( $uservars, "Variables", "MissingComponents", "!DeactivateConfig" )
@@ -1002,8 +1002,8 @@ IniWrite ( $uservars, "Variables", "EditManually", "0" )
 
 Func DarkWithPanels()
    Const $skinpath    = $CmdLine[2]
- Const $uservars = $skinpath & "WP7\@Resources\Common\Variables\UserVariables.inc"
- Const $colorvars = $skinpath & "WP7\@Resources\Common\Color\color.inc"
+ Const $uservars = $skinpath & "REO\@Resources\Common\Variables\UserVariables.inc"
+ Const $colorvars = $skinpath & "REO\@Resources\Common\Color\color.inc"
 
 IniWrite ( $colorvars, "Variables", "colorskin", "30,30,30" )
 IniWrite ( $colorvars, "Variables", "colorskin2", "50,50,50" )
@@ -1024,8 +1024,8 @@ Run('"' & $CmdLine[3] & 'Rainmeter.exe" [!Refresh *]')
  Func LightWithPanels()
 
    Const $skinpath    = $CmdLine[2]
- Const $uservars = $skinpath & "WP7\@Resources\Common\Variables\UserVariables.inc"
- Const $colorvars = $skinpath & "WP7\@Resources\Common\Color\color.inc"
+ Const $uservars = $skinpath & "REO\@Resources\Common\Variables\UserVariables.inc"
+ Const $colorvars = $skinpath & "REO\@Resources\Common\Color\color.inc"
 
 IniWrite ( $colorvars, "Variables", "colorskin", "230,230,230" )
 IniWrite ( $colorvars, "Variables", "colorskin2", "250,250,250" )
@@ -1045,7 +1045,7 @@ Run('"' & $CmdLine[3] & 'Rainmeter.exe" [!Refresh *]')
 
 Func Dark()
    Const $skinpath    = $CmdLine[2]
- Const $uservars = $skinpath & "WP7\@Resources\Common\Variables\UserVariables.inc"
+ Const $uservars = $skinpath & "REO\@Resources\Common\Variables\UserVariables.inc"
 
 
 IniWrite ( $uservars, "Variables", "DarkMode", "1" )
@@ -1066,7 +1066,7 @@ Run('"' & $CmdLine[3] & 'Rainmeter.exe" [!Refresh *]')
  Func Light()
 
    Const $skinpath    = $CmdLine[2]
- Const $uservars = $skinpath & "WP7\@Resources\Common\Variables\UserVariables.inc"
+ Const $uservars = $skinpath & "REO\@Resources\Common\Variables\UserVariables.inc"
 
 
 

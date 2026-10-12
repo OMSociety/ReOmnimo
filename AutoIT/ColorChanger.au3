@@ -1,7 +1,7 @@
 #NoTrayIcon
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_Icon=Icons\ColorChooser.ico
-#AutoIt3Wrapper_Outfile=..\WP7\@Resources\Common\ColorChanger.exe
+#AutoIt3Wrapper_Outfile=..\REO\@Resources\Common\ColorChanger.exe
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Res_Comment=Made for Omnimo UI
 #AutoIt3Wrapper_Res_Description=Made for Omnimo UI
@@ -23,8 +23,8 @@ If $CmdLine[0] < 1 Then OmnimoError("Individual Panel Color", "Too few command l
 ; Setup variables
 Const $SettingsPath = $CmdLine[1]
 Const $SkinPath = IniRead($SettingsPath & 'Rainmeter.ini', 'Rainmeter', 'SkinPath', @UserProfileDir & '\Documents\Rainmeter\Skins\')
-Const $Opacity = IniRead($SkinPath & '\WP7\@Resources\Common\Color\color.inc', 'Variables', 'Opacity', '255')
-Const $Variables = $SkinPath & "WP7\@Resources\Common\Variables\"
+Const $Opacity = IniRead($SkinPath & '\REO\@Resources\Common\Color\color.inc', 'Variables', 'Opacity', '255')
+Const $Variables = $SkinPath & "REO\@Resources\Common\Variables\"
 
 Const $BgColor = IniRead($Variables & "UserVariables.inc", "Variables", "ConfigBackgroundColor", "0xe1e1e1")
 Const $BgColor2 = IniRead($Variables & "UserVariables.inc", "Variables", "ConfigBackgroundColor2", "0xd2d2d2")
@@ -64,7 +64,7 @@ Global $colors[19]
 _FileReadToArray(@ScriptDir & '\colors.txt', $colors)
 If @error Then OmnimoError("Individual Panel Color", "Unable to read colors from colors.txt.")
 
-Global $Color = IniRead($SkinPath & '\WP7\@Resources\Common\Color\color.inc', 'Variables', 'ColorSkin', '27,161,226') & ',' & $Opacity
+Global $Color = IniRead($SkinPath & '\REO\@Resources\Common\Color\color.inc', 'Variables', 'ColorSkin', '27,161,226') & ',' & $Opacity
 Global $ButtonsHidden = True
 Global $prev = 0
 Global $NumPanels = 0
@@ -209,11 +209,11 @@ Func ReadActiveSkins()
 	GUICtrlSetData($PanelList, "")
 	For $i = 1 To $Sections[0]
 		; Only want panels here
-		If StringRegExp($Sections[$i], '^WP7\\(Installed|Donator)?Panels.*$') Then
+		If StringRegExp($Sections[$i], '^REO\\(Installed|Donator)?Panels.*$') Then
 			If IniRead($RainmeterINI, $Sections[$i], "Active", "0") <> "0" And FileExists($SkinPath & $Sections[$i]) Then
-				$config = StringReplace($Sections[$i], "WP7\", "WP7\@Resources\Config\") & "\RainConfigure.cfg"
+				$config = StringReplace($Sections[$i], "REO\", "REO\@Resources\Config\") & "\RainConfigure.cfg"
 				If IniRead($config, "Options", "Colorizable", "1") == "0" Then ContinueLoop
-				GUICtrlSetData($PanelList, StringRegExpReplace($Sections[$i], "WP7\\(Installed|Donator)?Panels\\", ""))
+				GUICtrlSetData($PanelList, StringRegExpReplace($Sections[$i], "REO\\(Installed|Donator)?Panels\\", ""))
 				If $NumPanels >= 100 Then ExitLoop ; $panels holds 100 entries
 				$Panels[$NumPanels] = $Sections[$i]
 				$NumPanels += 1

@@ -1,6 +1,6 @@
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_Icon=Icons\Omnimo.ico
-#AutoIt3Wrapper_Outfile=..\WP7\@Resources\Common\Settings\uninstall.exe
+#AutoIt3Wrapper_Outfile=..\REO\@Resources\Common\Settings\uninstall.exe
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Res_Comment=Made for Omnimo UI
 #AutoIt3Wrapper_Res_Description=Omnimo Uninstaller
@@ -35,9 +35,9 @@ _SelfDelete()
 Func RemoveOmnimoFolder()
 	Local $sTarget = $CmdLine[1]
 	; Refuse to recurse into anything that is not an Omnimo install: the skin
-	; always ships a WP7 folder, so require it before deleting the tree.
+	; always ships a REO folder, so require it before deleting the tree.
 	Local $sNorm = (StringRight($sTarget, 1) = "\") ? StringTrimRight($sTarget, 1) : $sTarget
-	If Not FileExists($sNorm & "\WP7") Then
+	If Not FileExists($sNorm & "\REO") Then
 		MsgBox(16, "Uninstall Omnimo UI", "Refusing to delete a folder that is not an Omnimo installation:" & @CRLF & $sTarget)
 		Exit
 	EndIf
