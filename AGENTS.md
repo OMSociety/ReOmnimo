@@ -18,7 +18,7 @@
 
 - 接到需求先归类:属于四件事之一才做;"待办同步"用户已决定不做,不要实现。
 - 明确不做:重画视觉、复刻面板、自建控件层、改设计语言、换字体。磁贴表面保持英文(按英文宽度排版)。
-- 已发布 Release:`0.4.0` 与历史遗留的 `v0.3.0`(v0.1.0-0.2.0 的 tag 与 Release 已按要求删除,CHANGELOG 历史条目保留);**tag 名不带 `v` 前缀**(`v0.3.0` 是历史遗留,不要沿用);已发布的 tag 不移动。
+- 已发布 Release:`0.5.0`、`0.4.0` 与历史遗留的 `v0.3.0`(v0.1.0-0.2.0 的 tag 与 Release 已按要求删除,CHANGELOG 历史条目保留);**tag 名不带 `v` 前缀**(`v0.3.0` 是历史遗留,不要沿用);已发布的 tag 不移动。
 - GitHub 仓库:`OMSociety/ReOmnimo`(2026-10-02 由 `OMSociety/Omnimo` 改名,GitHub 对旧全名与 `raw.githubusercontent.com` 旧路径都仍重定向;`origin` 已更新为新名,`upstream` 保持 `fediaFedia/Omnimo`)。
 - 桌面映射:`Documents\Rainmeter\Skins\REO` 是指向本仓库 `REO\` 的 junction,改仓库即改桌面。
 
