@@ -4,11 +4,6 @@ TypeW=1
 PaddingH=15
 PaddingW=5
 
-[FrostedGlass]
-Measure=Plugin
-Plugin=FrostedGlass
-Type=#Win10Blur#
-Border=All
 [bg]
 Meter=Image
 ImageName=#Imagedir#\btn3.png
@@ -29,7 +24,6 @@ W=(#Height#+(#Padding#*2))*#ScaleDpi#
 ImageTint=#colorskin2#,#opacity2#
 ScaleMargins=10,10,10,10
 Hidden=1
-
 
 [overlay]
 Meter=Image
@@ -80,5 +74,4 @@ Y=(5-#Padding#)
 H=(#Height#*2+10+(#Padding#*2))*#ScaleDpi#
 W=(#Height#+(#Padding#*2))*#ScaleDpi#
 AntiAlias=1
-
 

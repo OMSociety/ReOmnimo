@@ -4,14 +4,6 @@ TypeH=1
 PaddingW=5
 PaddingH=5
 
-
-[FrostedGlass]
-Measure=Plugin
-Plugin=FrostedGlass
-Type=#Win10Blur#
-Border=All
-
-
 [bg]
 Meter=Image
 ImageName=#Imagedir#\btn3.png
@@ -24,12 +16,8 @@ ScaleMargins=10,10,10,10
 MouseOverAction=[!SetOption #CURRENTSECTION# ImageTint #colorskin2#,#opacity#][!UpdateMeter bg][!Redraw]
 MouseLeaveAction=[!SetOption #CURRENTSECTION# ImageTint #colorskin#,#opacity#][!UpdateMeter bg][!Redraw]
 
-
-
-
 [btnstyle]
 ImageTint=#colorskin2#,#opacity2#
-
 
 [overlay]
 Meter=Image
@@ -50,10 +38,6 @@ FontSize=#defaultfontsize#*#ScaleDpi#
 AntiAlias=1
 ClipString=1
 w=(#Height#/1.17)*#ScaleDpi#
-
-
-
-
 
 [FullTextStyle]
 X=15

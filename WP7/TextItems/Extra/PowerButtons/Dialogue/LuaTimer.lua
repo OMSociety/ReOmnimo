@@ -55,12 +55,12 @@ function Update()
 	NowMinutes = math.floor(HoursRemainder / 60)
 	NowSeconds = math.floor(TotalSeconds % 60)
 
-	SKIN:Bang("!RainmeterSetVariable RemainingHours "..NowHours)
-	SKIN:Bang("!RainmeterSetVariable RemainingMinutes "..NowMinutes)
-	SKIN:Bang("!RainmeterSetVariable RemainingSeconds "..NowSeconds)
+	SKIN:Bang("!SetVariable RemainingHours "..NowHours)
+	SKIN:Bang("!SetVariable RemainingMinutes "..NowMinutes)
+	SKIN:Bang("!SetVariable RemainingSeconds "..NowSeconds)
 	
 	if TotalSeconds <= 0 then
-		SKIN:Bang("!RainmeterDisableMeasure MeasureLua")
+		SKIN:Bang("!DisableMeasure MeasureLua")
 		SKIN:Bang("!DeactivateConfig")
 
 	end	

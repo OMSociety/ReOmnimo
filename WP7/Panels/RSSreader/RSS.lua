@@ -27,7 +27,7 @@ function Update()
 		
 		SKIN:Bang('!SetOption MeterPageCount Text \"['..math.floor(currentItem / 4)..'-2]\"')
 		SKIN:Bang('!SetOption MeterTitle'..i..' Text \"'..tTitles[currentItem]..'\"')
-		SKIN:Bang('!SetOption MeterTitle'..i..' LeftMouseUpAction """!Execute [\"'..tLinks[currentItem]..'\"]"""')
+		SKIN:Bang('!SetOption MeterTitle'..i..' LeftMouseUpAction """[\"'..tLinks[currentItem]..'\"]"""')
 		SKIN:Bang('!SetOption MeterTitle'..i..' ToolTipText \"'..tTitles[currentItem]..'\"')
 		SKIN:Bang('!SetOption MeterTitle'..i..' FontColor \"\"')
 

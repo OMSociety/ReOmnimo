@@ -352,7 +352,7 @@ MeterStyle=WebShortcut
 x=(360*#ScaleDpi#)
 y=R
 ImageTint=#textcolor2#
-LeftMouseUpAction=!Execute [!WriteKeyValue Variables LastCat "cat4" "#ROOTCONFIGPATH#\Gallery\scroll.inc"][!HideMeterGroup Bye][!ShowMeterGroup Cat4]["#@#Common\PanelCreator\PanelCreator.exe" "#SKINSPATH#"][!Refresh]
+LeftMouseUpAction=[!WriteKeyValue Variables LastCat "cat4" "#ROOTCONFIGPATH#\Gallery\scroll.inc"][!HideMeterGroup Bye][!ShowMeterGroup Cat4]["#@#Common\PanelCreator\PanelCreator.exe" "#SKINSPATH#"][!Refresh]
 [Cat2Subtitle8]
 Meter=String
 Text=" #HideLabels#"
