@@ -9,7 +9,7 @@
 **A Windows Phone 7 inspired interactive desktop information center for Rainmeter** — taking over development of Omnimo.
 
 [![Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.github.com%2Frepos%2FOMSociety%2FReOmnimo%2Freleases%2Flatest&query=tag_name&label=version&color=blue)](https://github.com/OMSociety/ReOmnimo/releases)
-[![Rainmeter](https://img.shields.io/badge/Rainmeter-%E2%89%A54.3-green.svg)](https://www.rainmeter.net/)
+[![Rainmeter](https://img.shields.io/badge/Rainmeter-%E2%89%A55.0-green.svg)](https://www.rainmeter.net/)
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 [![Stars](https://img.shields.io/github/stars/OMSociety/ReOmnimo)](https://github.com/OMSociety/ReOmnimo/stargazers)
 [![Issues](https://img.shields.io/github/issues/OMSociety/ReOmnimo)](https://github.com/OMSociety/ReOmnimo/issues)
@@ -33,11 +33,12 @@ ReOmnimo takes over development of [Omnimo](https://github.com/fediaFedia/Omnimo
 | **Simplified Chinese UI** | The settings and save panels and the panel context menus are localized into Simplified Chinese. Tile surfaces stay English, because they are laid out around English string widths; the one exception is the Agenda tile, whose name is localized through its gallery entry (日程 in this mode). The language picker offers 简体中文 for this mode. |
 | **Agenda panel** | Reads published ICS calendar subscriptions (up to three per panel, merged and sorted by time). Private CalDAV endpoints need PROPFIND, which Rainmeter cannot issue; a published subscription URL is a plain GET and works. |
 | **Panel defect fixes** | A handful of long-standing panel defects fixed; see `CHANGELOG.md`. |
+| **Rebuilt for Rainmeter 5.0** | Bundled plugins are now written as native 5.0 measures; media keys use `!SendKey`; NowPlaying reads the Windows media (SMTC) interface, so Spotify, browsers, VLC and other modern players work. Visualizers sleep when no audio plays. |
 | **Licensing in order** | `LICENSE` (GPL-2.0) and `THIRD-PARTY.md` brought in order. |
 
 ## Install
 
-ReOmnimo ships as a Rainmeter skin suite. Install [Rainmeter](https://www.rainmeter.net/) 4.3 or later, then load the suite through Rainmeter's skin management. The `Rainstaller.cfg` at the repository root describes the package (`MinRainmeterVer=4.3`).
+ReOmnimo ships as a Rainmeter skin suite. Install [Rainmeter](https://www.rainmeter.net/) 5.0 or later — the 5.0 line is currently distributed through its [pre-release thread](https://forum.rainmeter.net/viewtopic.php?t=45991) — then load the suite through Rainmeter's skin management. The `Rainstaller.cfg` at the repository root describes the package (`MinRainmeterVer=5.0`).
 
 > **Note**: The desktop mapping expects the suite under `Documents\Rainmeter\Skins\WP7`. See `AGENTS.md` for the working setup.
 

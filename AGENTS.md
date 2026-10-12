@@ -7,12 +7,12 @@
 
 - 一句话定位:Rainmeter 磁贴面板集 ReOmnimo,接手 fediaFedia/Omnimo 的开发,保留上游设计,只做四件事:设置/保存面板中文化、公开 ICS 日程订阅、修既有 bug、微小工作。
 - 技术栈:Rainmeter 皮肤(ini/inc/cfg/lua)+ AutoIt 3.3.18.0 配置工具(9 个 .au3,其中 7 个编译为分发 exe;`miniShell.au3`/`Uninstall.au3` 源码保留但当前不产出分发 exe)。无 CI、无测试框架,验收靠本文件的命令与实机判据。
-- 环境前提(本机):Aut2Exe 在 `C:\Program Files (x86)\AutoIt3\Aut2Exe\Aut2exe.exe`;`Rainmeter.exe`/`git`/`gh` 在 PATH;所有 `git` 命令在仓库根执行;构建/验收助手脚本(`_omni_build.ps1`、`_omni_vsver.py`、`_omni_loadcheck.ps1`、`_omni_set_logging2.py` 等)在 `D:\WorkSpace\`(与仓库同级,**不随仓库分发**);该目录可能已被清理(2026-10-02 实测已无 `_omni_*`),用到时按本文件「常用命令」「修改契约」描述的写入规则重建,不要跳过其中自检。
+- 环境前提(本机):Aut2Exe 在 `C:\Program Files (x86)\AutoIt3\Aut2Exe\Aut2exe.exe`;`git`/`gh` 在 PATH,`Rainmeter.exe` 不在 PATH(在 `C:\Program Files\Rainmeter\Rainmeter.exe`,当前实测 5.0.0.5285,调用一律用完整路径);所有 `git` 命令在仓库根执行;构建/验收助手脚本(`_omni_build.ps1`、`_omni_vsver.py`、`_omni_loadcheck.ps1`、`_omni_set_logging2.py` 等)在 `D:\WorkSpace\`(与仓库同级,**不随仓库分发**);该目录可能已被清理(2026-10-02 实测已无 `_omni_*`),用到时按本文件「常用命令」「修改契约」描述的写入规则重建,不要跳过其中自检。
 - 文档索引:
   - 逐版本变更:`CHANGELOG.md`
   - 许可与来源:`LICENSE`、`THIRD-PARTY.md`(含差异集逐文件清单)
   - 用户说明:`README.md`(英文)、`README.zh.md`(中文)
-- 基准:与 `upstream/master`(fediaFedia/Omnimo)的差异数为 16 增 / 450 改 / 17 删(0.3.0 时为 14/60/16;0.4.0 把 428 处 config.exe 调用点补上了第 6 个参数 `#PROGRAMPATH#`,这是“改”从 61 涨到 450 量级的主因;README 双文档化后上游 `readme.md` 记删、`README.md`/`README.zh.md` 记增),勿凭记忆引用旧数字。
+- 基准:与 `upstream/master`(fediaFedia/Omnimo)的差异数为 16 增 / 513 改 / 17 删(0.3.0 时为 14/60/16;0.4.0 把 428 处 config.exe 调用点补上了第 6 个参数 `#PROGRAMPATH#`,这是“改”从 61 涨到 450 量级的主因;README 双文档化后上游 `readme.md` 记删、`README.md`/`README.zh.md` 记增;本轮 Rainmeter 5.0 现代化——捆绑插件转原生 measure、FrostedGlass 死段删除、MediaKey 转 `!SendKey`、NowPlaying 转 SMTC——把“改”推到 513),勿凭记忆引用旧数字。
 
 ## 产品边界
 

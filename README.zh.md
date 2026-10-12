@@ -9,7 +9,7 @@
 **基于 Rainmeter 的 Windows Phone 7 风格交互式桌面信息中心** —— 接手 Omnimo 的开发。
 
 [![Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.github.com%2Frepos%2FOMSociety%2FReOmnimo%2Freleases%2Flatest&query=tag_name&label=version&color=blue)](https://github.com/OMSociety/ReOmnimo/releases)
-[![Rainmeter](https://img.shields.io/badge/Rainmeter-%E2%89%A54.3-green.svg)](https://www.rainmeter.net/)
+[![Rainmeter](https://img.shields.io/badge/Rainmeter-%E2%89%A55.0-green.svg)](https://www.rainmeter.net/)
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 [![Stars](https://img.shields.io/github/stars/OMSociety/ReOmnimo)](https://github.com/OMSociety/ReOmnimo/stargazers)
 [![Issues](https://img.shields.io/github/issues/OMSociety/ReOmnimo)](https://github.com/OMSociety/ReOmnimo/issues)
@@ -31,11 +31,12 @@ ReOmnimo 接手 [Omnimo](https://github.com/fediaFedia/Omnimo)(fediaFedia 与 Xy
 | **简体中文界面** | 设置与保存面板、面板右键菜单本地化为简体中文。磁贴表面保持英文,因为它们按英文宽度排版;唯一例外是日程磁贴,其名称经面板库条目本地化(此模式下为「日程」)。语言选择器为此模式提供「简体中文」。 |
 | **日程面板** | 读取公开的 ICS 日历订阅(每个面板最多三条,按时间合并排序)。私有 CalDAV 端点需要 PROPFIND,而 Rainmeter 无法发起;公开的订阅 URL 是普通 GET,可以工作。 |
 | **面板缺陷修复** | 修了一批长期存在的面板缺陷,见 `CHANGELOG.md`。 |
+| **面向 Rainmeter 5.0 重建** | 捆绑插件改写为 5.0 原生 measure;媒体键改用 `!SendKey`;NowPlaying 改读 Windows 媒体(SMTC)接口,Spotify、浏览器、VLC 等现代播放器都能对接。可视化在无音频时休眠。 |
 | **许可理顺** | 补齐 `LICENSE`(GPL-2.0)与 `THIRD-PARTY.md`。 |
 
 ## 安装
 
-ReOmnimo 以 Rainmeter 皮肤套件分发。先安装 [Rainmeter](https://www.rainmeter.net/) 4.3 或更高版本,再经 Rainmeter 的皮肤管理加载本套件。仓库根的 `Rainstaller.cfg` 描述了该包(`MinRainmeterVer=4.3`)。
+ReOmnimo 以 Rainmeter 皮肤套件分发。先安装 [Rainmeter](https://www.rainmeter.net/) 5.0 或更高版本——5.0 目前经其[预发布主题](https://forum.rainmeter.net/viewtopic.php?t=45991)分发——再经 Rainmeter 的皮肤管理加载本套件。仓库根的 `Rainstaller.cfg` 描述了该包(`MinRainmeterVer=5.0`)。
 
 > **注意**：桌面映射要求套件位于 `Documents\Rainmeter\Skins\WP7`,工作配置见 `AGENTS.md`。
 
