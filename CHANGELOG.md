@@ -10,6 +10,44 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-10-13
+
+### 变更
+
+- **要求 Rainmeter 5.0 或更高**（`Rainstaller.cfg` 的 `MinRainmeterVer=5.0`）。5.0 目前经官方论坛预发布主题分发；停留在 4.5 的用户请使用 `0.4.0` tag。
+- **皮肤根目录 `WP7\` 改名 `REO\`**：全库 1162 处路径引用、7 个配置工具的 AutoIt 源码、2 个 `.rmskin` 附件包同步改名。上游（fediaFedia/Omnimo）自本版起不再作为对照基准。**升级注意**：已加载的面板配置路径全部失效，需重新加载（`Documents\Rainmeter\Skins\WP7` 的 junction 需重建为 `REO`）。
+- 捆绑插件写法（`Measure=Plugin` + `Plugin=X.dll`，约 980 处）改为 5.0 原生 measure（`Measure=AudioLevel`/`WebParser`/`NowPlaying`/`Power`/`Quote`/`Ping`/`RecycleManager` 等）；第三方插件（SysColor、Backlight）保留原写法。
+- 媒体键面板：`Measure=MediaKey`（5.0 build 5273 起弃用）迁移到 `!SendKey`（MediaPlayPause/MediaNextTrack/MediaPrevTrack/VolumeUp/VolumeDown 等）。
+- NowPlaying 播放器源改为 `PlayerName=Windows`（SMTC）：Spotify、浏览器、VLC 等现代播放器直接可用，不再依赖 2013 年代的播放器插件接口。
+- 可视化（Visualizer）系 9 个皮肤：无音频时经 `OnAudioEndAction` + `!SetUpdate` 休眠（1000ms），起声恢复 50ms。
+- 常驻时钟/日程面板（WorldClock 4 个、Agenda 3 个 ini）加 `Update=… | Invisible 60000`，被完全遮挡时降频为每分钟一次。
+- FrostedGlass 死插件引用删除（42 处）：该 DLL 只有 32 位版且不在仓库，64 位 5.0 下永远 error 126；面板本就有原生 `Blur=`。
+- 七个可执行文件重编译（同参数集），版本资源注入 `0.5.0.0`。
+- `AGENTS.md`：验收基线噪音清单移除已修复项（`Meter=Calc`、FrostedGlass error 126）；删除「对照上游差异数」纪律（上游已冻结）。
+
+### 修复
+
+- 网络面板与 `Gallery/Intro/intro.ini`：`Meter=Calc` 拼写错误（应为 `Measure=Calc`），日志报错，三处全修。
+- `Background/XboxBG/bg.ini` 与 `bgdark.ini`：`Update=86400000Blur=…` 两行粘连为一行，`Blur` 从未生效；拆开。
+
+### Changed
+
+- **Rainmeter 5.0 or later is now required** (`MinRainmeterVer=5.0` in `Rainstaller.cfg`). The 5.0 line currently ships through the official forum pre-release thread; users staying on 4.5 should use the `0.4.0` tag.
+- **Skin root renamed `WP7\` → `REO\`**: all 1162 path references across the tree, the AutoIt sources of the seven config tools, and the two `.rmskin` extras renamed with it. Upstream (fediaFedia/Omnimo) is no longer a diff baseline as of this release. **Upgrade note**: previously loaded panel configs point at the old path and must be reloaded (recreate the `Documents\Rainmeter\Skins\WP7` junction as `REO`).
+- Bundled-plugin syntax (`Measure=Plugin` + `Plugin=X.dll`, ~980 sites) rewritten as native 5.0 measures (`Measure=AudioLevel`/`WebParser`/`NowPlaying`/`Power`/`Quote`/`Ping`/`RecycleManager` etc.); third-party plugins (SysColor, Backlight) keep the plugin form.
+- Media key panels: `Measure=MediaKey` (deprecated since 5.0 build 5273) migrated to `!SendKey` (MediaPlayPause/MediaNextTrack/MediaPrevTrack/VolumeUp/VolumeDown etc.).
+- NowPlaying now uses `PlayerName=Windows` (SMTC): Spotify, browsers, VLC and other modern players work out of the box, no 2013-era player plugin interface needed.
+- The 9 Visualizer skins sleep when no audio plays (`OnAudioEndAction` + `!SetUpdate` to 1000 ms; back to 50 ms on audio start).
+- Always-on clock/agenda panels (4 WorldClock, 3 Agenda ini) gained `Update=… | Invisible 60000`, dropping to one update per minute while fully occluded.
+- Removed 42 references to the dead FrostedGlass plugin: the DLL is 32-bit-only and not in the repo, so it always failed with error 126 on 64-bit 5.0; panels already use native `Blur=`.
+- The seven executables were recompiled (same parameter set) and stamped with version resource `0.5.0.0`.
+- `AGENTS.md`: baseline-noise list no longer mentions the fixed items (`Meter=Calc`, FrostedGlass error 126); the "diff against upstream" discipline removed (upstream is frozen).
+
+### Fixed
+
+- Network panel and `Gallery/Intro/intro.ini`: `Meter=Calc` typos (should be `Measure=Calc`) logged errors at load; all three fixed.
+- `Background/XboxBG/bg.ini` and `bgdark.ini`: `Update=86400000Blur=…` — two lines glued into one, so `Blur` never took effect; split apart.
+
 ## [0.4.0] - 2026-10-02
 
 ### 修复

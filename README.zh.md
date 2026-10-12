@@ -38,7 +38,7 @@ ReOmnimo 接手 [Omnimo](https://github.com/fediaFedia/Omnimo)(fediaFedia 与 Xy
 
 ReOmnimo 以 Rainmeter 皮肤套件分发。先安装 [Rainmeter](https://www.rainmeter.net/) 5.0 或更高版本——5.0 目前经其[预发布主题](https://forum.rainmeter.net/viewtopic.php?t=45991)分发——再经 Rainmeter 的皮肤管理加载本套件。仓库根的 `Rainstaller.cfg` 描述了该包(`MinRainmeterVer=5.0`)。
 
-> **注意**：桌面映射要求套件位于 `Documents\Rainmeter\Skins\WP7`,工作配置见 `AGENTS.md`。
+> **注意**：桌面映射要求套件位于 `Documents\Rainmeter\Skins\REO`,工作配置见 `AGENTS.md`。
 
 ## 日程面板
 

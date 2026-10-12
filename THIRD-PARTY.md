@@ -11,7 +11,7 @@ governs the software and components, exactly as upstream declares it in its `rea
 
 ## 1. Upstream Omnimo
 
-**Provenance.** The tree under `WP7/`, `AutoIT/` and `Extra/`, plus `Rainstaller.bmp` and
+**Provenance.** The tree under `REO/`, `AutoIT/` and `Extra/`, plus `Rainstaller.bmp` and
 `Rainstaller.cfg`, comes from <https://github.com/fediaFedia/Omnimo>, default branch `master`, last
 commit `d6a69f1e` (2024-05-16). `upstream` is kept as a git remote so every file stays individually
 traceable to its upstream author, and so upstream changes can still be merged.
@@ -23,7 +23,7 @@ traceable to its upstream author, and so upstream changes can still be merged.
 > Software and Components — [GPL v2](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 > Images and Media — [CC BY-NC-SA 3.0](https://creativecommons.org/licenses/by-nc-sa/3.0/)
 
-**What the files themselves declare.** Independently of that, most `.ini` files under `WP7/` carry a
+**What the files themselves declare.** Independently of that, most `.ini` files under `REO/` carry a
 `[Metadata] License=` line. Counted on this repository's tree:
 
 | Declaration | Files |
@@ -45,9 +45,9 @@ The **3 NoDerivs files** are the only upstream files whose licence forbids modif
 carried unmodified:
 
 ```
-WP7/TextItems/Search/Item.ini
-WP7/TextItems/Search/ItemDark.ini
-WP7/TextItems/Search/ItemTransparent.ini
+REO/TextItems/Search/Item.ini
+REO/TextItems/Search/ItemDark.ini
+REO/TextItems/Search/ItemTransparent.ini
 ```
 
 **Files with no declaration at all.** Beyond the 22 `.ini` files listed above, these formats cannot
@@ -74,17 +74,17 @@ Added:
 | `THIRD-PARTY.md` | This file |
 | `README.md` | The repository's own README, English primary, under the name ReOmnimo |
 | `README.zh.md` | The same README in Chinese, standalone |
-| `WP7/@Resources/Common/Variables/Languages/Chinese.inc` | Simplified Chinese UI language pack, 284 keys, mirroring `English.inc` |
-| `WP7/@Resources/Common/Background/Language/Chinese.cfg` | Simplified Chinese strings for the AutoIt tools, 33 keys |
+| `REO/@Resources/Common/Variables/Languages/Chinese.inc` | Simplified Chinese UI language pack, 284 keys, mirroring `English.inc` |
+| `REO/@Resources/Common/Background/Language/Chinese.cfg` | Simplified Chinese strings for the AutoIt tools, 33 keys |
 | `AutoIT/Language/Chinese.cfg` | The same pack kept beside the AutoIt sources |
-| `WP7/Panels/Agenda/` (`Item.ini`, `Item2.ini`, `Item3.ini`, `agenda.lua`, `Agenda.png`) | The Agenda calendar panel: published ICS subscriptions, merged, deduplicated and sorted |
-| `WP7/@Resources/Config/Panels/Agenda/` (`UserVariables.inc`, `RainConfigure.cfg`) | Its user parameters and settings schema |
+| `REO/Panels/Agenda/` (`Item.ini`, `Item2.ini`, `Item3.ini`, `agenda.lua`, `Agenda.png`) | The Agenda calendar panel: published ICS subscriptions, merged, deduplicated and sorted |
+| `REO/@Resources/Config/Panels/Agenda/` (`UserVariables.inc`, `RainConfigure.cfg`) | Its user parameters and settings schema |
 
 Modified: seven language packs (a `PanelAgenda` key each), the gallery registration
-(`WP7/Gallery/cat1.inc`, `WP7/Gallery/cat7.inc`, `WP7/Gallery/Intro/intro.ini`), the shared
-icon layer (`WP7/@Resources/Graphics/Gallery/mask-essential.png`), three default-value files
-(`WP7/@Resources/Common/Variables/UserVariables.inc`, `WP7/@Resources/Common/Color/color.inc`,
-`WP7/@Resources/Config/Panels/Network/UserVariables.inc`), 27 panel files under `WP7/Panels/`
+(`REO/Gallery/cat1.inc`, `REO/Gallery/cat7.inc`, `REO/Gallery/Intro/intro.ini`), the shared
+icon layer (`REO/@Resources/Graphics/Gallery/mask-essential.png`), three default-value files
+(`REO/@Resources/Common/Variables/UserVariables.inc`, `REO/@Resources/Common/Color/color.inc`,
+`REO/@Resources/Config/Panels/Network/UserVariables.inc`), 27 panel files under `REO/Panels/`
 — thirteen of them (eight HDD, four RAM, one Multimeter) dropped a dangling
 `!CommandMeasure GetMhz "Run"` call, only the RAM panel's second tier having defined that
 measure and no meter having displayed its value, so the other twelve spawned an unused
@@ -106,10 +106,10 @@ these corrected sources (see section 3), so both the fixes and the hardening rea
 users run; `.gitignore`, which now excludes the Agenda panel's per-machine feed override so a
 private calendar URL can never be committed.
 
-Deleted: the Corona panel — four files under `WP7/Panels/Corona/` and six under
-`WP7/@Resources/Config/Panels/Corona/`, removed at the user's request, with the gallery row
+Deleted: the Corona panel — four files under `REO/Panels/Corona/` and six under
+`REO/@Resources/Config/Panels/Corona/`, removed at the user's request, with the gallery row
 and the icon layer reflowed to match; and the six Microsoft Segoe `.ttf` files under
-`WP7/@Resources/Fonts/`, not licensed for redistribution and never loaded by the skin (see
+`REO/@Resources/Fonts/`, not licensed for redistribution and never loaded by the skin (see
 section 4); and upstream's `readme.md`, which this repository replaces with its own `README.md` (English) and `README.zh.md` (Chinese).
 
 Our changes inherit the terms of the file they touch: GPL-2.0 where upstream puts that file under
@@ -122,13 +122,13 @@ Seven executables ship inside the repository. They are upstream's own AutoIt hel
 the sources in `AutoIT/`; the binaries themselves carry no source and no declared licence.
 
 ```
-WP7/@Resources/Common/ColorChanger.exe                       1357824 bytes
-WP7/@Resources/Common/OmnimoApp.exe                          1188352 bytes
-WP7/@Resources/Common/Background/ConfigBackground.exe        1354240 bytes
-WP7/@Resources/Common/Config/ActivePanels.exe                1031168 bytes
-WP7/@Resources/Common/Config/config.exe                      1134592 bytes
-WP7/@Resources/Common/MultiManager/MultiManager.exe          1107968 bytes
-WP7/@Resources/Common/PanelCreator/PanelCreator.exe          1604608 bytes
+REO/@Resources/Common/ColorChanger.exe                       1357824 bytes
+REO/@Resources/Common/OmnimoApp.exe                          1188352 bytes
+REO/@Resources/Common/Background/ConfigBackground.exe        1331712 bytes
+REO/@Resources/Common/Config/ActivePanels.exe                1008128 bytes
+REO/@Resources/Common/Config/config.exe                      1134592 bytes
+REO/@Resources/Common/MultiManager/MultiManager.exe          1084928 bytes
+REO/@Resources/Common/PanelCreator/PanelCreator.exe          1604608 bytes
 ```
 
 Upstream let `config.exe` drift from its source: the binary was committed on 2020-05-18, while
@@ -143,10 +143,10 @@ and `MultiManager.exe` carry no version resource at all. Those last two cannot h
 upstream compiled them against AutoIt 3.3.10 or newer. As of release 0.3.0 this fork rebuilds all
 seven from the corrected sources with AutoIt 3.3.18.0 (plain `Aut2Exe`, `/x86`, `/nopack`, each
 source's own icon), which parses every source, so the section 2 fixes and hardening reach the
-binaries users run; the byte sizes above are this fork's 0.4.0 builds. Because those rebuilds are unpacked (`/nopack`), they are far larger than upstream's UPX-packed originals; that gap is the packing, not the version resource, which costs 1024 bytes.
+binaries users run; the byte sizes above are this fork's 0.5.0 builds. Because those rebuilds are unpacked (`/nopack`), they are far larger than upstream's UPX-packed originals; that gap is the packing, not the version resource, which costs 1024 bytes.
 
 Plain `Aut2Exe` writes no version resource, so each rebuild is stamped afterwards with a
-`VS_VERSIONINFO` whose `FileVersion` and `ProductVersion` equal the fork release (`0.4.0.0`),
+`VS_VERSIONINFO` whose `FileVersion` and `ProductVersion` equal the fork release (`0.5.0.0`),
 keeping every executable's reported version in step with the release it ships in. The
 `FileDescription`, `LegalCopyright` and `OriginalFilename` strings reproduce the sources'
 `#AutoIt3Wrapper_Res_*` directives, except `ActivePanels.au3`, which declares none and is stamped
@@ -212,14 +212,14 @@ licensing is not determined by Rainmeter's.
 | 1 | Upstream's GPL-2.0 vs CC BY-NC-SA 3.0 statement conflict | Recorded in section 1; per-file declarations treated as governing that file. |
 | 2 | 22 `.ini` plus 960 `.inc`/`.lua`/`.cfg`/`.js` and 1670 images with no declaration | Carried as-is with provenance traceable through the retained git history. No rights claimed. |
 | 3 | 7 upstream `.exe` with no source and no declared licence | Repository-only. Closes if the binaries are dropped and users build from `AutoIT/`. |
-| 4 | ~~6 Microsoft Segoe `.ttf` in `WP7/@Resources/Fonts/`~~ | Resolved: the six files are removed. The skin resolved those faces by system name and never loaded the files, so nothing renders differently; the Segoe WP fallback on systems without that face is unchanged. |
+| 4 | ~~6 Microsoft Segoe `.ttf` in `REO/@Resources/Fonts/`~~ | Resolved: the six files are removed. The skin resolved those faces by system name and never loaded the files, so nothing renders differently; the Segoe WP fallback on systems without that face is unchanged. |
 | 5 | ~~The repository has no README of its own. Upstream's `readme.md` is brought forward but **not** left unchanged: a 25-line fork header was added to it~~ | Resolved: the repository now has its own `README.md` (English) and `README.zh.md` (Chinese) under the name ReOmnimo, and upstream's `readme.md` is deleted. |
 
 ---
 
 ## Appendix — how the figures above were produced
 
-Run from the repository root. `.ini` files under `WP7/` are not all UTF-8, so the read is BOM-aware:
+Run from the repository root. `.ini` files under `REO/` are not all UTF-8, so the read is BOM-aware:
 
 ```powershell
 function Read-Txt($p) {
@@ -229,7 +229,7 @@ function Read-Txt($p) {
   return [Text.Encoding]::GetEncoding(1252).GetString($b)
 }
 
-$files = Get-ChildItem 'WP7' -Recurse -File
+$files = Get-ChildItem 'REO' -Recurse -File
 $lic = @{}; $none = 0; $empty = 0
 foreach ($f in ($files | Where-Object { $_.Extension -eq '.ini' })) {
   $m = [regex]::Match((Read-Txt $f.FullName), '(?im)^[ \t]*License[ \t]*=[ \t]*(.*?)[ \t]*\r?$')
