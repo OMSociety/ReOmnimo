@@ -14,7 +14,7 @@
 [![Stars](https://img.shields.io/github/stars/OMSociety/ReOmnimo)](https://github.com/OMSociety/ReOmnimo/stargazers)
 [![Issues](https://img.shields.io/github/issues/OMSociety/ReOmnimo)](https://github.com/OMSociety/ReOmnimo/issues)
 
-[What is ReOmnimo?](#what-is-reomnimo) • [What changed](#what-changed) • [Install](#install) • [Agenda panel](#agenda-panel) • [Development](#development) • [Changelog](CHANGELOG.md) • [中文](README.zh.md)
+[What is ReOmnimo?](#what-is-reomnimo) • [What changed](#what-changed) • [Install](#install) • [Agenda panel](#agenda-panel) • [Development](#development) • [Changelog](CHANGELOG.md)
 
 </div>
 
