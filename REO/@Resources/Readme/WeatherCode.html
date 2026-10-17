@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Weather code</title>
+<style>
+  :root { color-scheme: dark light; }
+  body {
+    margin: 0 auto; padding: 32px 24px 48px; max-width: 720px;
+    font-family: "Microsoft YaHei UI", "Segoe UI", system-ui, sans-serif;
+    font-size: 15px; line-height: 1.65;
+    background: #1b1d21; color: #e6e6e6;
+  }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 28px 0 8px; color: #9fd0ff; }
+  p, li { color: #cfd2d6; }
+  code {
+    font-family: Consolas, "Cascadia Mono", monospace; font-size: 13px;
+    background: #26292e; padding: 1px 5px; border-radius: 4px; color: #ffd48a;
+  }
+  .zh { margin-top: 40px; padding-top: 24px; border-top: 1px solid #33363c; }
+  a { color: #6ea8fe; }
+  ol { padding-left: 22px; }
+  .note { color: #8f9399; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<h1>Where to get a weather code</h1>
+<p>The Weather panel asks weather.com for your local forecast. It needs one thing from you: the
+location code of your city.</p>
+
+<h2>Option 1 - the code from a weather.com URL</h2>
+<ol>
+  <li>Open <a href="https://weather.com/" target="_blank" rel="noopener">weather.com</a>.</li>
+  <li>Search for your city.</li>
+  <li>Look at the address bar. After <code>/weather/today/l/</code> there is a long id, for example<br>
+      <code>1665d9e3052c3448be48dafc1587318a27ee85516e97e0b5376043cd41a4f0e8</code>.</li>
+  <li>Copy that id and paste it into the panel's <em>Weather code</em> setting.</li>
+</ol>
+
+<h2>Option 2 - older short codes</h2>
+<p>Codes in the form <code>GMXX0040</code> (Munich), <code>UKXX0085</code> (London) or
+<code>USVA0944</code> come from the wxdata service the older skins used. weather.com still accepts
+them, so if you already know yours, just use it.</p>
+
+<h2>Option 3 - United States ZIP code</h2>
+<p>Inside the USA a ZIP code such as <code>22308</code> works as a location code.</p>
+
+<p class="note">Language and units are separate settings; changing the language also changes the
+units used in the forecast.</p>
+
+<div class="zh">
+<h1>天气代码从哪来</h1>
+<p>Weather 面板向 weather.com 查询你所在城市的预报，只需要你提供一样东西：城市的位置代码。</p>
+
+<h2>方法一：从 weather.com 网址里取</h2>
+<ol>
+  <li>打开 <a href="https://weather.com/" target="_blank" rel="noopener">weather.com</a>；</li>
+  <li>搜索你的城市；</li>
+  <li>看地址栏，<code>/weather/today/l/</code> 后面那串长 id 就是代码，例如<br>
+      <code>1665d9e3052c3448be48dafc1587318a27ee85516e97e0b5376043cd41a4f0e8</code>；</li>
+  <li>把它复制到面板设置里的「天气代码」。</li>
+</ol>
+
+<h2>方法二：沿用手写短代码</h2>
+<p><code>GMXX0040</code>（慕尼黑）、<code>UKXX0085</code>（伦敦）、<code>USVA0944</code> 这类短代码
+来自更早的 wxdata 服务，weather.com 仍然认，知道就直接填。</p>
+
+<h2>方法三：美国邮编</h2>
+<p>在美国境内，邮编（如 <code>22308</code>）可以直接当地点代码用。</p>
+
+<p class="note">语言与单位是分开的设置；换语言会连带改变预报里使用的单位。</p>
+</div>
+
+</body>
+</html>
