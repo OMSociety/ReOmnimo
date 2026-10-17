@@ -45,7 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 多语言补齐：`Common\Background\Language\` 八语 cfg 此前缺 ColorChanger 与 ConfigBackground 的文案键（界面只有英文）。补齐 ColorChanger 的 10 个键（ChangePanelColor / SelectAll / Refresh / NoActivePanels / Random / NewPalette / Default 等）与 ConfigBackground 的分组标题（GroupColors / GroupSize）；六份 UTF-16LE+BOM 语种的编码保持不变，English / Dutch 维持 UTF-8 无 BOM。
   - `ConfigBackground` 由逐控件移植重写为 ModernForm 壳上的重组件界面（滑杆 / 输入框 / 勾选 / 色块），设置分组与标签全部走语言包。
   - `PanelCreator` 接入 ModernForm 壳：内容区仍是 `PanelCreator.au3` 的 GDI+ 单窗口布局（拖放预览、名称 / 操作输入、导出 `*.rmskin` 含 16 字节 PackageFooter、预览图与临时文件清理），行为与原 .au3 逐段对应。
-  - 验证：夹具下三工具截图逐区核对（主题取色、标题栏图标、中文界面）；部署产物 90–107 KB（尺寸见 `AGENTS.md` 在途表）。
+  - 验证：夹具下三工具截图逐区核对（主题取色、标题栏图标、中文界面）；部署产物 97–114 KB（尺寸见 `AGENTS.md` 在途表）。
   - 实机回看后的二轮修正（2026-10-17）：ColorChanger 空列表提示被列表控件盖住（WinForms 后 `Add` 的控件在 z-order 底部，需 `SetChildIndex` 提前）；ConfigBackground 去掉原版四条 1px 装饰括线（深色界面里呈游离细线）、`GradientAngle` 标签加宽不再截断、黑/白色块补描边；PanelCreator 内容区去旧（droptext.png 改直绘提示文字且不再被名字轮询清掉、白色输入框改深色输入井、file/folder 旧图标改线条字形、按钮加悬停反馈）；修复共享缓存字体 `UiFont` 被 `using` 释放导致整窗绘制抛 `ArgumentException` 的崩溃。
   - 三轮修正（2026-10-17）：ColorChanger 整体布局下移出标题栏、窗口加高 24px、左右边距对齐（此前色板第一行压标题栏、左侧背景色带被读成「黑条」）；PanelCreator 原生输入框与全部自绘文字从环境继承的宋体改到 YaHei UI 字体栈（`Font = GuiFont.Default` 是忠实对照移植的遗留，现代化窗口不该再用）；窗口描边内缩 1px、半径 8 画（贴边画时外半像素被 DWM 圆角裁剪，角上呈缺口）。
   - 四轮修正（2026-10-17，DPI 根修）：此前三个窗口是 DPI 不感知进程，Windows 把 96 DPI 位图拉伸到屏幕倍率（用户屏 150%），1px 描边与圆角弧线被重采样成糊、勾选框在 150% 屏上冒出主题引擎画的花色碎片字形。现三个 exe 内嵌 `PerMonitorV2` 清单（`Tools\Shared\app.manifest`），`ModernForm.OnHandleCreated` 按 `GetDpiForWindow` 手动 `Scale` 统一缩放窗体与子控件（net48 的 `AutoScaleMode.Dpi` 实测缩放因子算成 1，不可用），自绘控件内部几何走 `PxU/DpiU` 系数；`ModernCheckBox` 基类从 `CheckBox` 换成 `Control`（主题引擎对继承 CheckBox 的 UserPaint 控件仍会画原生勾选字形）。
@@ -59,6 +59,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SettingsCenter `x86` 位数锁定：WebView2 NuGet 对 net48 只带 x86 原生 `WebView2Loader.dll`，SDK 风格工程默认 AnyCPU（x64 进程）加载即 `BadImageFormatException (0x8007000B)` 崩溃；`PlatformTarget=x86` 修正（csproj 注释留档）。
 - SettingsCenter 用户数据目录按面板哈希分目录（`%LOCALAPPDATA%\ReOmnimo\SettingsCenter\<hash>`）：不同面板的设置窗口可并行；同面板双开不再以崩溃弹窗告终，改为提示后正常关闭。
 - 全库 973 处小写 `wp7\` 死引用改为 `REO\`（433 个皮肤文件）：0.5.0 的改名提交只处理了大写 `WP7\`，磁贴、右键菜单、启动器里的 `!ToggleConfig "wp7\…"` 一直指向不存在的 config，动作全部失效（日志报 `!ToggleConfig: "wp7\…" does not exist`）。逐文件按嗅探到的编码解码再原编码写回（UTF-8 / UTF-16LE+BOM / cp1252 混杂），BOM 与行尾不变；`git grep -In "wp7"` 现查 0 命中，实机确认 `REO\` 形可正常切换面板。`DragGroup=WP7Panel` 是拖拽分组名而非路径，未改；`Gallery\MultiManager\Saved\` 下的用户布局快照未动。
+- 工具窗口的关闭键「看不见」与任务栏缩略图没有名字：标题标签宽度固定 400px、横跨到右上角按钮并压在其上层，标签背景不透明，X 被整块盖住；`layoutCaption` 现把标题收窄到按钮左侧并 `BringToFront`，X 的描边从次要色改为前景色。`ModernForm` 此前从未给 `Form.Text` 赋值，任务栏缩略图因此没有标题，现已写入窗口名。
+- PanelCreator 两个输入框没有提示文字：`TextBox` 是原生 EDIT、自己处理 WM_PAINT，重写 `OnPaint` 里画的占位文本根本不会执行（试过放开「仅失焦时绘制」的条件也不显示）；改用 EDIT 自带 cue banner（`EM_SETCUEBANNER`，wParam=1 让聚焦时也显示）。
+- 跨屏拖动后排版错位：DPI 系数原先只在创建句柄时算一次，窗口从 125% 屏拖到 150% 屏时系统只改窗口尺寸、控件树不重排，自绘内容按新 DPI 落在旧矩形里，右侧残留一块黑矩形。`ModernForm` 现接管 `WM_DPICHANGED`，按新旧 DPI 比值缩放子控件与字体、重跑标题栏布局、复位被系统改高的原生 TrackBar，再采用系统建议矩形；125%↔150% 往返实测窗口与各子控件矩形逐项一致。
+- 取色对话框未适配深色：`ColorPickerForm` 硬编码白底与灰字。现接 `ModernUi.Theme`——底色 / 输入井 / 分隔线 / 色板格 / 箭头条全部走主题，标题栏用 `DWMWA_USE_IMMERSIVE_DARK_MODE` 切深色，OK 按钮改主题强调色；吸管、色盘、箭头三个 2013 年的位图改为按控件尺寸现画的线性字形（DPI 变化不再糊）。
+- 强调色可能是中性灰：系统 `AccentColor` 本机为 `0xA1A1A1`，直接当强调色会让滑杆与主按钮整片发灰；现按饱和度判定，低于 12% 回落到工具集原本的蓝。
+- 设置窗的排版细节：勾选框从 16px 收到 14px（与 9pt 文字视觉等高），「使用图片」标签与勾选框同基线；滑杆拇指两端各内缩 6px，拉到最右不再被裁掉半个；`ConfigBackground` 行距统一到 36px、「上限 W × H」右对齐贴着数字框；列表滚动条走 `DarkMode_Explorer` 主题（条目填满后才补发一次——句柄创建时切主题对它无效），卡片补圆角 `Region` 并让非客户区重算，消除换掉原生滚动条后留下的竖痕。
 - 背景设置点开没反应：`Background\bg.ini` 与 `Background\DayNight\Item.ini` 调用的是不存在的 `Common\Background\config.exe`（该目录实际部署名是 `ConfigBackground.exe`），而且只传了一个参数——工具契约是 `ConfigBackground.exe <VarFile> <SkinPath>`，原版 AutoIt 同样读 `$CmdLine[2]`，缺参直接越界。现改为正确文件名并补上 `#SKINSPATH#`。
 - 面板设置项的说明文字：10 个 `RainConfigure.cfg` 的描述行原是从上游带来的玩笑与笔误（`URL to DDoS.. err I mean ping`、`Make it wider why dontcha?`、`Toggle from Low Brightness Value`、`If you have several audio devices, specify which to switch Index to switch`），在一个要用户照着填的对话框里说不清字段含义。逐条改写为说明实际行为，产品名与大小写一并订正（Steam / Big Picture）；参数名、控件类型与四行一组的 schema 结构未动。
 

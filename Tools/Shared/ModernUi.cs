@@ -38,7 +38,14 @@ internal static class ModernUi
             object v = Microsoft.Win32.Registry.GetValue(
                 @"HKEY_CURRENT_USER\Software\Microsoft\Windows\DWM", "AccentColor", null);
             if (v is int abgr) // DWM 存 AABBGGRR
-                return Color.FromArgb(0xFF, abgr & 0xFF, (abgr >> 8) & 0xFF, (abgr >> 16) & 0xFF);
+            {
+                Color accent = Color.FromArgb(0xFF, abgr & 0xFF, (abgr >> 8) & 0xFF, (abgr >> 16) & 0xFF);
+                // 系统强调色可以是中性灰（本机 AccentColor=0xA1A1A1）；拿它画按钮和滑杆会整片发灰，
+                // 饱和度过低就回落到本工具集的蓝，保持配色一致。
+                int max = Math.Max(accent.R, Math.Max(accent.G, accent.B));
+                int min = Math.Min(accent.R, Math.Min(accent.G, accent.B));
+                if (max > 0 && (max - min) * 100 / max >= 12) return accent;
+            }
         }
         catch { }
         return Color.FromArgb(0x4D, 0x7C, 0xFE);
@@ -155,6 +162,8 @@ internal static class ModernUi
         protected readonly Theme T;
         private readonly bool _resizable;
         private Label _title;
+        private Action _layoutCaption;
+        private int _appliedDpi = 96;
         private const int TitleH = 32;
         private const int Radius = 12;
 
@@ -198,32 +207,53 @@ internal static class ModernUi
                 Font = UiFont(9f)
             };
             bar.Controls.Add(_title);
+            // 任务栏缩略图与提示只读 Form.Text，之前从不赋值，卡片上因此没有窗口名。
+            Text = title;
 
+            // 标题栏右侧按钮一律按「控件自身宽度」从右往左排，不能用写死的设计像素偏移：
+            // 40 宽的按钮在 150% DPI 下是 60，而写死的 41 只让出 41，按钮会探出右边缘
+            // （实测 ColorChanger / ConfigBackground 在笔记本屏上关闭键被裁掉 19px，看着像没有关闭键）。
+            var minBtn = (TitleButton)null;
+            var maxBtn = (TitleButton)null;
             if (resizable)
             {
-                var min = new TitleButton(t, TitleGlyph.Minimize) { Anchor = AnchorStyles.Top | AnchorStyles.Right };
-                min.Bounds = new Rectangle(0, 0, 40, TitleH - 1);
-                min.Click += (s, e) => WindowState = FormWindowState.Minimized;
-                bar.Controls.Add(min);
-                min.Location = new Point(bar.Width - 82, 0);
-                min.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-                bar.Resize += (s, e) => min.Location = new Point(bar.Width - 82, 0);
+                minBtn = new TitleButton(t, TitleGlyph.Minimize);
+                minBtn.Bounds = new Rectangle(0, 0, 40, TitleH - 1);
+                minBtn.Click += (s, e) => WindowState = FormWindowState.Minimized;
+                bar.Controls.Add(minBtn);
 
-                var max = new TitleButton(t, TitleGlyph.MaxRestore) { Anchor = AnchorStyles.Top | AnchorStyles.Right };
-                max.Bounds = new Rectangle(0, 0, 40, TitleH - 1);
-                max.Click += (s, e) => ToggleMaximize();
-                bar.Controls.Add(max);
-                max.Location = new Point(bar.Width - 41, 0);
-                bar.Resize += (s, e) => max.Location = new Point(bar.Width - 41, 0);
+                maxBtn = new TitleButton(t, TitleGlyph.MaxRestore);
+                maxBtn.Bounds = new Rectangle(0, 0, 40, TitleH - 1);
+                maxBtn.Click += (s, e) => ToggleMaximize();
+                bar.Controls.Add(maxBtn);
             }
 
-            var close = new TitleButton(t, TitleGlyph.Close) { Anchor = AnchorStyles.Top | AnchorStyles.Right, IsClose = true };
+            var close = new TitleButton(t, TitleGlyph.Close) { IsClose = true };
             close.Bounds = new Rectangle(0, 0, 40, TitleH - 1);
             close.Click += (s, e) => Close();
             bar.Controls.Add(close);
-            if (resizable) close.Location = new Point(bar.Width - 1, 0);
-            else close.Location = new Point(bar.Width - 41, 0);
-            bar.Resize += (s, e) => close.Location = new Point(bar.Width - (resizable ? 1 : 41), 0);
+
+            var captionOrder = new List<TitleButton> { close };
+            if (maxBtn != null) captionOrder.Add(maxBtn);
+            if (minBtn != null) captionOrder.Add(minBtn);
+            Action layoutCaption = () =>
+            {
+                int right = bar.Width;
+                foreach (var b in captionOrder)
+                {
+                    if (b.Width <= 0) continue;
+                    b.Location = new Point(right - b.Width, 0);
+                    right -= b.Width;
+                }
+                // 标题标签原宽写死 400，会横跨到右侧按钮下面；Label 的背景色取自父容器（不透明），
+                // 而 Controls.Add 的顺序让后加的按钮落在它下层，于是 X 被整块盖掉（实测三窗都看不见关闭键）。
+                // 这里把标题收到按钮左侧，并把按钮提到最前。
+                _title.Width = Math.Max(0, right - _title.Left - 4);
+                foreach (var b in captionOrder) b.BringToFront();
+            };
+            _layoutCaption = layoutCaption;
+            layoutCaption();
+            bar.Resize += (s, e) => layoutCaption();
 
             bar.MouseDown += DragStart;
             _title.MouseDown += DragStart;
@@ -273,6 +303,7 @@ internal static class ModernUi
             // 再手动预乘 ClientSize（叠加后窗体尺寸会超放）。派生类的 OnPaint 手设坐标需自行
             // 乘 WinDpi/96 或加 ScaleTransform（PanelCreator 即如此）。
             int dpi = WinDpi;
+            _appliedDpi = dpi;
             if (dpi != 96)
                 Scale(new SizeF(dpi / 96f, dpi / 96f));
             try
@@ -286,8 +317,82 @@ internal static class ModernUi
             catch { }
         }
 
+        private const int WM_DPICHANGED = 0x02E0;
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RECT { public int Left, Top, Right, Bottom; }
+
+        /// <summary>DPI 变化后让派生类更新自己的缩放快照（各工具的 <c>_scale</c> 来自构造时的屏幕 DPI，
+        /// 不更新的话新建/重画的控件仍按旧比例算）。</summary>
+        protected virtual void OnDpiFactorChanged(float factor) { }
+
+        private void RescaleForDpi(int newDpi, RECT suggested)
+        {
+            if (newDpi <= 0) newDpi = 96;
+            float factor = newDpi / (float)_appliedDpi;
+            if (Math.Abs(factor - 1f) < 0.01f) return;
+            _appliedDpi = newDpi;
+            SuspendLayout();
+            RescaleChildren(this, factor);
+            OnDpiFactorChanged(factor);
+            if (_layoutCaption != null) _layoutCaption();
+            ResumeLayout(true);
+            if (suggested.Right > suggested.Left && suggested.Bottom > suggested.Top)
+                SetBounds(suggested.Left, suggested.Top, suggested.Right - suggested.Left, suggested.Bottom - suggested.Top);
+            PerformLayout();
+            // 原生 TrackBar 会在 WM_DPICHANGED 之后按新 DPI 重算自己的高度（实测 150% 下从 31 涨到 56，
+            // 压住下面一行的文字），ModernTrackBar 的设计高度是固定的，这里重新钉一次。
+            foreach (Control c in Descendants(this))
+            {
+                var bar = c as ModernTrackBar;
+                if (bar != null) bar.ForceHeight();
+            }
+            Invalidate(true);
+        }
+
+        private static System.Collections.Generic.IEnumerable<Control> Descendants(Control parent)
+        {
+            foreach (Control c in parent.Controls)
+            {
+                yield return c;
+                foreach (Control d in Descendants(c)) yield return d;
+            }
+        }
+
+        private static void RescaleChildren(Control parent, float factor)
+        {
+            foreach (Control c in parent.Controls)
+            {
+                c.Bounds = new Rectangle(
+                    (int)Math.Round(c.Left * factor),
+                    (int)Math.Round(c.Top * factor),
+                    Math.Max(1, (int)Math.Round(c.Width * factor)),
+                    Math.Max(1, (int)Math.Round(c.Height * factor)));
+                Font f = c.Font;
+                if (f != null)
+                {
+                    float size = f.SizeInPoints * factor;
+                    if (size >= 1f)
+                        c.Font = new Font(f.FontFamily, size, f.Style, GraphicsUnit.Point);
+                }
+                if (c.HasChildren) RescaleChildren(c, factor);
+            }
+        }
+
         protected override void WndProc(ref Message m)
         {
+            if (m.Msg == WM_DPICHANGED)
+            {
+                // 拖到另一块 DPI 不同的屏幕：系统只按 SuggestedRectangle 改窗口尺寸，
+                // 而本窗是 AutoScaleMode=None + OnHandleCreated 里手动 Scale 一次，子控件的
+                // 坐标与字体仍是旧 DPI 的值，自定义绘制又按新的 DeviceDpi 画，于是错位、
+                // 留下残余黑块（实测把面板创建器从 125% 屏拖到 150% 屏即出现）。
+                // 这里自己接管：按新旧 DPI 比值重排整棵控件树，再采用系统给的建议矩形。
+                int newDpi = (int)(m.WParam.ToInt64() & 0xFFFF);
+                var rect = (RECT)Marshal.PtrToStructure(m.LParam, typeof(RECT));
+                RescaleForDpi(newDpi, rect);
+                return;
+            }
             if (m.Msg == WM_NCHITTEST && _resizable && WindowState != FormWindowState.Maximized)
             {
                 Point p = PointToClient(new Point((int)m.LParam & 0xFFFF, ((int)m.LParam >> 16) & 0xFFFF));
@@ -354,14 +459,16 @@ internal static class ModernUi
                     }
                     return;
                 }
-                using (var p = new Pen(_hover ? _t.Fg : _t.Sub, 1.2f))
+                // 非 hover 时原来用 T.Sub（次要文字的灰）+ 1.2px 线宽：40px 按钮里的细叉在深色标题栏上
+                // 几乎看不出来，用户实测三个工具「看不见关闭键」。改用前景色，线宽与叉口尺寸都随 DPI 放大。
+                using (var p = new Pen(_t.Fg, 1.4f * DpiU(this)))
                 {
                     int cx = Width / 2, cy = Height / 2;
                     switch (_glyph)
                     {
                         case TitleGlyph.Close:
                             {
-                                int d = PxU(5, this);
+                                int d = PxU(6, this);
                                 g.DrawLine(p, cx - d, cy - d, cx + d, cy + d);
                                 g.DrawLine(p, cx + d, cy - d, cx - d, cy + d);
                                 break;
@@ -539,9 +646,9 @@ internal static class ModernUi
         {
             var g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
-            int bs = PxU(16, this);                       // 勾选框 16px（设计值，随 DPI）
+            int bs = PxU(14, this);                       // 勾选框 14px（设计值，随 DPI）——与 9pt 文字视觉等高
             var box = new Rectangle(0, (Height - bs) / 2, bs, bs);
-            using (var path = Rounded(box, PxU(4, this)))
+            using (var path = Rounded(box, PxU(3, this)))
             {
                 if (Checked)
                 {
@@ -549,8 +656,8 @@ internal static class ModernUi
                     using (var p = new Pen(Color.White, 1.6f * DpiU(this)))
                     {
                         int x = box.X, y = box.Y;
-                        g.DrawLine(p, x + PxU(4, this), y + PxU(8, this), x + PxU(7, this), y + PxU(11, this));
-                        g.DrawLine(p, x + PxU(7, this), y + PxU(11, this), x + PxU(12, this), y + PxU(5, this));
+                        g.DrawLine(p, x + PxU(3, this), y + PxU(7, this), x + PxU(6, this), y + PxU(10, this));
+                        g.DrawLine(p, x + PxU(6, this), y + PxU(10, this), x + PxU(11, this), y + PxU(4, this));
                     }
                 }
                 else
@@ -565,7 +672,7 @@ internal static class ModernUi
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
             if (Focused)
             {
-                int fw = PxU(20, this);
+                int fw = Math.Min(PxU(20, this), Height);
                 using (var p = new Pen(T.Accent))
                     g.DrawRectangle(p, new Rectangle(PxU(20, this), (Height - fw) / 2, fw, fw));
             }
@@ -613,8 +720,11 @@ internal static class ModernUi
                 using (var b = new SolidBrush(T.Accent)) g.FillPath(b, path);
             }
             double frac = Maximum == Minimum ? 0 : (double)(Value - Minimum) / (Maximum - Minimum);
+            int half = PxU(6, this);
             int tx = m + (int)((Width - 2 * m) * frac);
-            var thumb = new Rectangle(tx - PxU(6, this), cy - PxU(9, this), PxU(12, this), PxU(18, this));
+            // 拇指在两端时要整体留在控件内，否则最右/最左会被裁掉半个
+            tx = Math.Min(Math.Max(tx, half), Math.Max(half, Width - half));
+            var thumb = new Rectangle(tx - half, cy - PxU(9, this), PxU(12, this), PxU(18, this));
             using (var path = Rounded(thumb, PxU(5, this)))
             {
                 using (var b = new SolidBrush(T.Accent)) g.FillPath(b, path);
@@ -752,6 +862,32 @@ internal static class ModernUi
             BackColor = t.Card;   // 圆角外角落差靠底色兜底；ghost 按钮也用 Parent.BackColor 擦底
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
         }
+
+        /// <summary>按圆角裁掉四角：不然卡片底色的直角会露在窗底色上，角上出现「双层圆角」的色块缺口。</summary>
+        private void ApplyRegion()
+        {
+            if (Width <= 0 || Height <= 0) return;
+            using (var path = Rounded(new Rectangle(0, 0, Width, Height), PxU(10, this)))
+            {
+                var next = new Region(path);
+                var prev = Region;
+                Region = next;
+                if (prev != null) prev.Dispose();
+            }
+        }
+
+        protected override void OnSizeChanged(EventArgs e)
+        {
+            base.OnSizeChanged(e);
+            ApplyRegion();
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            ApplyRegion();
+        }
+
         protected override void OnPaint(PaintEventArgs e)
         {
             var g = e.Graphics;
@@ -765,9 +901,13 @@ internal static class ModernUi
     }
 
     /// <summary>列表面板（ColorChanger 面板列表）：无框、选中=强调色 20% 底+强调色字。</summary>
+    /// <summary>列表面板（ColorChanger 面板列表）：无框、选中=强调色 20% 底+强调色字。
+    /// 滚动条用系统那条，但通过 SetWindowTheme("DarkMode_Explorer") 让它跟随深色，
+    /// 不再自绘——自绘版本要接管列表重绘时机，反而把行文字画丢了。</summary>
     public class ListBoxM : ListBox
     {
         public readonly Theme T;
+
         public ListBoxM(Theme t)
         {
             T = t;
@@ -779,11 +919,41 @@ internal static class ModernUi
             Font = UiFont(9f);
             IntegralHeight = false;
         }
+
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
             ItemHeight = PxU(26, this);   // 行高是设计像素，Bounds/Font 已由 Scale 放大，行高要跟上
+            FitToParent();
+            ApplyDarkScrollbar();
         }
+
+        /// <summary>列表的设计宽度比卡片大，会被父容器裁掉右缘（文字被切）；收进卡片内。</summary>
+        private void FitToParent()
+        {
+            if (Parent == null) return;
+            int maxW = Parent.ClientSize.Width - Left - PxU(4, this);
+            if (maxW > PxU(40, this) && Width > maxW) Width = maxW;
+        }
+
+        /// <summary>系统滚动条默认跟浅色主题走，在深色卡片上是一条白条；这里切到深色变体。
+        /// 滚动条要等条目填满、内容超高之后才出现，句柄创建时切主题对它还不生效，
+        /// 所以调用方填完 Items 之后要再调一次 <see cref="RefreshScrollbarTheme"/>。</summary>
+        private void ApplyDarkScrollbar()
+        {
+            try { SetWindowTheme(Handle, "DarkMode_Explorer", null); SetWindowTheme(Handle, "DarkMode_Explorer", "ScrollBar"); } catch { }
+        }
+
+        /// <summary>填完 Items / 内容高度变化后调用，让滚动条按深色主题重新绘制。</summary>
+        public void RefreshScrollbarTheme()
+        {
+            ApplyDarkScrollbar();
+            Invalidate();
+        }
+
+        [DllImport("uxtheme.dll", CharSet = CharSet.Unicode)]
+        private static extern int SetWindowTheme(IntPtr hWnd, string subApp, string subIdList);
+
         protected override void OnDrawItem(DrawItemEventArgs e)
         {
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
@@ -798,7 +968,6 @@ internal static class ModernUi
             }
         }
     }
-
     // ---------- 语言与主题参数 ----------
 
     /// <summary>

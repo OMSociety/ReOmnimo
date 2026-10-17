@@ -280,8 +280,8 @@ namespace OmnimoTools.PanelCreator
         private readonly Panel _createPanel;
         private readonly Panel _browsePanel;
         private readonly Panel _selectPanel;
-        private readonly TextBox _nameBox;
-        private readonly TextBox _actionBox;
+        private readonly EdgeTextBox _nameBox;
+        private readonly EdgeTextBox _actionBox;
         private readonly Timer _pollTimer;
 
         private readonly Image _saveImage;
@@ -371,10 +371,15 @@ namespace OmnimoTools.PanelCreator
             _createPanel.Paint += (s, e) =>
             {
                 var p = (Panel)s;
-                bool hot = p.ClientRectangle.Contains(p.PointToClient(Cursor.Position));
-                using (var bg = new SolidBrush(hot ? Blend(Color.White, _createColor, 0.12f) : _createColor))
+                bool hot = p.Enabled && p.ClientRectangle.Contains(p.PointToClient(Cursor.Position));
+                Color fill = p.Enabled ? (hot ? Blend(Color.White, _createColor, 0.12f) : _createColor)
+                                       : Blend(_createColor, T.Input, 0.62f);
+                using (var bg = new SolidBrush(fill))
                     e.Graphics.FillRectangle(bg, p.ClientRectangle);
-                e.Graphics.DrawString(LanguagePack.Text(_language, "CreatePanel"), _createFont, _textBrush, new RectangleF(0, 0, p.Width, p.Height), _centerFormat);
+                Color textColor = p.Enabled ? _fontColor : Blend(_fontColor, fill, 0.55f);
+                using (var tb = new SolidBrush(textColor))
+                    e.Graphics.DrawString(LanguagePack.Text(_language, "CreatePanel"), _createFont, tb,
+                                          new RectangleF(0, 0, p.Width, p.Height), _centerFormat);
             };
             Controls.Add(_createPanel);
 
@@ -400,7 +405,7 @@ namespace OmnimoTools.PanelCreator
             _nameBox.BorderStyle = BorderStyle.None;   // AutoIt 的 -1 是默认输入框样式，不含 WS_BORDER
             _nameBox.AutoSize = false;                 // 让高度就是原版的 15*$scaledpi，而不是字体撑出来的高度
             _nameBox.SetBounds(Px(50), Px(223) + TitleOffset, Px(130), Px(15));
-            _nameBox.Text = LanguagePack.Text(_language, "Name");
+            _nameBox.Placeholder = LanguagePack.Text(_language, "Name");   // 灰字提示，不再写入 Text
             _nameBox.BackColor = T.Input;   // 现代化：皮肤调色板里的 FieldsBG 是白底（2013 遗产），输入框统一用深色井
             _nameBox.ForeColor = T.Fg;
             Controls.Add(_nameBox);
@@ -410,10 +415,14 @@ namespace OmnimoTools.PanelCreator
             _actionBox.BorderStyle = BorderStyle.None;
             _actionBox.AutoSize = false;
             _actionBox.SetBounds(Px(50), Px(263) + TitleOffset, Px(65), Px(15));
-            _actionBox.Text = LanguagePack.Text(_language, "Action");
+            _actionBox.Placeholder = LanguagePack.Text(_language, "Action");   // 同上：原版把提示词当成了值
             _actionBox.BackColor = T.Input;
             _actionBox.ForeColor = T.Fg;
             Controls.Add(_actionBox);
+
+            // 名称为空时「创建面板」置灰：原版允许空名创建，结果是一个叫「名称」的面板目录。
+            _nameBox.TextChanged += (s, e) => UpdateCreateState();
+            UpdateCreateState();
 
             DrawDropHint();
 
@@ -805,8 +814,20 @@ namespace OmnimoTools.PanelCreator
         // 创建面板（Case $create，.au3 行 268-308）
         // ------------------------------------------------------------------
 
-        private void OnCreateClick(object sender, EventArgs e)
+        /// <summary>名称为空时「创建面板」置灰不可点（原版允许空名创建，最终得到叫「名称」的面板目录）。</summary>
+        private void UpdateCreateState()
         {
+            bool ok = _nameBox.Text.Trim().Length > 0;
+            if (_createPanel.Enabled != ok)
+            {
+                _createPanel.Enabled = ok;
+                _createPanel.Cursor = ok ? Cursors.Hand : Cursors.Default;
+            }
+            _createPanel.Invalidate();
+        }
+
+        private void OnCreateClick(object sender, EventArgs e)
+        {            if (_nameBox.Text.Trim().Length == 0) return;   // 名称空着就不创建（按钮本应已置灰，这里兜底）
             _createPanel.Visible = false;   // GUICtrlSetState($create, $GUI_HIDE)
             _loadE.Visible = true;          // GUICtrlSetState($loadE, $GUI_SHOW)
 
@@ -1016,6 +1037,38 @@ namespace OmnimoTools.PanelCreator
     internal sealed class EdgeTextBox : TextBox
     {
         private const int WS_EX_WINDOWEDGE = 0x00000100;
+
+        private string _placeholder = string.Empty;
+
+        // WinForms 的 TextBox 是原生 EDIT 控件、自己处理 WM_PAINT，重写 OnPaint 画不出东西
+        // （实测提示字完全不出现）。改用 EDIT 自带的 cue banner：wParam=1 表示拿到焦点时仍显示。
+        private const int EM_SETCUEBANNER = 0x1501;
+
+        /// <summary>
+        /// 空输入时的灰字提示。原版把语言键（"名称"/"操作"）直接写成输入框初始文本，
+        /// 而 `_tmpName = _nameBox.Text` 又把它当成真值用——用户不清空就会创建出名为「名称」的面板。
+        /// 这里改为空输入 + 提示字，提示不参与 Text。
+        /// </summary>
+        public string Placeholder
+        {
+            get { return _placeholder; }
+            set { _placeholder = value ?? string.Empty; ApplyCue(); }
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            ApplyCue();
+        }
+
+        private void ApplyCue()
+        {
+            if (!IsHandleCreated) return;
+            SendMessage(Handle, EM_SETCUEBANNER, (IntPtr)1, _placeholder);
+        }
+
+        [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
+        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, string lParam);
 
         protected override CreateParams CreateParams
         {

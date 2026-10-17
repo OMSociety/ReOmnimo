@@ -45,6 +45,7 @@ namespace OmnimoTools
         private readonly int[] _hsb = new int[3];   // H 0..359, S/B 0..100
         private readonly int[] _colors = new int[17];  // 内置色板 [0]=count（不使用），[1..16] 用
         private bool _return = false;
+        private readonly ModernUi.Theme _t;   // 深色主题（调用方传入，见 Show）
 
         // ---- 控件 ----
         private PictureBox _main;       // [1] 主色区 243×243
@@ -65,9 +66,9 @@ namespace OmnimoTools
         /// 弹出取色对话框；返回 0xRRGGBB，取消返回 -1。
         /// 等价于 _ColorChooserDialog($iColor, $hParent)。
         /// </summary>
-        public static int Show(IWin32Window parent, int initialColor)
+        public static int Show(IWin32Window parent, int initialColor, ModernUi.Theme theme)
         {
-            using (var form = new ColorPickerForm(initialColor))
+            using (var form = new ColorPickerForm(initialColor, theme))
             {
                 form.StartPosition = FormStartPosition.CenterParent;
                 DialogResult result = form.ShowDialog(parent);
@@ -77,8 +78,9 @@ namespace OmnimoTools
             }
         }
 
-        private ColorPickerForm(int initialColor)
+        private ColorPickerForm(int initialColor, ModernUi.Theme theme)
         {
+            _t = theme;                     // 深色主题由调用方传入，与主窗口一致
             _flags = CC_FLAG_DEFAULT;
             int h1 = ((_flags & CC_FLAG_SOLIDCOLOR) == CC_FLAG_SOLIDCOLOR) ? 69 : 0;
             int h2 = ((_flags & CC_FLAG_USERCOLOR) == CC_FLAG_USERCOLOR) ? 56 : 0;
@@ -90,20 +92,21 @@ namespace OmnimoTools
             MinimizeBox = false;
             ShowInTaskbar = false;
             ClientSize = new Size(315, 422);
-            BackColor = BgColor;
+            BackColor = theme.Bg;
             Font = new Font("Segoe UI", 9f, FontStyle.Regular, GraphicsUnit.Point);
             KeyPreview = true;
+            DarkTitleBar();   // 无边框系统标题栏也要跟深色，否则白条压在深色窗体上
 
             LoadColors();
 
             // 主色区
-            _main = new PictureBox { Left = 20, Top = 20, Width = 243, Height = 243, SizeMode = PictureBoxSizeMode.Normal };
+            _main = new PictureBox { Left = 20, Top = 20, Width = 243, Height = 243, SizeMode = PictureBoxSizeMode.Normal, BackColor = theme.Bg };
             Controls.Add(_main);
 
             // 左侧箭头条（8×220）与色相条（22×243）
-            _arrowL = new PictureBox { Left = 264, Top = 20, Width = 8, Height = 220, SizeMode = PictureBoxSizeMode.Normal };
+            _arrowL = new PictureBox { Left = 264, Top = 20, Width = 8, Height = 220, SizeMode = PictureBoxSizeMode.Normal, BackColor = theme.Bg };
             Controls.Add(_arrowL);
-            _hue = new PictureBox { Left = 273, Top = 20, Width = 22, Height = 243, SizeMode = PictureBoxSizeMode.Normal };
+            _hue = new PictureBox { Left = 273, Top = 20, Width = 22, Height = 243, SizeMode = PictureBoxSizeMode.Normal, BackColor = theme.Bg };
             Controls.Add(_hue);
 
             // SOLIDCOLOR：两个对比色块
@@ -115,17 +118,17 @@ namespace OmnimoTools
             // CAPTURECOLOR：吸管
             if ((_flags & CC_FLAG_CAPTURECOLOR) != 0)
             {
-                _picker = new PictureBox { Left = 275, Top = 275, Width = 19, Height = 19, SizeMode = PictureBoxSizeMode.Normal, Cursor = Cursors.Cross };
-                _picker.Image = LoadPng(CcImages.Picker);
+                _picker = new PictureBox { Left = 275, Top = 275, Width = 19, Height = 19, SizeMode = PictureBoxSizeMode.Normal, Cursor = Cursors.Cross, BackColor = theme.Bg };
+                _picker.Image = GlyphEyedropper(_picker.Size);
                 Controls.Add(_picker);
                 _picker.MouseDown += PickerMouseDown;
             }
 
             // 分隔线 + 齿轮
-            var sep = new Panel { Left = 19, Top = 342, Width = 273, Height = 1, BackColor = Color.FromArgb(0x9A, 0x9A, 0x9A) };
+            var sep = new Panel { Left = 19, Top = 342, Width = 273, Height = 1, BackColor = theme.Border };
             Controls.Add(sep);
-            _gear = new PictureBox { Left = 275, Top = 307, Width = 19, Height = 19, SizeMode = PictureBoxSizeMode.Normal };
-            _gear.Image = LoadPng(CcImages.Wheel);
+            _gear = new PictureBox { Left = 275, Top = 307, Width = 19, Height = 19, SizeMode = PictureBoxSizeMode.Normal, BackColor = theme.Bg };
+            _gear.Image = GlyphWheel(_gear.Size);
             Controls.Add(_gear);
             _gear.Click += (s, e) => ShowPaletteMenu();
 
@@ -139,7 +142,11 @@ namespace OmnimoTools
 
             // '#' 十六进制输入（限 6 字符）
             Controls.Add(MakeLabel("#", 20, 389, 10));
-            _txtHex = new TextBox { Left = 33, Top = 389, Width = 61, Height = 19, MaxLength = 6 };
+            _txtHex = new TextBox
+            {
+                Left = 33, Top = 389, Width = 61, Height = 19, MaxLength = 6,
+                BackColor = theme.Input, ForeColor = theme.Fg, BorderStyle = BorderStyle.FixedSingle
+            };
             _txtHex.TextChanged += (s, e) => OnHexChanged();
             Controls.Add(_txtHex);
 
@@ -149,7 +156,7 @@ namespace OmnimoTools
                 for (int j = 0; j < 2; j++)
                 {
                     int index = i * 2 + j + 1;   // 1..16
-                    var box = new PictureBox { Left = i * 30 + 24, Top = j * 32 + 272, Width = 24, Height = 24 };
+                    var box = new PictureBox { Left = i * 30 + 24, Top = j * 32 + 272, Width = 24, Height = 24, BackColor = theme.Card };
                     int captured = index;
                     box.Click += (s, e) => { _rgb = _colors[captured]; UpdateFromRgb(); };
                     _palette[index] = box;
@@ -158,7 +165,16 @@ namespace OmnimoTools
             }
 
             // OK 按钮（DEFBUTTON）：y = 316 + H1 + H2
-            _ok = new Button { Left = 210, Top = 316 + h1 + h2, Width = 85, Height = 23, Text = "OK", Font = new Font("MS Shell Dlg", 8.5f) };
+            _ok = new Button
+            {
+                Left = 210, Top = 316 + h1 + h2, Width = 85, Height = 25, Text = "OK",
+                Font = new Font("Segoe UI", 9.5f),
+                FlatStyle = FlatStyle.Flat, BackColor = theme.Accent, ForeColor = Color.White,
+                Cursor = Cursors.Hand, UseVisualStyleBackColor = false
+            };
+            _ok.FlatAppearance.BorderSize = 0;
+            _ok.FlatAppearance.BorderColor = theme.Accent;
+            _ok.FlatAppearance.MouseOverBackColor = ControlPaint.Light(theme.Accent, 0.1f);
             _ok.Click += (s, e) => { _return = true; DialogResult = DialogResult.OK; Close(); };
             Controls.Add(_ok);
             AcceptButton = _ok;
@@ -179,14 +195,36 @@ namespace OmnimoTools
             SetPaletteImages();
         }
 
+        private const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int value, int size);
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            DarkTitleBar();
+        }
+
+        private void DarkTitleBar()
+        {
+            if (Handle == IntPtr.Zero) return;
+            int on = 1;
+            try { DwmSetWindowAttribute(Handle, DWMWA_USE_IMMERSIVE_DARK_MODE, ref on, sizeof(int)); } catch { }
+        }
+
         private Label MakeLabel(string text, int x, int y, int w)
         {
-            return new Label { Text = text, Left = x, Top = y, Width = w, Height = 14, ForeColor = TextColor, BackColor = Color.Transparent };
+            return new Label { Text = text, Left = x, Top = y, Width = w, Height = 14, ForeColor = _t.Sub, BackColor = Color.Transparent };
         }
 
         private TextBox MakeNumberBox(int x, int y, int w)
         {
-            var box = new TextBox { Left = x, Top = y, Width = w, Height = 19, MaxLength = 3 };
+            var box = new TextBox
+            {
+                Left = x, Top = y, Width = w, Height = 19, MaxLength = 3,
+                BackColor = _t.Input, ForeColor = _t.Fg, BorderStyle = BorderStyle.FixedSingle
+            };
             box.TextChanged += (s, e) => OnNumberChanged((TextBox)s);
             box.Leave += (s, e) => WriteBack((TextBox)s);
             return box;
@@ -213,7 +251,7 @@ namespace OmnimoTools
             for (int i = 1; i <= 16; i++)
             {
                 if (_palette[i] == null) continue;
-                _palette[i].BackColor = _colors[i] < 0 ? SystemColors.Control : Color.FromArgb(_colors[i]);
+                _palette[i].BackColor = _colors[i] < 0 ? _t.Card : Color.FromArgb(_colors[i]);
             }
         }
 
@@ -353,7 +391,7 @@ namespace OmnimoTools
                 Application.DoEvents();
             }
             if (popup != IntPtr.Zero) DestroyWindow(popup);
-            _picker.Image = LoadPng(CcImages.Picker);
+            _picker.Image = GlyphEyedropper(_picker.Size);
         }
 
         // ---------- 颜色换算 ----------
@@ -500,16 +538,86 @@ namespace OmnimoTools
         /// 左箭头条 8×241：系统 3DFACE 底色 + 箭头画在 y = Round((359-H)/369*238)。
         /// 注意分母 369 是源码原样（ColorChooser.au3:993）。
         /// </summary>
+        /// <summary>
+        /// 吸管图标：按控件尺寸现画（Fluent 线性风格、圆头描边），不再贴 2013 年那张 19×19 位图，
+        /// 这样 100%/125%/150% 下都是清晰的。
+        /// </summary>
+        private Bitmap GlyphEyedropper(Size size)
+        {
+            int w = Math.Max(10, size.Width), h = Math.Max(10, size.Height);
+            var bmp = new Bitmap(w, h);
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.Clear(_t.Bg);
+                float u = w / 19f;
+                var state = g.Save();
+                g.TranslateTransform(w / 2f, h / 2f);
+                g.RotateTransform(45f);   // 管身斜置，管尖指向左下
+                using (var pen = new Pen(_t.Sub, 1.4f * u) { StartCap = LineCap.Round, EndCap = LineCap.Round, LineJoin = LineJoin.Round })
+                using (var brush = new SolidBrush(_t.Sub))
+                {
+                    g.DrawEllipse(pen, -2.3f * u, -8.4f * u, 4.6f * u, 4.6f * u);       // 顶部捏囊
+                    g.DrawLines(pen, new[]                                               // 管身
+                    {
+                        new PointF(-1.5f * u, -4.2f * u),
+                        new PointF(-1.5f * u, 2.2f * u),
+                        new PointF(1.5f * u, 2.2f * u),
+                        new PointF(1.5f * u, -4.2f * u),
+                    });
+                    g.FillPolygon(brush, new[]                                           // 管尖
+                    {
+                        new PointF(-1.5f * u, 2.6f * u),
+                        new PointF(1.5f * u, 2.6f * u),
+                        new PointF(0f, 6.4f * u),
+                    });
+                }
+                g.Restore(state);
+            }
+            return bmp;
+        }
+
+        /// <summary>取色盘图标：六段色相环 + 中心孔 + 描边，同样按尺寸现画。</summary>
+        private Bitmap GlyphWheel(Size size)
+        {
+            int w = Math.Max(10, size.Width), h = Math.Max(10, size.Height);
+            var bmp = new Bitmap(w, h);
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.Clear(_t.Bg);
+                float u = w / 19f;
+                float x = 1.7f * u, y = 1.7f * u, d = 15.6f * u;
+                for (int i = 0; i < 6; i++)
+                {
+                    int[] rgb = HsbToRgb(new[] { i * 60, 100, 100 });
+                    using (var b = new SolidBrush(Color.FromArgb(rgb[0], rgb[1], rgb[2])))
+                        g.FillPie(b, x, y, d, d, -15 + i * 60, 60);
+                }
+                using (var hole = new SolidBrush(_t.Bg))
+                    g.FillEllipse(hole, x + d / 2 - 2.4f * u, y + d / 2 - 2.4f * u, 4.8f * u, 4.8f * u);
+                using (var pen = new Pen(_t.Sub, 1f * u))
+                    g.DrawEllipse(pen, x, y, d, d);
+            }
+            return bmp;
+        }
+
         private Bitmap RenderArrow()
         {
             var bmp = new Bitmap(8, 241);
             using (Graphics g = Graphics.FromImage(bmp))
             {
-                g.Clear(SystemColors.Control);
-                using (Image arrow = LoadPng(_arrowPng))
+                g.Clear(_t.Bg);   // 深色底，否则箭头条是白底压在深色窗体上
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                int y = (int)Math.Round((359 - _hsb[0]) / 369.0 * 238);
+                using (var pen = new Pen(_t.Fg, 1.3f) { StartCap = LineCap.Round, EndCap = LineCap.Round, LineJoin = LineJoin.Round })
                 {
-                    int y = (int)Math.Round((359 - _hsb[0]) / 369.0 * 238);
-                    if (arrow != null) g.DrawImage(arrow, new Rectangle(0, y, 8, 9));
+                    g.DrawLines(pen, new[]
+                    {
+                        new PointF(1.5f, y + 1f),
+                        new PointF(6f, y + 4.5f),
+                        new PointF(1.5f, y + 8f),
+                    });
                 }
             }
             return bmp;

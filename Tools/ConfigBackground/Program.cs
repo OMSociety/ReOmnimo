@@ -116,52 +116,62 @@ namespace OmnimoTools.ConfigBackground
             Controls.Add(_cancel);
             Controls.Add(_apply);
 
-            AddGroupLabel(L("Appearance"), 16, 48, 55);
-            AddGroupLabel(L("Borders"), 16, 222, 230);
-            AddGroupLabel(L("Advanced"), 16, 294, 302);
+            AddGroupLabel(L("Appearance"), 16, 40, 55);
+            AddGroupLabel(L("Borders"), 16, 232, 234);
+            AddGroupLabel(L("Advanced"), 16, 306, 302);
 
-            AddLabel(L("Color"), 32, 80, 64, 17, heightScaled: false);   // au3 此处高度写死 17，未乘 dpi；宽度按现代字体放宽
-            AddLabel(L("Opacity"), 32, 112, 55, 17);
-            AddLabel(L("Width"), 32, 148, 55, 17);
-            AddLabel(L("Height"), 32, 182, 55, 17);
+            // 行距统一 36（设计像素）：标签 top = 行 top + 4，文字中线正好落在滑杆中线
+            AddLabel(L("Color"), 32, 72, 64, 17, heightScaled: false);   // au3 此处高度写死 17，未乘 dpi；宽度按现代字体放宽
+            AddLabel(L("Opacity"), 32, 108, 55, 17);
+            AddLabel(L("Width"), 32, 144, 55, 17);
+            AddLabel(L("Height"), 32, 180, 55, 17);
 
-            _swatch1 = AddSwatch(_color1, 100, 78, 30, 21);
-            _swatch2 = AddSwatch(_color2, 129, 78, 30, 21);
-            _swatch3 = AddSwatch(_color3, 168, 252, 30, 21);
+            _swatch1 = AddSwatch(_color1, 100, 68, 30, 21);
+            _swatch2 = AddSwatch(_color2, 129, 68, 30, 21);
+            _swatch3 = AddSwatch(_color3, 200, 262, 30, 21);   // 右移让出「上下」标签的横向空间（原 168 会盖住标签尾字）
 
-            _opacity = AddSlider(94, 110, 150, 25, 255, opacityValue);
-            _width = AddSlider(94, 146, 150, 25, Screen.PrimaryScreen.Bounds.Width, widthValue);
-            _height = AddSlider(94, 181, 150, 25, Screen.PrimaryScreen.Bounds.Height, heightValue);
+            _opacity = AddSlider(94, 104, 150, 25, 255, opacityValue);
+            _width = AddSlider(94, 140, 150, 25, Screen.PrimaryScreen.Bounds.Width, widthValue);
+            _height = AddSlider(94, 176, 150, 25, Screen.PrimaryScreen.Bounds.Height, heightValue);
 
-            _image = AddCheckBox(170, 75, 17, 25);
-            AddLabel(L("UseImage"), 188, 81, 65, 25);
-            _browse = new ModernUi.ModernButton(T, L("Browse"), ghost: true) { Bounds = new Rectangle(S(253), S(77), S(62), S(22)) };
+            _image = AddCheckBox(170, 66, 17, 25);
+            AddLabel(L("UseImage"), 188, 66, 65, 25);   // 与勾选框同 top/同高，文字与方框才垂直居中对齐
+            _browse = new ModernUi.ModernButton(T, L("Browse"), ghost: true) { Bounds = new Rectangle(S(253), S(66), S(62), S(22)) };
             Controls.Add(_browse);
 
-            AddLabel(L("Sides"), 32, 254, 50, 17);
-            AddLabel(L("Width"), 214, 254, 45, 17);
-            AddLabel(L("GradientAngle"), 120, 360, 132, 17);  // "Gradient" 文本结束约 x=100；输入框从 255 起，标签放 120..252 不再被截断
+            AddLabel(L("Sides"), 32, 262, 50, 17);
+            AddLabel(L("Width"), 234, 262, 34, 17);   // 26 宽在 150% 下会把「宽度」裁成「宽」
+            AddLabel(L("GradientAngle"), 120, 370, 132, 17);  // "Gradient" 文本结束约 x=100；输入框从 255 起，标签放 120..252 不再被截断
 
-            _leftRight = AddCheckBox(88, 254, 17, 17);
-            _topBottom = AddCheckBox(120, 254, 17, 17);
-            _borderWidth = AddNumberInput("", 265, 252, 50, 21, center: false);   // au3:175-177 输入框 + GUICtrlCreateUpdown（现代化壳里退化为纯数字输入框）
+            _leftRight = AddCheckBox(84, 262, 17, 17);
+            AddLabel(L("LeftRight"), 102, 262, 34, 17);     // 原版两个勾选框没有文字，只能靠位置猜左右/上下
+            _topBottom = AddCheckBox(140, 262, 17, 17);
+            AddLabel(L("TopBottom"), 158, 262, 34, 17);
+            _borderWidth = AddNumberInput("", 270, 260, 45, 21, center: false);   // au3:175-177 输入框 + GUICtrlCreateUpdown（现代化壳里退化为纯数字输入框）
             _borderWidth.Value = AutoIt.Num(borderWidthValue);
             if (Same(leftRightValue, "0")) _leftRight.Checked = true;     // 语义反转：存 0 表示显示左右边框 → 勾选
             if (Same(topBottomValue, "0")) _topBottom.Checked = true;
 
-            _aeroGlass = AddCheckBox(32, 328, 17, 17);
-            AddLabel(L("EnableAero"), 50, 328, 129, 17);
+            _aeroGlass = AddCheckBox(32, 336, 17, 17);
+            AddLabel(L("EnableAero"), 50, 336, 129, 17);
 
-            _gradient = AddCheckBox(32, 360, 17, 17);
-            AddLabel(L("Gradient"), 50, 360, 113, 17);
-            _gradientAngle = AddNumberInput("", 255, 358, 60, 21, center: false); // au3:194-196 输入框 + GUICtrlCreateUpdown
+            _gradient = AddCheckBox(32, 370, 17, 17);
+            AddLabel(L("Gradient"), 50, 370, 113, 17);
+            _gradientAngle = AddNumberInput("", 255, 368, 60, 21, center: false); // au3:194-196 输入框 + GUICtrlCreateUpdown
             _gradientAngle.Value = AutoIt.Num(AutoIt.ToNumber(gradientAngleValue));
             if (Same(aeroGlassValue, "1")) _aeroGlass.Checked = true;
             if (AutoIt.StringNotEqual(color1Hex, color2Hex)) _gradient.Checked = true;   // 两个颜色串不相等 → 勾上渐变
 
-            _opacityInput = AddNumberInput("0", 253, 110, 62, 21, center: true);
-            _widthInput = AddNumberInput("0", 253, 146, 62, 21, center: true);
-            _heightInput = AddNumberInput("0", 253, 182, 62, 21, center: true);
+            _opacityInput = AddNumberInput("0", 253, 104, 62, 21, center: true);
+            _widthInput = AddNumberInput("0", 253, 140, 62, 21, center: true);
+            _heightInput = AddNumberInput("0", 253, 176, 62, 21, center: true);
+
+            // 宽/高最终会被夹到桌面尺寸（原版 GUICtrlSetData 的 limit 行为，见 AddSlider），
+            // 把上限直接写在界面上，免得用户填了更大的数、点 Apply 后才发现值被悄悄改小。
+            // 右对齐到数字输入框的右缘，读作「高度」这一行的补注，而不是另起一行。
+            var maxNote = AddLabel(L("MaxSize") + " " + Screen.PrimaryScreen.Bounds.Width + " \u00d7 " + Screen.PrimaryScreen.Bounds.Height,
+                      115, 204, 200, 16);   // 315 宽在 150% 下「× 1440」会被裁掉
+            maxNote.TextAlign = ContentAlignment.MiddleRight;
 
             // au3:208-215 在原版里是围着两个边框勾选框的 1px 装饰括线（GUICtrlCreateGraphic），
             // 现代化深色界面里只剩几条游离细线、观感像残迹——有意不再复刻。
@@ -324,17 +334,25 @@ namespace OmnimoTools.ConfigBackground
         /// </summary>
         private void SyncSliders()
         {
-            SyncPair(_widthInput, _width);
-            SyncPair(_heightInput, _height);
-            SyncPair(_opacityInput, _opacity);
+            // 宽/高输入框超上限时立刻改写回上限值（slider 一直就是这么夹的），让用户当场看见数被改；
+            // 不透明度同样有上限 255，但没有「桌面尺寸」那种意外感，保持原来的静默夹断。
+            SyncPair(_widthInput, _width, clampInput: true);
+            SyncPair(_heightInput, _height, clampInput: true);
+            SyncPair(_opacityInput, _opacity, clampInput: false);
         }
 
-        private static void SyncPair(ModernUi.ModernTextBox input, ModernUi.ModernTrackBar slider)
+        private static void SyncPair(ModernUi.ModernTextBox input, ModernUi.ModernTrackBar slider, bool clampInput)
         {
             if (input.Inner.Focused)
             {
                 int v = (int)AutoIt.ToNumber(input.Value);
-                slider.Value = Math.Min(Math.Max(v, slider.Minimum), slider.Maximum);
+                int clamped = Math.Min(Math.Max(v, slider.Minimum), slider.Maximum);
+                if (clampInput && clamped != v)
+                {
+                    input.Value = clamped.ToString(CultureInfo.InvariantCulture);
+                    input.Inner.SelectionStart = input.Value.Length;
+                }
+                slider.Value = clamped;
             }
             else
             {
@@ -349,7 +367,7 @@ namespace OmnimoTools.ConfigBackground
         private void ChooseColor(int index)
         {
             AutoItValue current = index == 1 ? _color1 : (index == 2 ? _color2 : _color3);
-            int chosen = ColorPickerForm.Show(this, (int)current.Number);
+            int chosen = ColorPickerForm.Show(this, (int)current.Number, T);
             AutoItValue value = AutoItValue.FromNumber(chosen);
 
             if (index == 1)

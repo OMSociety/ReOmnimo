@@ -86,6 +86,8 @@ namespace OmnimoTools.ColorChanger
 
             _panelList = new ModernUi.ListBoxM(t) { Bounds = new Rectangle(8, 6, 156, 146) };
             _panelList.Click += (s, e) => ShowElements();
+            // 单选某个面板时把它的现有 ColorSkin 标在色板上（重开窗口也能看出起点）
+            _panelList.SelectedIndexChanged += (s, e) => SyncCurrentColor();
             card.Controls.Add(_panelList);
 
             _emptyHint = new Label
@@ -246,6 +248,8 @@ namespace OmnimoTools.ColorChanger
                 _panels[_numPanels++] = section;
             }
             _emptyHint.Visible = _panelList.Items.Count == 0;
+            // 条目填满后滚动条才出现，此时再切一次深色主题（句柄创建时它还不在）
+            _panelList.RefreshScrollbarTheme();
         }
 
         private void ForEachSelected(Action<string> action)
@@ -264,9 +268,71 @@ namespace OmnimoTools.ColorChanger
             ForEachSelected(p => ApplyColor(p, ColorText.HexToRGB(_colors[index + 1]) + "," + _opacity));
         }
 
-        private void ChooseCustomColor()
+        /// <summary>
+        /// 把选中面板现有的 ColorSkin 标到色板上：恰好选中一个面板时读它，多选或读不到就清掉标记。
+        /// 颜色不在调色板里时标在第 18 格（自定义取色入口），表示这个颜色不来自色板。
+        /// </summary>
+        private void SyncCurrentColor()
         {
-            int data = ColorPickerForm.Show(this, 0x000000);
+            ClearSwatchSelection();
+            if (_panelList.SelectedIndices.Count != 1) return;
+            int index = _panelList.SelectedIndices[0];
+            if (index < 0 || index >= _numPanels) return;
+
+            int rgb;
+            if (!TryReadPanelColor(_panels[index], out rgb)) return;
+
+            for (int i = 0; i < 17; i++)
+            {
+                if ((_colors[i + 1] & 0xFFFFFF) != (rgb & 0xFFFFFF)) continue;
+                if (_swatches[i] != null)
+                {
+                    _swatches[i].Selected = true;
+                    _prev = i;
+                }
+                return;
+            }
+            if (_custom != null) _custom.Selected = true;
+            _prev = -1;
+        }
+
+        private void ClearSwatchSelection()
+        {
+            for (int i = 0; i < 17; i++)
+                if (_swatches[i] != null) _swatches[i].Selected = false;
+            if (_custom != null) _custom.Selected = false;
+            _prev = -1;
+        }
+
+        /// <summary>读面板 ini 里第一个 ColorSkin（形如 "r,g,b,opacity"），成功则给出其 RGB。</summary>
+        private bool TryReadPanelColor(string panel, out int rgb)
+        {
+            rgb = 0;
+            string[] files;
+            try { files = Directory.GetFiles(Paths.Combine(_skinPath, panel), "*.ini"); }
+            catch { return false; }
+
+            foreach (string file in files)
+            {
+                IniDoc doc;
+                try { doc = IniDoc.LoadOrCreate(file); }
+                catch { continue; }
+                string value = doc.Get("Variables", "ColorSkin", "");
+                if (string.IsNullOrEmpty(value)) continue;
+                string[] parts = value.Split(',');
+                if (parts.Length < 3) continue;
+                int r, g, b;
+                if (!int.TryParse(parts[0].Trim(), out r)) continue;
+                if (!int.TryParse(parts[1].Trim(), out g)) continue;
+                if (!int.TryParse(parts[2].Trim(), out b)) continue;
+                rgb = ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
+                return true;
+            }
+            return false;
+        }
+
+        private void ChooseCustomColor()
+        {            int data = ColorPickerForm.Show(this, 0x000000, T);
             if (data == -1) return;   // 取消：AutoIt 走 ContinueCase，等价于什么都不做
             string selected = ColorText.HexToRGB(data) + "," + _opacity;
             ForEachSelected(p => ApplyColor(p, selected));
@@ -329,6 +395,13 @@ namespace OmnimoTools.ColorChanger
                     int cx = Width / 2, cy = Height / 2, d = 6;
                     g.DrawLine(p, cx - d, cy, cx + d, cy);
                     g.DrawLine(p, cx, cy - d, cx, cy + d);
+                }
+                if (Selected)
+                {
+                    // 选中环：基类 Swatch 的画法这里被整体覆写，需要自己补（面板颜色不在色板里时标在这一格）
+                    var ring = new Rectangle(1, 1, Width - 3, Height - 3);
+                    using (var path = ModernUi.Rounded(ring, 6))
+                    using (var p = new Pen(T.Accent, 2f)) g.DrawPath(p, path);
                 }
             }
         }
