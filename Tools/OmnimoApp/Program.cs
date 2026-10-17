@@ -47,6 +47,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
+using Microsoft.Win32;
 using Microsoft.Win32.SafeHandles;
 
 namespace OmnimoTools.OmnimoApp
@@ -493,44 +494,112 @@ namespace OmnimoTools.OmnimoApp
             if (Same(openImageAfter, "True")) ShellExecute(target);
         }
 
-        /// <summary>Browser：内嵌 IE 的窗口（原版 _IECreateEmbedded，C# 用 WinForms 自带的 WebBrowser）。</summary>
+        /// <summary>Browser：交给系统默认浏览器打开（原版是内嵌 IE 的 _IECreateEmbedded 窗口）。</summary>
+        /// <remarks>
+        /// 内嵌 WebBrowser 就是 IE 引擎，2026 年的页面在里面字体、排版、滚动条全崩（实测 Readme 与天气
+        /// 帮助页都读不了），所以不再自建窗口。第二个参数 [scaledpi] 只在旧调用点里还传着，这里不再使用。
+        ///
+        /// 本地页要带参数（主题、语言）：ShellExecute 会把 file:///…?query 归一成文件路径，查询串与
+        /// 片段都会在路上丢掉（实测页面收到空参数），所以先查注册表拿到默认浏览器的命令行，直接把
+        /// file:// URI 当参数交给它；拿不到再退回 ShellExecute。
+        /// </remarks>
         private static void Browser(string[] args)
         {
             string url = Arg(args, 2);
-            // 原代码把 $CmdLine[3] 直接乘进尺寸（两个调用点没传 [3]，此时宽高为 0），原样保留
-            int size = (int)(535 * AutoIt.ToNumber(Arg(args, 3)));
+            if (string.IsNullOrEmpty(url))
+                return;
 
-            using (var form = new Form())
+            string query = string.Empty;
+            string target = url;
+            int q = url.IndexOf('?');
+            if (q >= 0)
             {
-                form.Text = "Omnimo";
-                form.ClientSize = new Size(size, size);
-                form.BackColor = Color.FromArgb(0x7A, 0x7A, 0x7A);
-                // BitOR($GUI_SS_DEFAULT_GUI, WS_MAXIMIZEBOX, WS_SIZEBOX, WS_CLIPCHILDREN)：
-                // 在默认 GUI 样式上补最大化与可调边框
-                form.FormBorderStyle = FormBorderStyle.Sizable;
-                form.MinimizeBox = true;
-                form.MaximizeBox = true;
-                form.ControlBox = true;
-
-                var browser = new WebBrowser();
-                browser.ScriptErrorsSuppressed = true; // _IEErrorHandlerRegister()
-                browser.Dock = DockStyle.Fill;         // GUICtrlSetResizing(-1, $GUI_DOCKBORDERS)
-                form.Controls.Add(browser);
-
-                form.Shown += delegate { NavigateQuietly(browser, url); };
-                Application.Run(form);
+                target = url.Substring(0, q);
+                query = url.Substring(q);
             }
-        }
 
-        private static void NavigateQuietly(WebBrowser browser, string url)
-        {
             try
             {
-                browser.Navigate(url);
+                string launch = target;
+                if (File.Exists(target))
+                {
+                    // 本地页的参数只能放片段：Chrome/Edge 把 file:// 的查询串当成文件名的一部分，
+                    // 打开会直接报「无法访问此网站」（实测），而 # 片段会原样保留到 location.hash。
+                    // 页面脚本查询串与片段都读。
+                    launch = new Uri(Path.GetFullPath(target)).AbsoluteUri
+                             + (query.Length > 1 ? "#" + query.Substring(1) : string.Empty);
+                }
+
+                if (!LaunchDefaultBrowser(launch))
+                    Process.Start(new ProcessStartInfo { FileName = launch, UseShellExecute = true });
             }
             catch
             {
-                // _IENavigate 对畸形 URL 同样只是导航失败，不中断脚本
+                // 与旧实现一致：打不开就不出声，不弹错误框
+            }
+        }
+
+        /// <summary>
+        /// 用注册表里的默认浏览器命令行直接启动，URL（含查询串/片段）原样作为参数传过去。
+        /// ShellExecute 会裁掉参数，只有这种走法能保住 ?theme=…&amp;lang=…。
+        /// 返回 false 表示没查到、或启动失败，调用方退回 ShellExecute。
+        /// </summary>
+        private static bool LaunchDefaultBrowser(string url)
+        {
+            try
+            {
+                string progId;
+                using (var choice = Registry.CurrentUser.OpenSubKey(
+                    @"Software\Microsoft\Windows\Shell\Associations\UrlAssociations\https\UserChoice"))
+                {
+                    progId = choice == null ? null : choice.GetValue("ProgId") as string;
+                }
+                if (string.IsNullOrEmpty(progId))
+                    return false;
+
+                string command;
+                using (var cmd = Registry.ClassesRoot.OpenSubKey(progId + @"\shell\open\command"))
+                {
+                    command = cmd == null ? null : cmd.GetValue(null) as string;
+                }
+                if (string.IsNullOrEmpty(command))
+                    return false;
+
+                // 命令形如 "C:\…\msedge.exe" --single-argument %1
+                string exe, rest;
+                if (command[0] == '"')
+                {
+                    int close = command.IndexOf('"', 1);
+                    if (close < 0)
+                        return false;
+                    exe = command.Substring(1, close - 1);
+                    rest = command.Substring(close + 1).Trim();
+                }
+                else
+                {
+                    int sp = command.IndexOf(' ');
+                    if (sp < 0)
+                    {
+                        exe = command;
+                        rest = string.Empty;
+                    }
+                    else
+                    {
+                        exe = command.Substring(0, sp);
+                        rest = command.Substring(sp + 1).Trim();
+                    }
+                }
+
+                string arguments = rest.Contains("%1")
+                    ? rest.Replace("%1", "\"" + url + "\"")
+                    : (rest + " \"" + url + "\"").Trim();
+
+                Process.Start(new ProcessStartInfo { FileName = exe, Arguments = arguments, UseShellExecute = false });
+                return true;
+            }
+            catch
+            {
+                return false;
             }
         }
 
