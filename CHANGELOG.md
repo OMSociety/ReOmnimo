@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 新增
 
-- **全新设置中心 `SettingsCenter/`**：以 net48 WinForms + WebView2 重写 `REO\@Resources\Common\Config\config.exe`（原 2013 年 AutoIt 版退役）。皮肤右键「设置」菜单的调用参数与旧版完全一致（`<模式> <config> <file> <settings> <skins> <program>`），374 个 `RainConfigure.cfg` 面板零改动直接适配。
+- **全新设置中心 `SettingsCenter/`**：以 net48 WinForms + WebView2 重写 `REO\@Resources\Common\Config\config.exe`（原 2013 年 AutoIt 版退役）。皮肤右键「设置」菜单的调用参数与旧版完全一致（`<模式> <config> <file> <settings> <skins> <program>`），374 个 `RainConfigure.cfg` 面板零改动直接适配（清理孤儿配置后现为 203 个）。
   - 界面按 schema 渲染：三行组（键/标题/控件）与两行组（键/标题）均支持；无控件行的裸键按键名与值形态推断控件（Color/Tint+RGB 值→取色器、0/1→开关、范围提示→滑杆、其余→文本框）。
   - 简体中文界面：`lang\zh-CN.json` 语言包（面板设置项标签 + hint 提示 + 界面文案，29 KB），缺失时回退英文。
   - 支持 `UserVariables.local.inc` 覆盖链：文件存在时读写都走 local（与旧 AutoIt 版 `@include` 链语义一致）。
@@ -51,9 +51,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 四轮修正（2026-10-17，DPI 根修）：此前三个窗口是 DPI 不感知进程，Windows 把 96 DPI 位图拉伸到屏幕倍率（用户屏 150%），1px 描边与圆角弧线被重采样成糊、勾选框在 150% 屏上冒出主题引擎画的花色碎片字形。现三个 exe 内嵌 `PerMonitorV2` 清单（`Tools\Shared\app.manifest`），`ModernForm.OnHandleCreated` 按 `GetDpiForWindow` 手动 `Scale` 统一缩放窗体与子控件（net48 的 `AutoScaleMode.Dpi` 实测缩放因子算成 1，不可用），自绘控件内部几何走 `PxU/DpiU` 系数；`ModernCheckBox` 基类从 `CheckBox` 换成 `Control`（主题引擎对继承 CheckBox 的 UserPaint 控件仍会画原生勾选字形）。
   - 多语言收尾（2026-10-17）：八语键集对齐到 46 键——此前 Dutch / French / German / Portuguese / Spanish 缺 `Apply`（ConfigBackground 右下角按钮在这些语言下显示英文键名）；PanelCreator 的拖放提示（新键 `DropHint`，替代 2013 年内嵌英文位图 droptext.png）与作者输入框标题接语言键；六份 UTF-16LE+BOM 语种编码与行尾保持不变。三窗跟随皮肤语言包（`Varrar.inc` 的 `Language=`），实机验证中文与德文界面。
 - 版面核对的三轮修正（2026-10-17）：ColorChanger 色板网格右列溢出窗口、末行缺一角——间距从 44px 改回原版 au3 的 40px，并把常驻的自定义色块（原版第 18 格，点击弹系统取色器）放回网格末格；PanelCreator 预览区面板名被居中格式钉在 x=10、左半裁掉——改回原版的默认左对齐绘制。
+- **删除贡献者包分类**（2026-10-18）：`Gallery\cat5.inc`、「贡献者包」侧栏项与其图标、`mask-contrib.png` 覆盖层、`Icons\heart.png`、主题模板里只给这些磁贴用的 `[P]` 样式（`!ToggleConfig "REO\DonatorPanels\…"`，而 `REO\DonatorPanels` 目录从未存在）一并移除；`Gallery\main.ini` 里 `[Cat5]`、`[Cat5Indicator]`、`[CatIcon5]` 三段删除后，设置标题与下一分类图标各上移一行（370→320、392→344）。四类贡献者语言键从 8 份运行时包与 `lang.inc` / `Backup\English.inc` / `Readme\Translate\**` 中移除，Chinese / English 现各 281 键。
+- **删除 60 个无面板的孤儿配置目录**（2026-10-18）：`@Resources\Config\Panels` 有 83 个配置目录，而 `REO\Panels` 只有 62 个面板；多出的 23 个（含 `TextItems` 侧同形目录）永远不会被任何 include 或设置窗口引用，共 347 个文件。清理后 `Config\Panels` 40 个目录、`TextItems` 17 个。设置窗口同时改为只列 schema 里真有一组设置的面板（此前 35 个空 schema 面板点开只有「0 项设置」）。
 
 ### 修复
 
+- 15 个面板变体没写 `@include…=#@#Config\Panels\<名>\UserVariables.inc`，设置窗口能改能存而磁贴不读：`Notes`（Item / Item2 / Item3，用 `#NotesFont#`）、`Timer`（用 `#SoundFile#`）、`MediaKey` 的四个 `MediaRemote`、`Brightness`、`Folders`、`RAM`、`Volume` 的其余变体补齐 include；补插位置限定在 `[Variables]` 段内、最后一条 include 之后，按各文件原有编码写回。
 - 三个 GUI 工具窗口圆角处的白点：圆角此前由 DWM 圆角偏好（`DWMWA_WINDOW_CORNER_PREFERENCE`）与 WinForms `Region` 双重裁剪，两套半径不一致，DWM 抗锯齿在角上采样到未绘制的像素；现只保留 DWM 圆角，角部随窗口背景一同绘制。
 - ActivePanels 3x3 布局在启用面板达到 31 个时崩溃（AutoIt 报 `Variable used without being declared`）：`ActivePanels.au3:278` 使用了从未声明的 `$row9`（只声明了 `$row1..$row8`），第 31 个面板起排布中断；C# 版按源码本来的行表补全声明，可正常排到 row9 并放完剩余面板。
 - SettingsCenter `x86` 位数锁定：WebView2 NuGet 对 net48 只带 x86 原生 `WebView2Loader.dll`，SDK 风格工程默认 AnyCPU（x64 进程）加载即 `BadImageFormatException (0x8007000B)` 崩溃；`PlatformTarget=x86` 修正（csproj 注释留档）。

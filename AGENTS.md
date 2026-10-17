@@ -44,16 +44,16 @@
 
 改皮肤文件（`ini` / `inc` / `cfg` / `lua`）必须用编码感知的补丁脚本：二进制读入 → 按嗅探到的编码解码 → 替换 → 按**同一编码**写回且 `newline=""`。直接用文本工具写会把 `\r\n` 写成 `\r\r\n`（实测过）。嗅探顺序：UTF-16LE+BOM → UTF-8+BOM → **会抛异常的**严格 UTF-8 → cp936 → cp1252；纯 ASCII 文件会同时通过多种编码，另看是否含 `>= 0x80` 字节。控制台是 GBK，`print` 中文会抛 `UnicodeEncodeError`，结果写 UTF-8 文件再看。
 
-**编码不能按目录或扩展名假定，逐个嗅探。** 2026-10-17 重扫 1574 个 `ini`/`inc`/`cfg`/`lua`：1451 个 UTF-8 无 BOM、93 个 UTF-16LE+BOM、20 个 cp1252、7 个 cp936、3 个 UTF-8+BOM。按模式看主流与例外：
+**编码不能按目录或扩展名假定，逐个嗅探。** 2026-10-18 重扫 1225 个 `ini`/`inc`/`cfg`/`lua`（删掉孤儿配置后）：1138 个 UTF-8 无 BOM、80 个 UTF-16LE+BOM、21 个 cp1252、7 个 cp936、2 个 UTF-8+BOM。按模式看主流与例外：
 
 | 模式（文件数） | 现查编码分布 |
 |---|---|
 | `Common\Variables\Languages\*.inc`（9） | **全部 UTF-16LE+BOM**——中文包在此 |
 | `Panels\*\Item*.ini`（110） | UTF-8 无 BOM 95、cp1252 9（Weather / Speedfan 等）、UTF-16LE+BOM 6（Network / CoreTemp 等） |
-| `Config\Panels\*\UserVariables.inc`（298） | UTF-8 无 BOM 283、UTF-16LE+BOM 14、cp936 1 |
-| `Config\Panels\*\RainConfigure.cfg`（374） | UTF-8 无 BOM 371、UTF-16LE+BOM 1（Agenda）、UTF-8+BOM 1、cp936 1——**不是「cfg 一律 UTF-16」** |
+| `Config\Panels\*\UserVariables.inc`（139） | UTF-8 无 BOM 138、cp936 1 |
+| `Config\Panels\*\RainConfigure.cfg`（203） | UTF-8 无 BOM 201、UTF-16LE+BOM 1（Agenda）、cp936 1——**不是「cfg 一律 UTF-16」** |
 | `Structure\*\Main.inc`（11）、`*.lua`（10） | 全部 UTF-8 无 BOM |
-| `Gallery\cat*.inc`（7） | UTF-8 无 BOM 6；`cat7.inc` 是 UTF-16LE+BOM |
+| `Gallery\cat*.inc`（6） | UTF-8 无 BOM 5；`cat7.inc` 是 UTF-16LE+BOM |
 
 `Common\Variables\UserVariables.inc` 2026-10-17 起是 **UTF-8+BOM**（此前是库内独一份的 cp1252，含 3 个 `>= 0x80` 字节）：它是语言检测器 `!WriteKeyValue` 的写回目标，无 BOM 的 cp1252 会被 Rainmeter 按系统 ANSI 读写、高位字节变 `?` 且可能吞行尾引号（实测损伤过一行，转换修复并顺带修正上游 mojibake）——**会被运行时写回的 inc 一律带 BOM**。现存 cp1252 剩 `Common\Settings\` 死文件与 9 个 `Panels\*\Item*.ini`，以 `_reo_enc_patterns.py` 重扫为准。`Common\Background\Language\` 下 6 个 `.cfg`（含 `Chinese.cfg`）是 UTF-16LE+BOM，而 `English.cfg` / `Dutch.cfg` 是 UTF-8 无 BOM。cp936 与 cp1252 会互相误判（cp936 常把 cp1252 的高位字节读成合法双字节）。判不准时改用 **latin-1** 读写：256 个字节与码点一一对应，字节级无损，只替换其中的 ASCII 片段即可。另注意 **`git grep` 会把 UTF-16 文件当二进制跳过（加 `-I` 更彻底）**——在那 93 个 UTF-16 文件里 grep 不到东西，不等于内容不存在，先解码再查。
 
@@ -68,7 +68,7 @@ REO\                              皮肤根（桌面 junction 指到这里）
 ├─ Background\  Gallery\          背景与磁贴库
 └─ @Resources\
    ├─ Common\                     共用资源 + 4 个分发 exe（ColorChanger / OmnimoApp / Background\ / PanelCreator\，全为 C#）+ Config\ 与 MultiManager\ 下的 C# 工具
-   ├─ Config\Panels\【名】\         各面板的 UserVariables.inc 与 RainConfigure.cfg（现查磁盘 374 个 cfg）
+   ├─ Config\Panels\【名】\         各面板的 UserVariables.inc 与 RainConfigure.cfg（现查磁盘 203 个 cfg）
    └─ Structure\【PanelType】\      13 档底板（Circle / Double / … / win10 / win7），各含 Main.inc
 ```
 
@@ -86,7 +86,7 @@ REO\                              皮肤根（桌面 junction 指到这里）
 - 界面文案只走 `Variables\Languages\*.inc`；AutoIt 工具文案只走 `Common\Background\Language\*.cfg`。`AutoIT\Language\*.cfg` 是源码侧镜像，**运行时无读取点**——只改它不会改变任何界面。
 - `Padding` / `Opacity` / `Opacity2` / `Globalblurenable` / `Xposition` 只由 `Common\Color\*.inc` 定义。面板库换主题会用主题文件**整体覆盖** `color.inc`，仓库里提交的默认值会被改回主题自带值——有意保留的边界。
 - 磁贴表在 `REO\Gallery\cat1..7.inc`（7 个分类，`cat7.inc` 是 UTF-16LE+BOM）。每格 = 面板目录名 + `Text="#语言键#"`，动作是 `!ToggleConfig "REO\Panels\#CURRENTSECTION#" "Item.ini"`。
-- 磁贴图标层是 `@Resources\Graphics\Gallery\mask-<类>.png`（4 个：contrib / essential / shortcut / textitems），由 `cat1` / `cat2` / `cat3` / `cat5` 引用（如 `cat1.inc:338` 引 `mask-essential.png`）。**增删或移动磁贴必须同步改对应图标层**（复制相邻字形，不要自画）。跨行回流靠行锚点交接：`Y=(1*#ScaleDpi#)R` + `x=(360*#ScaleDpi#)`（`cat1.inc:93-94`）。
+- 磁贴图标层是 `@Resources\Graphics\Gallery\mask-<类>.png`（3 个：essential / shortcut / textitems；`contrib` 随 cat5 分类一并删除），由 `cat1` / `cat2` / `cat3` 引用（如 `cat1.inc:338` 引 `mask-essential.png`）。**增删或移动磁贴必须同步改对应图标层**（复制相邻字形，不要自画）。跨行回流靠行锚点交接：`Y=(1*#ScaleDpi#)R` + `x=(360*#ScaleDpi#)`（`cat1.inc:93-94`）。
 - 工具取语言：读 `Common\Background\Varrar.inc` 的 `Language` → `Common\Background\Language\【Language】.cfg`（`Language` 由 AutoLang.lua 与 `MainLanguage` 一并写回；手动指定要在 `LangAuto=0` 时做，见 §6）。
 
 ## 5 当前状态：在途工作与待办
@@ -103,6 +103,8 @@ REO\                              皮肤根（桌面 junction 指到这里）
 | `REO\@Resources\Common\Config\hue.ini` | 已暂存删除，`.gitignore` 已覆盖 |
 | 七份 C# 分发 exe（`ColorChanger.exe` 100352、`OmnimoApp.exe` 67072、`Background\ConfigBackground.exe` 102912、`PanelCreator\PanelCreator.exe` 117248、`Config\ActivePanels.exe` 40448、`Config\config.exe` 78848、`MultiManager\MultiManager.exe` 38400 字节，均 0.6.0.0；2026-10-18 现查） | 已替换/已部署，属已跟踪文件的修改；`config.exe` 与 `ActivePanels`/`MultiManager` 为 2026-10-18 重建（前两份此前是旧代码或缺图标）；三个 GUI 工具又经窗口打磨（关闭键、占位提示、跨屏重排、深色取色框、调色板菜单）后重建 |
 | 语言自动跟随（新增 `Common\Variables\AutoLang.lua`、`Languages\Auto.inc`；改 `Common\Variables\UserVariables.inc`、`Common\Background\Varrar.inc`、`Background\bg.ini`、`Gallery\main.ini`） | 已实机验证（德语注入→自动写回中文、0 新增 ERRO）；`UserVariables.inc` 转 UTF-8+BOM（§3）；`Varrar.inc` 现查 `Language=Chinese`（= 本机系统语言，检测器写回） |
+| 孤儿配置与贡献者层清理（2026-10-18） | 删 `Config\Panels` / `Config\TextItems` 下 60 个无面板的配置目录（347 文件）；删 `Gallery\cat5.inc` 与 `Gallery\main.ini` 的 `[Cat5]`/`[Cat5Indicator]`/`[CatIcon5]`（设置标题 370→320，`[CatIcon6]` 392→344）；删 `mask-contrib.png`、`Icons\heart.png`、主题模板里只被 cat5 用到的 `[P]` 样式；四类贡献者语言键从 8 份运行时包与死镜像中移除 |
+| 面板变体 include 补齐（2026-10-18） | 15 个变体补 `@include<max+1>=#@#Config\Panels\<名>\UserVariables.inc`（Notes 三个用 `#NotesFont#`、Timer 用 `#SoundFile#`，其余 11 个不引用任何键） |
 | 文案与文档修正 | 若干 `RainConfigure.cfg` 标题、`Slideshow\Item.ini` Height 196→195、`.gitignore`、`THIRD-PARTY.md`、`CHANGELOG.md`；Delicious / StumbleUpon 的面板配置已删 |
 
 待办：
@@ -138,7 +140,7 @@ REO\                              皮肤根（桌面 junction 指到这里）
 - **改语言文案**：`Chinese.inc` 与 `English.inc` 键集逐键对照——现查各 **283** 个唯一键、双向零差，`Chinese.inc` 里 149 个键含中文。两个文件都是 **UTF-16LE+BOM**（§3），`git grep -I` 会把它们当二进制跳过，**必须先解码再查**。**全库唯一的占位符约定是 `AgendaNoEvents` 的 `%1`**（`agenda.lua` 用 `gsub('%%1', …)` 替换），不要发明第二种写法。7 个键在中文包里**故意保持英文**：`Folders` / `weather` / `Humidity` / `Pressure` / `Wind` / `brightness` / `start`——不要翻译。磁贴名的本地化在 `Gallery\cat1..7.inc` 覆盖 `Text="#键#"`，不要在磁贴里写死中文。
 - **改工具语言包**（`Common\Background\Language\*.cfg`）：**八语键集必须一致**——新增键要同时补全 8 份（2026-10-17 实查 5 语缺 `Apply`，缺键时按钮显示英文键名）；六份 UTF-16LE+BOM、English / Dutch 为 UTF-8 无 BOM，改动走 §3 编码感知流程。键集重比对用 `D:\WorkSpace\WorkBench\_reo_lang.py`。
 - **改语言跟随机制**（`Common\Variables\AutoLang.lua` + `Languages\Auto.inc`）：宿主是 `REO\Background\bg.ini` 与 `REO\Gallery\main.ini` 末尾的 measure 对（Registry 读 `LocaleName` + Script，`UpdateDivider=-1` 每次宿主加载跑一次）。语言→包映射表在 lua 顶部，**改语言包集合必须同步 lua、README 与 `Languages\Auto.inc`**。`Auto.inc` 必须保持为指向 `English.inc` 的一行 shim（嵌套 include）。`UserVariables.inc` 是 UTF-8+BOM（§3，勿转回无 BOM）。两个宿主 ini 编码不同：`bg.ini` 单字节、`main.ini` UTF-16LE+BOM——追加内容按各自编码写（2026-10-17 在 main.ini 上踩过 ASCII 直拼变乱码）。检测器写回只认 `LangAuto`（`0` = 手动锁定）与 `MainLanguage` 的比较结果。
-- **改面板设置 schema**：`RainConfigure.cfg` 4 行一组（参数名 / 标题 / 控件类型 / 空行）。**编码不统一**（现查 374 个：UTF-8 无 BOM 371、Agenda 是 UTF-16LE+BOM、`TextItems\uTorrent` 是 UTF-8+BOM、`Panels\uTorrent` 是 cp936），改前按 §3 逐个嗅探。`Checkbox:a:b` 的契约是**未勾选写 a、勾选写 b**（`Config.au3:519` 写、`:568` 显示态）——把 `Checkbox:1:0` 读成「勾选=1」会把 `Hidden=#X#` 判反。
+- **改面板设置 schema**：`RainConfigure.cfg` 4 行一组（参数名 / 标题 / 控件类型 / 空行）。**编码不统一**（现查 203 个：UTF-8 无 BOM 201、Agenda 是 UTF-16LE+BOM、`Panels\uTorrent` 是 cp936），改前按 §3 逐个嗅探。`Checkbox:a:b` 的契约是**未勾选写 a、勾选写 b**（`Config.au3:519` 写、`:568` 显示态）——把 `Checkbox:1:0` 读成「勾选=1」会把 `Hidden=#X#` 判反。
 - **加 Agenda 渲染样式**：0.4.0 起只剩一套排布——style 3/4 死分支与恒为 1 的 `AgendaStyle` 变量已删除（现查 `AgendaStyle` 命中 0）。不要再按「未接线分支」去改 ini 或 `RainConfigure.cfg`；要加样式请单独提案。
 - **改 `agenda.lua`**：Rainmeter 公式里 `**` 是幂运算符（如 `7**#TypeH#`），不是畸形表达式。Lua 的 `0` 是真值，判断开关要用显式比较。含 `"` 的值必须走**三引号** bang 形式 `!SetOption 【meter】 【opt】 """值"""`，写成 `""` 会报 `Skin "X" does not exist` 且值不变。Rainmeter 按 ANSI（本机 CP936）读 `.lua` 源，字符串字面量必须纯 ASCII（中文注释无害），要显示中文只能从变量/ini 取。
 
