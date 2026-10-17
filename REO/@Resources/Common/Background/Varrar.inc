@@ -1,3 +1,3 @@
 [Variables]
-Language=English
+Language=Chinese
 MainLanguage=Russian

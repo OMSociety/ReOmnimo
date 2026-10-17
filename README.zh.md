@@ -28,7 +28,7 @@ ReOmnimo 接手 [Omnimo](https://github.com/fediaFedia/Omnimo)(fediaFedia 与 Xy
 
 | 改动 | 说明 |
 |------|------|
-| **简体中文界面** | 设置与保存面板、面板右键菜单本地化为简体中文。磁贴表面保持英文,因为它们按英文宽度排版;唯一例外是日程磁贴,其名称经面板库条目本地化(此模式下为「日程」)。语言选择器为此模式提供「简体中文」。 |
+| **简体中文界面** | 设置与保存面板、面板右键菜单本地化为简体中文。磁贴表面保持英文,因为它们按英文宽度排版;唯一例外是日程磁贴,其名称经面板库条目本地化(此模式下为「日程」)。界面语言(磁贴、菜单与工具对话框)默认跟随系统显示语言,八个语言包全部生效;手动锁定可把 `REO/@Resources/Common/Variables/UserVariables.inc` 的 `LangAuto` 设为 0,并在该文件与 `REO/@Resources/Common/Background/Varrar.inc` 指定语种。 |
 | **日程面板** | 读取公开的 ICS 日历订阅(每个面板最多三条,按时间合并排序)。私有 CalDAV 端点需要 PROPFIND,而 Rainmeter 无法发起;公开的订阅 URL 是普通 GET,可以工作。 |
 | **面板缺陷修复** | 修了一批长期存在的面板缺陷,见 `CHANGELOG.md`。 |
 | **面向 Rainmeter 5.0 重建** | 捆绑插件改写为 5.0 原生 measure;媒体键改用 `!SendKey`;NowPlaying 改读 Windows 媒体(SMTC)接口,Spotify、浏览器、VLC 等现代播放器都能对接。可视化在无音频时休眠。 |

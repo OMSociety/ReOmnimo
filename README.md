@@ -30,7 +30,7 @@ ReOmnimo takes over development of [Omnimo](https://github.com/fediaFedia/Omnimo
 
 | Change | Description |
 |--------|-------------|
-| **Simplified Chinese UI** | The settings and save panels and the panel context menus are localized into Simplified Chinese. Tile surfaces stay English, because they are laid out around English string widths; the one exception is the Agenda tile, whose name is localized through its gallery entry (日程 in this mode). The language picker offers 简体中文 for this mode. |
+| **Simplified Chinese UI** | The settings and save panels and the panel context menus are localized into Simplified Chinese. Tile surfaces stay English, because they are laid out around English string widths; the one exception is the Agenda tile, whose name is localized through its gallery entry (日程 in this mode). The interface language (tiles, menus and the tool dialogs) follows the Windows display language out of the box, across all eight language packs; to lock a manual choice, set `LangAuto=0` in `REO/@Resources/Common/Variables/UserVariables.inc` and name the language there and in `REO/@Resources/Common/Background/Varrar.inc`. |
 | **Agenda panel** | Reads published ICS calendar subscriptions (up to three per panel, merged and sorted by time). Private CalDAV endpoints need PROPFIND, which Rainmeter cannot issue; a published subscription URL is a plain GET and works. |
 | **Panel defect fixes** | A handful of long-standing panel defects fixed; see `CHANGELOG.md`. |
 | **Rebuilt for Rainmeter 5.0** | Bundled plugins are now written as native 5.0 measures; media keys use `!SendKey`; NowPlaying reads the Windows media (SMTC) interface, so Spotify, browsers, VLC and other modern players work. Visualizers sleep when no audio plays. |

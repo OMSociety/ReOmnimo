@@ -1,13 +1,16 @@
-[Variables]
+ï»¿[Variables]
 language=dutch
 Enc=file://#SKINSPATH#\REO\Common\Variables\Dependencies\0\notes.txt
-SubstituteFeed="&apos;":"'","&quot;":"","&Quot;":"","&amp;":"&","&lt;br&gt;":"","![CDATA[":"","]]":"","...":"","<":"",">":"","/PRE&gt;":"","PRE&gt;":"","&lt;":"","&#39;":"'","&#228;":"ä","&#246;":"ö","&#8211;":"–"
+SubstituteFeed="&apos;":"'","&quot;":"","&Quot;":"","&amp;":"&","&lt;br&gt;":"","![CDATA[":"","]]":"","...":"","<":"",">":"","/PRE&gt;":"","PRE&gt;":"","&lt;":"","&#39;":"'","&#228;":"Ã¤","&#246;":"Ã¶","&#8211;":"â€“"
 SubstituteLink="&amp;":"&","<![CDATA[":"","]]>":""
 skincolor=Images
 Enc0=#SKINSPATH#REO\Common\Variables\Dependencies\0\notes.txt
 C:\Users\User\Documents\Rainmeter\Skins\\REO\Common\Panel\Rounded=none
 TimeFormat=%H:%M
 MainLanguage=Chinese
+; Auto = follow the system language (resolved by Common\Variables\AutoLang.lua
+; into this file and Common\Background\Varrar.inc). Set LangAuto=0 to lock a manual choice.
+LangAuto=1
 timeformatsetting12=on1
 timeformatsetting24=off
 InterfaceOff=on
@@ -41,3 +44,4 @@ BlurMode=win7
 HubURL=http://fediafedia.com/omnimo/omnimohub.html
 OmnimoVersion=10.0
 LayoutTemplate=!DeactivateConfig
+MissingComponents=!DeactivateConfig
