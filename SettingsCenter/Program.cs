@@ -470,10 +470,25 @@ public class MainForm : Form
         var list = new List<string>();
         if (Directory.Exists(dir))
             foreach (var d in Directory.GetDirectories(dir))
-                if (File.Exists(Path.Combine(d, "RainConfigure.cfg")))
+                if (HasSettings(d))
                     list.Add(Path.GetFileName(d));
         list.Sort(StringComparer.OrdinalIgnoreCase);
         return list;
+    }
+
+    /// <summary>配置目录里有可编辑项才算数：只有空行/注释的 RainConfigure.cfg 会在侧栏点出「0 项设置」。</summary>
+    private bool HasSettings(string dirPath)
+    {
+        var cfg = Path.Combine(dirPath, "RainConfigure.cfg");
+        if (!File.Exists(cfg)) return false;
+        int rows = 0;
+        foreach (var line in ReadTextAuto(cfg).Split(new[] { "\r\n", "\n" }, StringSplitOptions.None))
+        {
+            var t = line.Trim();
+            if (t.Length == 0 || t.StartsWith("#")) continue;
+            rows++;
+        }
+        return rows >= 4;   // schema 四行一组（参数名/标题/控件类型/空行）
     }
 
     private string BuildHtml()
