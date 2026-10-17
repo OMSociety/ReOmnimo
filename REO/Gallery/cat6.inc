@@ -253,5 +253,5 @@ Y=(20*#ScaleDpi#)R
 fontsize=(10*#ScaleDpi#)
 MouseOverAction=[!SetOption #CURRENTSECTION# fontcolor #TTtextcolor#][!Update]
 MouseLeaveAction=[!SetOption #CURRENTSECTION# fontcolor #TTtextcolor#,200][!Update]
-LeftMouseUpAction=!ToggleConfig "wp7\Gallery\Color" "coloradvanced.ini"
+LeftMouseUpAction=!ToggleConfig "REO\Gallery\Color" "coloradvanced.ini"
 MouseActionCursor=1

@@ -39,28 +39,28 @@ y=R
 solidcolor=40,40,40
 MouseOverAction=[!SetOption #CURRENTSECTION# solidcolor 100,100,100][!Update]
 MouseLeaveAction=[!SetOption #CURRENTSECTION# solidcolor "40,40,40"][!Update]
-LeftMouseUpAction=!ToggleConfig "wp7\textitems\worldclock" "Item.ini"
+LeftMouseUpAction=!ToggleConfig "REO\textitems\worldclock" "Item.ini"
 [todolist]
 Meter=Image
 MeterStyle=LargeTextItem
 solidcolor=40,40,40
 MouseOverAction=[!SetOption #CURRENTSECTION# solidcolor 100,100,100][!Update]
 MouseLeaveAction=[!SetOption #CURRENTSECTION# solidcolor "40,40,40"][!Update]
-LeftMouseUpAction=!ToggleConfig "wp7\textitems\System" "Item.ini"
+LeftMouseUpAction=!ToggleConfig "REO\textitems\System" "Item.ini"
 [rssreader1]
 Meter=Image
 MeterStyle=LargeTextItem
 solidcolor=35,35,35
 MouseOverAction=[!SetOption #CURRENTSECTION# solidcolor 100,100,100][!Update]
 MouseLeaveAction=[!SetOption #CURRENTSECTION# solidcolor "35,35,35"][!Update]
-LeftMouseUpAction=!ToggleConfig "wp7\textitems\Reader" "Item.ini"
+LeftMouseUpAction=!ToggleConfig "REO\textitems\Reader" "Item.ini"
 [nowplaying]
 Meter=Image
 MeterStyle=LargeTextItem
 solidcolor=70,70,70
 MouseOverAction=[!SetOption #CURRENTSECTION# solidcolor 100,100,100][!Update]
 MouseLeaveAction=[!SetOption #CURRENTSECTION# solidcolor "70,70,70"][!Update]
-LeftMouseUpAction=!ToggleConfig "wp7\textitems\Weather" "Item.ini"
+LeftMouseUpAction=!ToggleConfig "REO\textitems\Weather" "Item.ini"
 [doublereader]
 Meter=Image
 MeterStyle=LargeTextItem
@@ -69,21 +69,21 @@ X=(360*#ScaleDpi#)
 solidcolor=55,55,55
 MouseOverAction=[!SetOption #CURRENTSECTION# solidcolor 100,100,100][!Update]
 MouseLeaveAction=[!SetOption #CURRENTSECTION# solidcolor "55,55,55"][!Update]
-LeftMouseUpAction=!ToggleConfig "wp7\textitems\Calendar" "Item.ini"
+LeftMouseUpAction=!ToggleConfig "REO\textitems\Calendar" "Item.ini"
 [resourcemonitor]
 Meter=Image
 MeterStyle=LargeTextItem
 solidcolor=50,50,50
 MouseOverAction=[!SetOption #CURRENTSECTION# solidcolor 100,100,100][!Update]
 MouseLeaveAction=[!SetOption #CURRENTSECTION# solidcolor "50,50,50"][!Update]
-LeftMouseUpAction=!ToggleConfig "wp7\textitems\NowPlaying" "Item.ini"
+LeftMouseUpAction=!ToggleConfig "REO\textitems\NowPlaying" "Item.ini"
 [visualizertextitem]
 Meter=Image
 MeterStyle=LargeTextItem
 solidcolor=40,40,40
 MouseOverAction=[!SetOption #CURRENTSECTION# solidcolor 100,100,100][!Update]
 MouseLeaveAction=[!SetOption #CURRENTSECTION# solidcolor "40,40,40"][!Update]
-LeftMouseUpAction=!ToggleConfig "wp7\textitems\Visualizer" "Item.ini"
+LeftMouseUpAction=!ToggleConfig "REO\textitems\Visualizer" "Item.ini"
 
 [notestextitem]
 Meter=Image
@@ -91,7 +91,7 @@ MeterStyle=LargeTextItem
 solidcolor=60,60,60
 MouseOverAction=[!SetOption #CURRENTSECTION# solidcolor 100,100,100][!Update]
 MouseLeaveAction=[!SetOption #CURRENTSECTION# solidcolor "60,60,60"][!Update]
-LeftMouseUpAction=!ToggleConfig "wp7\textitems\Notes" "Item.ini"
+LeftMouseUpAction=!ToggleConfig "REO\textitems\Notes" "Item.ini"
 [Cat3Subtitle2]
 Meter=String
 Text=" #SmallItems#"
@@ -103,49 +103,49 @@ Meter=String
 MeterStyle=EssentialPanelText
 X=(360*#ScaleDpi#)
 y=R
-LeftMouseUpAction=!ToggleConfig "wp7\textitems\G'DayMate" "Day.ini"
+LeftMouseUpAction=!ToggleConfig "REO\textitems\G'DayMate" "Day.ini"
 ToolTipText=A customizable day textitem, comes with many variantsbottom
 Text=Text Date / Day 
 [verticalmenu]
 Meter=String
 MeterStyle=EssentialPanelText
-LeftMouseUpAction=!ToggleConfig "wp7\textitems\Extra\Menu" "Menu.ini"
+LeftMouseUpAction=!ToggleConfig "REO\textitems\Extra\Menu" "Menu.ini"
 Text=Vertical Metro Menu
 tooltipwidth=150
 [horizontalmenu]
 Meter=String
 MeterStyle=EssentialPanelText
-LeftMouseUpAction=!ToggleConfig "wp7\textitems\Extra\MenuHorizontal" "Menu.ini"
+LeftMouseUpAction=!ToggleConfig "REO\textitems\Extra\MenuHorizontal" "Menu.ini"
 Text=Horizontal Metro Menu
 tooltipwidth=150
 [digitalclocktextitem]
 Meter=String
 MeterStyle=EssentialPanelText
-LeftMouseUpAction=!ToggleConfig "wp7\textitems\Extra\ClockNews" "Item.ini"
+LeftMouseUpAction=!ToggleConfig "REO\textitems\Extra\ClockNews" "Item.ini"
 Text=Clock news
 ToolTipText=Omnimo 10 Clock, right click for variants
 [powerbuttons]
 Meter=String
 MeterStyle=EssentialPanelText
-LeftMouseUpAction=!ToggleConfig "wp7\textitems\Extra\PowerButtons" "Item.ini"
+LeftMouseUpAction=!ToggleConfig "REO\textitems\Extra\PowerButtons" "Item.ini"
 Text=Power Buttons
 ToolTipText=With dialogue and without
 [courierclock]
 Meter=String
 MeterStyle=EssentialPanelText
-LeftMouseUpAction=[!ToggleConfig "wp7\textitems\Extra\Courier" "date2.ini"][!ActivateConfig "wp7\textitems\Extra\Courier\Clock" "analogue.ini"]
+LeftMouseUpAction=[!ToggleConfig "REO\textitems\Extra\Courier" "date2.ini"][!ActivateConfig "REO\textitems\Extra\Courier\Clock" "analogue.ini"]
 Text=Courier Clock
 ToolTipText=Courier like clock and date (What's Courier???)
 [searchbar]
 Meter=String
 MeterStyle=EssentialPanelText
-LeftMouseUpAction=!ToggleConfig "wp7\textitems\Extra\SearchButton" "SearchButton.ini"
+LeftMouseUpAction=!ToggleConfig "REO\textitems\Extra\SearchButton" "SearchButton.ini"
 Text=Search Bar
 ToolTipText=A search button that opens a field when clicked
 [circularclock]
 Meter=String
 MeterStyle=EssentialPanelText
-LeftMouseUpAction=!ToggleConfig "wp7\textitems\Extra\LargeClock" "Item.ini"
+LeftMouseUpAction=!ToggleConfig "REO\textitems\Extra\LargeClock" "Item.ini"
 Text=Large Analogue Clock
 ToolTipText=With options
 [Cat3Subtitle3]
@@ -159,13 +159,13 @@ Meter=String
 MeterStyle=EssentialPanelText
 X=(360*#ScaleDpi#)
 y=R
-LeftMouseUpAction=!ToggleConfig "wp7\background\Static" "bg.ini"
+LeftMouseUpAction=!ToggleConfig "REO\background\Static" "bg.ini"
 Text=BG Fullscreen
 ToolTipText=Fullscreen background with several options
 [customizablebackground]
 Meter=String
 MeterStyle=EssentialPanelText
-LeftMouseUpAction=!ToggleConfig "wp7\background" "bg.ini"
+LeftMouseUpAction=!ToggleConfig "REO\background" "bg.ini"
 Text=BG Fullscreen Custom
 ToolTipText=Customizable background with many options
 [daynightbackground]
@@ -190,7 +190,7 @@ ToolTipText=Opens a toggler which provides access to sidebar
 [topbar]
 Meter=String
 MeterStyle=EssentialPanelText
-LeftMouseUpAction=!ToggleConfig "wp7\textitems\#topbar" "topbaraddons.ini"
+LeftMouseUpAction=!ToggleConfig "REO\textitems\#topbar" "topbaraddons.ini"
 MeterStyle=styl
 Text=Tiny Gallery for Tiny Addons
 ToolTipText=Can be used with Top Bar or Sidebar
