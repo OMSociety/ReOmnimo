@@ -10,6 +10,58 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-10-18
+
+### 新增
+
+- **全新设置中心 `SettingsCenter/`**：以 net48 WinForms + WebView2 重写 `REO\@Resources\Common\Config\config.exe`（原 2013 年 AutoIt 版退役）。皮肤右键「设置」菜单的调用参数与旧版完全一致（`<模式> <config> <file> <settings> <skins> <program>`），374 个 `RainConfigure.cfg` 面板零改动直接适配。
+  - 界面按 schema 渲染：三行组（键/标题/控件）与两行组（键/标题）均支持；无控件行的裸键按键名与值形态推断控件（Color/Tint+RGB 值→取色器、0/1→开关、范围提示→滑杆、其余→文本框）。
+  - 简体中文界面：`lang\zh-CN.json` 语言包（面板设置项标签 + hint 提示 + 界面文案，29 KB），缺失时回退英文。
+  - 支持 `UserVariables.local.inc` 覆盖链：文件存在时读写都走 local（与旧 AutoIt 版 `@include` 链语义一致）。
+  - 写回编码感知（UTF-16LE BOM / UTF-8），300 ms 防抖后 `!Refresh` 刷新面板；变量名大小写不敏感匹配。
+  - 部署形态：`config.exe`（77 KB，x86）+ WebView2 托管 DLL ×3 + 原生 `WebView2Loader.dll`（x86）+ `config.exe.config` + `lang\`；要求 .NET Framework 4.8（Win10 1607+ 内置）与 WebView2 Runtime（Win10 1803+/Win11 内置）。
+  - 未处理异常落盘 `%TEMP%\sc_crash.txt`（UI 线程与非 UI 线程双通道），便于现场诊断。
+  - 窗口与任务栏图标取自 `config.exe` 自身的 Fluent 图标：无边框窗体不会自动沿用 exe 图标，缺这一步任务栏会显示 Windows 的占位图标。
+- **界面语言默认跟随系统**：新增 `Common\Variables\AutoLang.lua`，由 `REO\Background\bg.ini` 与 `REO\Gallery\main.ini` 末尾的 measure 对（Registry 读 `HKCU\Control Panel\International\LocaleName` + Script）在宿主加载时执行——映射到八语语言包（zh→Chinese、ru→Russian、de→German、fr→French、es→Spanish、pt→Portuguese、nl→Dutch，其余 English），写回 `Common\Variables\UserVariables.inc` 的 `MainLanguage=`（磁贴/界面文案）与 `Common\Background\Varrar.inc` 的 `Language=`（工具对话框），随后 `!RefreshApp`。值已一致时不写不刷，无循环。
+  - 出厂默认 `MainLanguage=Auto` + `LangAuto=1`；`Languages\Auto.inc` 是指向 `English.inc` 的一行 shim，检测器落笔前界面按英文渲染。手动锁定：把 `LangAuto` 设为 0，并将两个语言键指到想要的语种（`LangAuto=1` 期间手改会在下次宿主加载时被系统语言覆盖）。
+  - `Common\Variables\UserVariables.inc` 由 cp1252 转为 UTF-8+BOM：实测 Rainmeter 的 `!WriteKeyValue` 对无 BOM 的 cp1252 文件按系统 ANSI（本机 CP936）读写，把 `SubstituteFeed` 行的 ä/ö/– 高位字节替换成 `?` 并吃掉了行尾引号；转 UTF-8+BOM 后写回逐字节保真，顺带修正了该行自上游继承的 mojibake。
+  - 验证：注入 `MainLanguage=German` 后激活 `REO\Background`，检测器实机写回 `Chinese`，`SubstituteFeed` 高位字符逐字节完好，日志窗口 0 新增 `ERRO`；`Rainmeter.ini` 无残留、`Logging` 已关回。
+
+### 变更
+
+- **面板排布与多布局工具改用 C# 重写**:`Config\ActivePanels.exe` 与 `MultiManager\MultiManager.exe`(原 2013 年 AutoIt 版)由 `Tools\`(C# net48,零第三方依赖)重写,产物分别 39.5 KB 与 37.5 KB(原为 984 KB 与 1.06 MB)。皮肤调用参数与命令字完全不变(`missing`/`lock`/`unlock`/`grid*`/`Save0`/`Save1`/`Load0`/`Load1`/`Delete`),`AutoIT\ActivePanels.au3`/`MultiManager.au3` 源码保留作参照,但不再是这两个 exe 的来源。
+  - 行为等价性用差分验证:注册假 `RainmeterMeterWindow` 窗口截获全部 bang、配假 SkinPath/SettingsPath 与固定工作目录,把原 exe 与新 exe 在同一夹具上比对 bang 序列与产出文件字节,37 个用例 36 个逐字节一致(唯一不一致的一例即下面的崩溃修复)。
+  - 两处与老版 Win32 配置文件 API 的语义按原样对齐:cp1252 老文件里的高位字节原样保留(旧实现会替换成 U+FFFD 写坏文件),写回时保留键名原有大小写(`color.inc` 的 `ColorSkin` 不会被写成 `colorskin`)。
+- `hue.ini` 不再被 git 跟踪：面板排布工具每次运行都会先删后写它，但全仓没有任何读取点，属本机状态而非源码；已加入 `.gitignore`，工作区文件保留不受影响。
+- 删除 `Config\Panels\Delicious` 与 `Config\Panels\StumbleUpon`：两个目录里是面板设置 schema 与用户变量文件，但本仓库任何一次提交里都没有对应的面板目录，设置窗口只能从面板打开，因此没有消费者。皮肤实际提供的 Delicious / StumbleUpon 是 `InternetShortcuts` 快捷方式列表里的条目，配置各在自己名下。
+- **其余四个 AutoIt 分发 exe 改用 C# 重写**：`ColorChanger.exe`、`OmnimoApp.exe`、`Background\ConfigBackground.exe`、`PanelCreator\PanelCreator.exe`（原为 2013 年 AutoIt 版，1.13–1.53 MB）由 `Tools\` 下的 net48 工程（WinForms，零第三方依赖）重写，产物 65–83 KB，单文件部署。皮肤调用参数与命令字完全不变；`AutoIT\ColorChanger.au3`、`OmnimoApp.au3`、`ConfigBackground.au3`、`PanelCreator.au3` 源码保留作参照，但不再是这几个 exe 的来源。至此仓库内 7 个可执行文件全部为本 fork 的 C# 重写，不再分发 AutoIt 编译产物。
+  - 行为保真度用差分验证：同一夹具下并列运行原 AutoIt exe 与新 exe，比对窗口客户区尺寸、43 个子控件的位置/类/文本、窗口样式与字体（两侧最终都是系统 GUI 字体 12 px——为此新增共享源码 `Tools\Shared\GuiFont.cs`，按 `GetStockObject(DEFAULT_GUI_FONT)` 取原版所用字体，并注明换字体时必须把 `AutoScaleMode` 设为 `None`）。
+  - 一处刻意不复刻的行为：`ConfigBackground` 的 `borderwidth` / `gradientangle` 显示配置文件里的真实值，而原版把这两个 `GUICtrlCreateInput` 接上 `GUICtrlCreateUpdown` 后会被 updown 的初值 0 盖掉——照抄会在用户打开窗口时静默抹掉配置，故保留正确值。
+  - `PanelCreator` 顺带修好：仓库 0.5.0 里那份 AutoIt 版（1604608 字节）在真实参数下起不来，弹 `Line 21514: Error: Duplicate function name.`（include 的 UDF 内函数重名），C# 版是这一工具第一个可运行的构建。
+  - 部署后的冒烟验证：四个 exe 以 `missing` 与一个不存在的命令各跑一次，退出码均为 0、不弹窗；`PanelCreator` 在真实皮肤路径下正常出界面（其语言包读取依赖 `<skins>\REO\@Resources\Common\Background\Varrar.inc`）。
+  - 已知差异：WinForms 自绘非客户区，窗口外框比原 exe 宽 5 px/边（客户区与控件布局逐项一致）；`ConfigBackground` 少数窄标签（如 28 px 宽的 `Color`）比原版多截一个字，属 GDI 与 GDI+ 静态文本度量的细微差别。
+- **三个 GUI 工具界面现代化**：`ColorChanger.exe`、`Background\ConfigBackground.exe`、`PanelCreator\PanelCreator.exe` 换用共享界面壳 `Tools\Shared\ModernUi.cs`——无边框窗口、自绘标题栏（应用图标 + 最小化/最大化/关闭）、圆角、Esc 关闭、深浅主题跟随 `Colors.inc`（可用 `--light` / `--dark` 覆盖），视觉语言与设置中心一致（同一字体栈 Microsoft YaHei UI → Segoe UI，强调色取系统 DWM 色）。
+  - 标题栏图标：三个工具的窗口标题栏都显示各自 exe 的应用图标（取自 exe 自身），不再只有系统默认图标。
+  - 多语言补齐：`Common\Background\Language\` 八语 cfg 此前缺 ColorChanger 与 ConfigBackground 的文案键（界面只有英文）。补齐 ColorChanger 的 10 个键（ChangePanelColor / SelectAll / Refresh / NoActivePanels / Random / NewPalette / Default 等）与 ConfigBackground 的分组标题（GroupColors / GroupSize）；六份 UTF-16LE+BOM 语种的编码保持不变，English / Dutch 维持 UTF-8 无 BOM。
+  - `ConfigBackground` 由逐控件移植重写为 ModernForm 壳上的重组件界面（滑杆 / 输入框 / 勾选 / 色块），设置分组与标签全部走语言包。
+  - `PanelCreator` 接入 ModernForm 壳：内容区仍是 `PanelCreator.au3` 的 GDI+ 单窗口布局（拖放预览、名称 / 操作输入、导出 `*.rmskin` 含 16 字节 PackageFooter、预览图与临时文件清理），行为与原 .au3 逐段对应。
+  - 验证：夹具下三工具截图逐区核对（主题取色、标题栏图标、中文界面）；部署产物 90–107 KB（尺寸见 `AGENTS.md` 在途表）。
+  - 实机回看后的二轮修正（2026-10-17）：ColorChanger 空列表提示被列表控件盖住（WinForms 后 `Add` 的控件在 z-order 底部，需 `SetChildIndex` 提前）；ConfigBackground 去掉原版四条 1px 装饰括线（深色界面里呈游离细线）、`GradientAngle` 标签加宽不再截断、黑/白色块补描边；PanelCreator 内容区去旧（droptext.png 改直绘提示文字且不再被名字轮询清掉、白色输入框改深色输入井、file/folder 旧图标改线条字形、按钮加悬停反馈）；修复共享缓存字体 `UiFont` 被 `using` 释放导致整窗绘制抛 `ArgumentException` 的崩溃。
+  - 三轮修正（2026-10-17）：ColorChanger 整体布局下移出标题栏、窗口加高 24px、左右边距对齐（此前色板第一行压标题栏、左侧背景色带被读成「黑条」）；PanelCreator 原生输入框与全部自绘文字从环境继承的宋体改到 YaHei UI 字体栈（`Font = GuiFont.Default` 是忠实对照移植的遗留，现代化窗口不该再用）；窗口描边内缩 1px、半径 8 画（贴边画时外半像素被 DWM 圆角裁剪，角上呈缺口）。
+  - 四轮修正（2026-10-17，DPI 根修）：此前三个窗口是 DPI 不感知进程，Windows 把 96 DPI 位图拉伸到屏幕倍率（用户屏 150%），1px 描边与圆角弧线被重采样成糊、勾选框在 150% 屏上冒出主题引擎画的花色碎片字形。现三个 exe 内嵌 `PerMonitorV2` 清单（`Tools\Shared\app.manifest`），`ModernForm.OnHandleCreated` 按 `GetDpiForWindow` 手动 `Scale` 统一缩放窗体与子控件（net48 的 `AutoScaleMode.Dpi` 实测缩放因子算成 1，不可用），自绘控件内部几何走 `PxU/DpiU` 系数；`ModernCheckBox` 基类从 `CheckBox` 换成 `Control`（主题引擎对继承 CheckBox 的 UserPaint 控件仍会画原生勾选字形）。
+  - 多语言收尾（2026-10-17）：八语键集对齐到 46 键——此前 Dutch / French / German / Portuguese / Spanish 缺 `Apply`（ConfigBackground 右下角按钮在这些语言下显示英文键名）；PanelCreator 的拖放提示（新键 `DropHint`，替代 2013 年内嵌英文位图 droptext.png）与作者输入框标题接语言键；六份 UTF-16LE+BOM 语种编码与行尾保持不变。三窗跟随皮肤语言包（`Varrar.inc` 的 `Language=`），实机验证中文与德文界面。
+- 版面核对的三轮修正（2026-10-17）：ColorChanger 色板网格右列溢出窗口、末行缺一角——间距从 44px 改回原版 au3 的 40px，并把常驻的自定义色块（原版第 18 格，点击弹系统取色器）放回网格末格；PanelCreator 预览区面板名被居中格式钉在 x=10、左半裁掉——改回原版的默认左对齐绘制。
+
+### 修复
+
+- 三个 GUI 工具窗口圆角处的白点：圆角此前由 DWM 圆角偏好（`DWMWA_WINDOW_CORNER_PREFERENCE`）与 WinForms `Region` 双重裁剪，两套半径不一致，DWM 抗锯齿在角上采样到未绘制的像素；现只保留 DWM 圆角，角部随窗口背景一同绘制。
+- ActivePanels 3x3 布局在启用面板达到 31 个时崩溃（AutoIt 报 `Variable used without being declared`）：`ActivePanels.au3:278` 使用了从未声明的 `$row9`（只声明了 `$row1..$row8`），第 31 个面板起排布中断；C# 版按源码本来的行表补全声明，可正常排到 row9 并放完剩余面板。
+- SettingsCenter `x86` 位数锁定：WebView2 NuGet 对 net48 只带 x86 原生 `WebView2Loader.dll`，SDK 风格工程默认 AnyCPU（x64 进程）加载即 `BadImageFormatException (0x8007000B)` 崩溃；`PlatformTarget=x86` 修正（csproj 注释留档）。
+- SettingsCenter 用户数据目录按面板哈希分目录（`%LOCALAPPDATA%\ReOmnimo\SettingsCenter\<hash>`）：不同面板的设置窗口可并行；同面板双开不再以崩溃弹窗告终，改为提示后正常关闭。
+- 全库 973 处小写 `wp7\` 死引用改为 `REO\`（433 个皮肤文件）：0.5.0 的改名提交只处理了大写 `WP7\`，磁贴、右键菜单、启动器里的 `!ToggleConfig "wp7\…"` 一直指向不存在的 config，动作全部失效（日志报 `!ToggleConfig: "wp7\…" does not exist`）。逐文件按嗅探到的编码解码再原编码写回（UTF-8 / UTF-16LE+BOM / cp1252 混杂），BOM 与行尾不变；`git grep -In "wp7"` 现查 0 命中，实机确认 `REO\` 形可正常切换面板。`DragGroup=WP7Panel` 是拖拽分组名而非路径，未改；`Gallery\MultiManager\Saved\` 下的用户布局快照未动。
+- 背景设置点开没反应：`Background\bg.ini` 与 `Background\DayNight\Item.ini` 调用的是不存在的 `Common\Background\config.exe`（该目录实际部署名是 `ConfigBackground.exe`），而且只传了一个参数——工具契约是 `ConfigBackground.exe <VarFile> <SkinPath>`，原版 AutoIt 同样读 `$CmdLine[2]`，缺参直接越界。现改为正确文件名并补上 `#SKINSPATH#`。
+- 面板设置项的说明文字：10 个 `RainConfigure.cfg` 的描述行原是从上游带来的玩笑与笔误（`URL to DDoS.. err I mean ping`、`Make it wider why dontcha?`、`Toggle from Low Brightness Value`、`If you have several audio devices, specify which to switch Index to switch`），在一个要用户照着填的对话框里说不清字段含义。逐条改写为说明实际行为，产品名与大小写一并订正（Steam / Big Picture）；参数名、控件类型与四行一组的 schema 结构未动。
+
 ## [0.5.0] - 2026-10-13
 
 ### 变更

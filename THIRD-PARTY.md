@@ -62,7 +62,10 @@ carry a declaration or do not have one anywhere in the tree:
 
 ## 2. This fork's own changes
 
-Measured with `git diff --name-status upstream/master`: **16 files added, 450 modified, 17 deleted.**
+Measured with `git diff --name-status upstream/master`: **16 files added, 450 modified, 17 deleted**
+as of release 0.4.0. The 0.5.0 rename of the whole skin tree (`WP7\` -> `REO\`) makes that same diff
+report 26 added / 16 modified / 31 deleted / 3314 renamed, 2700 of the renames byte-identical, which
+is why upstream stopped being this fork's general baseline at 0.5.0.
 
 Added:
 
@@ -79,6 +82,8 @@ Added:
 | `AutoIT/Language/Chinese.cfg` | The same pack kept beside the AutoIt sources |
 | `REO/Panels/Agenda/` (`Item.ini`, `Item2.ini`, `Item3.ini`, `agenda.lua`, `Agenda.png`) | The Agenda calendar panel: published ICS subscriptions, merged, deduplicated and sorted |
 | `REO/@Resources/Config/Panels/Agenda/` (`UserVariables.inc`, `RainConfigure.cfg`) | Its user parameters and settings schema |
+| `SettingsCenter/` | This fork's C# (net48 + WebView2) rewrite of `config.exe` |
+| `Tools/` | This fork's C# (net48) rewrites of `ActivePanels.exe` and `MultiManager.exe`, sharing `Tools/Shared/OmnimoShared.cs` |
 
 Modified: seven language packs (a `PanelAgenda` key each), the gallery registration
 (`REO/Gallery/cat1.inc`, `REO/Gallery/cat7.inc`, `REO/Gallery/Intro/intro.ini`), the shared
@@ -101,10 +106,11 @@ and `AutoIT/Config.au3`'s border-color branch read an undeclared variable instea
 picker's result, both fixed; a later hardening pass then touched every AutoIt source
 (argument-count guards, array-bounds checks, path-traversal rejection on panel delete, an
 `Execute()` restriction, a panel-layout counter fix, `@ScriptDir` path anchoring, and dropping
-the `wmic` dependency from the build script). All seven shipped executables are rebuilt from
-these corrected sources (see section 3), so both the fixes and the hardening reach the binaries
-users run; `.gitignore`, which now excludes the Agenda panel's per-machine feed override so a
-private calendar URL can never be committed.
+the `wmic` dependency from the build script). These corrected sources stay in `AutoIT/` for
+reference; every executable shipped since 0.6.0 is a C# rewrite built from the same corrected
+logic (section 3), so the fixes and the hardening reach the binaries users run; `.gitignore`,
+which now excludes the Agenda panel's per-machine feed override so a private calendar URL can
+never be committed.
 
 Deleted: the Corona panel — four files under `REO/Panels/Corona/` and six under
 `REO/@Resources/Config/Panels/Corona/`, removed at the user's request, with the gallery row
@@ -118,18 +124,27 @@ material.
 
 ## 3. Bundled executables
 
-Seven executables ship inside the repository. They are upstream's own AutoIt helper GUIs, built from
-the sources in `AutoIT/`; the binaries themselves carry no source and no declared licence.
+Seven executables ship inside the repository. As of release 0.6.0 all seven are this fork's own C#
+(.NET Framework 4.8) rewrites of upstream's AutoIt helper GUIs, built with `dotnet build -c Release`
+from `SettingsCenter/` and `Tools/`; the AutoIt sources they replace stay in `AutoIT/` for reference
+and no AutoIt binary is shipped any more. Upstream's binaries carried no source and no declared
+licence; the C# rewrites contain no third-party source - they reimplement the UDFs credited in
+section 5.
 
 ```
-REO/@Resources/Common/ColorChanger.exe                       1357824 bytes
-REO/@Resources/Common/OmnimoApp.exe                          1188352 bytes
-REO/@Resources/Common/Background/ConfigBackground.exe        1331712 bytes
-REO/@Resources/Common/Config/ActivePanels.exe                1008128 bytes
-REO/@Resources/Common/Config/config.exe                      1134592 bytes
-REO/@Resources/Common/MultiManager/MultiManager.exe          1084928 bytes
-REO/@Resources/Common/PanelCreator/PanelCreator.exe          1604608 bytes
+REO/@Resources/Common/ColorChanger.exe                          92160 bytes   C# net48          (Tools/ColorChanger/)
+REO/@Resources/Common/OmnimoApp.exe                             67072 bytes   C# net48          (Tools/OmnimoApp/)
+REO/@Resources/Common/Background/ConfigBackground.exe           95744 bytes   C# net48          (Tools/ConfigBackground/)
+REO/@Resources/Common/Config/ActivePanels.exe                   40448 bytes   C# net48          (Tools/ActivePanels/)
+REO/@Resources/Common/Config/config.exe                         78848 bytes   C# net48 + WebView2 (SettingsCenter/)
+REO/@Resources/Common/MultiManager/MultiManager.exe             38400 bytes   C# net48          (Tools/MultiManager/)
+REO/@Resources/Common/PanelCreator/PanelCreator.exe            109568 bytes   C# net48          (Tools/PanelCreator/)
 ```
+
+`config.exe` also ships `config.exe.config`, the `lang/` JSON language pack, and four files taken
+from Microsoft's WebView2 SDK - the managed `Microsoft.Web.WebView2.Core.dll`, `.WinForms.dll` and
+`.Wpf.dll` plus the native `WebView2Loader.dll` (NuGet `Microsoft.Web.WebView2` 1.0.2903.40, not
+written here); the WebView2 Runtime itself belongs to the user's system and is not bundled.
 
 Upstream let `config.exe` drift from its source: the binary was committed on 2020-05-18, while
 `AutoIT/Config.au3` was changed again on 2020-05-26 without a rebuild, and the released `.rmskin`
@@ -140,18 +155,23 @@ not uniform: `ColorChanger.exe` carries `FileVersion 6.0` and a description, so 
 and `MultiManager.exe` carry no version resource at all. Those last two cannot have been built with
 3.3.8.1 — they include the split WinAPI UDFs (`WinAPIFiles.au3`, `GDIPlus.au3`,
 `ScreenCapture.au3`) whose ternary operators 3.3.8.1 rejects with `Unable to parse line` — so
-upstream compiled them against AutoIt 3.3.10 or newer. As of release 0.3.0 this fork rebuilds all
-seven from the corrected sources with AutoIt 3.3.18.0 (plain `Aut2Exe`, `/x86`, `/nopack`, each
-source's own icon), which parses every source, so the section 2 fixes and hardening reach the
-binaries users run; the byte sizes above are this fork's 0.5.0 builds. Because those rebuilds are unpacked (`/nopack`), they are far larger than upstream's UPX-packed originals; that gap is the packing, not the version resource, which costs 1024 bytes.
+upstream compiled them against AutoIt 3.3.10 or newer. Release 0.3.0 rebuilt all seven from the
+corrected sources with AutoIt 3.3.18.0 (plain `Aut2Exe`, `/x86`, `/nopack`, each source's own icon),
+so the section 2 fixes and hardening reached the binaries users ran; because those rebuilds were
+unpacked (`/nopack`) they were far larger than upstream's UPX-packed originals, a gap that is the
+packing, not the version resource, which costs 1024 bytes. Those 0.5.0 AutoIt builds (1187328 to
+1604608 bytes) are no longer in the tree: as of 0.6.0 every one of the seven has been replaced by a
+C# rewrite of this fork's own code, which is why the sizes above are orders of magnitude smaller.
 
-Plain `Aut2Exe` writes no version resource, so each rebuild is stamped afterwards with a
+Plain `Aut2Exe` writes no version resource, so each AutoIt rebuild of 0.3.0–0.5.0 was stamped
+afterwards with a
 `VS_VERSIONINFO` whose `FileVersion` and `ProductVersion` equal the fork release (`0.5.0.0`),
-keeping every executable's reported version in step with the release it ships in. The
+keeping the reported version of each AutoIt executable in step with the release it ships in. The
 `FileDescription`, `LegalCopyright` and `OriginalFilename` strings reproduce the sources'
 `#AutoIt3Wrapper_Res_*` directives, except `ActivePanels.au3`, which declares none and is stamped
 with its own tool name; no `AutoIt3Wrapper` is installed, so those directives are not
-honoured at compile time and the stamping supplies them instead.
+honoured at compile time and the stamping supplies them instead. The C# builds carry their own
+`Version`, `FileVersion` and `ProductVersion` from the `.csproj`.
 
 ## 4. Bundled fonts
 
@@ -191,6 +211,12 @@ author attribution the files themselves carry; none of them states an explicit l
 | `_Startup.au3` | 11656 | guinness |
 | `ColorGenerator.au3` | 2509 | not stated |
 | `Common.au3` | 2486 | not stated |
+
+Three of these UDFs are reimplemented in the C# tools: `Tools/Shared/ColorPickerForm.cs` follows
+`ColorChooser.au3` (Yashied), `Tools/Shared/IconExtractor.cs` follows `IconImage.au3` (Ward), and
+`Tools/Shared/ZipWriter.cs` covers the two `_Zip.au3` entry points `PanelCreator` uses (wraithdu).
+Those files are this fork's own code and carry the same author credit; the AutoIt originals stay in
+`AutoIT/Includes/`.
 
 ## 6. Rainmeter
 
