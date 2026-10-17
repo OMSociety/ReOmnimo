@@ -14,7 +14,7 @@
 [![Stars](https://img.shields.io/github/stars/OMSociety/ReOmnimo)](https://github.com/OMSociety/ReOmnimo/stargazers)
 [![Issues](https://img.shields.io/github/issues/OMSociety/ReOmnimo)](https://github.com/OMSociety/ReOmnimo/issues)
 
-[What is ReOmnimo?](#what-is-reomnimo) • [What changed](#what-changed) • [Install](#install) • [Agenda panel](#agenda-panel) • [Development](#development) • [Changelog](CHANGELOG.md)
+[What is ReOmnimo?](#what-is-reomnimo) • [Install](#install) • [Agenda panel](#agenda-panel) • [Development](#development) • [Changelog](CHANGELOG.md) • [中文](README.zh.md)
 
 </div>
 
@@ -24,17 +24,7 @@
 
 **ReOmnimo** is a Windows Phone 7 inspired multifunctional interactive desktop information center based on [Rainmeter](https://www.rainmeter.net/). It turns your desktop into a productive and attractive work area, delivering only the information you need. Every interactive tile gives you information and settings at a glance, and can be customized to your needs — unlike the initial Metro design, ReOmnimo gives you limitless customization potential.
 
-ReOmnimo takes over development of [Omnimo](https://github.com/fediaFedia/Omnimo) by fediaFedia and Xyrfo. The design and the panel set stay as they are; the changes are listed below.
-
-## What changed
-
-| Change | Description |
-|--------|-------------|
-| **Simplified Chinese UI** | The settings and save panels and the panel context menus are localized into Simplified Chinese. Tile surfaces stay English, because they are laid out around English string widths; the one exception is the Agenda tile, whose name is localized through its gallery entry (日程 in this mode). The interface language (tiles, menus and the tool dialogs) follows the Windows display language out of the box, across all eight language packs; to lock a manual choice, set `LangAuto=0` in `REO/@Resources/Common/Variables/UserVariables.inc` and name the language there and in `REO/@Resources/Common/Background/Varrar.inc`. |
-| **Agenda panel** | Reads published ICS calendar subscriptions (up to three per panel, merged and sorted by time). Private CalDAV endpoints need PROPFIND, which Rainmeter cannot issue; a published subscription URL is a plain GET and works. |
-| **Panel defect fixes** | A handful of long-standing panel defects fixed; see `CHANGELOG.md`. |
-| **Rebuilt for Rainmeter 5.0** | Bundled plugins are now written as native 5.0 measures; media keys use `!SendKey`; NowPlaying reads the Windows media (SMTC) interface, so Spotify, browsers, VLC and other modern players work. Visualizers sleep when no audio plays. |
-| **Licensing in order** | `LICENSE` (GPL-2.0) and `THIRD-PARTY.md` brought in order. |
+ReOmnimo takes over development of [Omnimo](https://github.com/fediaFedia/Omnimo) by fediaFedia and Xyrfo.
 
 ## Install
 

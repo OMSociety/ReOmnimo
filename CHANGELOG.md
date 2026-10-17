@@ -52,11 +52,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 多语言收尾（2026-10-17）：八语键集对齐到 46 键——此前 Dutch / French / German / Portuguese / Spanish 缺 `Apply`（ConfigBackground 右下角按钮在这些语言下显示英文键名）；PanelCreator 的拖放提示（新键 `DropHint`，替代 2013 年内嵌英文位图 droptext.png）与作者输入框标题接语言键；六份 UTF-16LE+BOM 语种编码与行尾保持不变。三窗跟随皮肤语言包（`Varrar.inc` 的 `Language=`），实机验证中文与德文界面。
 - 版面核对的三轮修正（2026-10-17）：ColorChanger 色板网格右列溢出窗口、末行缺一角——间距从 44px 改回原版 au3 的 40px，并把常驻的自定义色块（原版第 18 格，点击弹系统取色器）放回网格末格；PanelCreator 预览区面板名被居中格式钉在 x=10、左半裁掉——改回原版的默认左对齐绘制。
 - **删除贡献者包分类**（2026-10-18）：`Gallery\cat5.inc`、「贡献者包」侧栏项与其图标、`mask-contrib.png` 覆盖层、`Icons\heart.png`、主题模板里只给这些磁贴用的 `[P]` 样式（`!ToggleConfig "REO\DonatorPanels\…"`，而 `REO\DonatorPanels` 目录从未存在）一并移除；`Gallery\main.ini` 里 `[Cat5]`、`[Cat5Indicator]`、`[CatIcon5]` 三段删除后，设置标题与下一分类图标各上移一行（370→320、392→344）。四类贡献者语言键从 8 份运行时包与 `lang.inc` / `Backup\English.inc` / `Readme\Translate\**` 中移除，Chinese / English 现各 281 键。
-- 天气磁贴的「如何找到你的天气代码?」原指向上游的 omnimo.info/weather/index.html（已不可达），现改为随皮肤分发的本地说明页 @Resources\Readme\WeatherCode.html（中英双语，三条取码路径：weather.com 网址末段 id、wxdata 时代的短代码、美国邮编），经 OmnimoApp.exe Browser 打开。\n- TextItems\Extra\Missing 占位项（保存的布局引用了未安装的皮肤时出现）原先写着「点此下载 Omnimo」并链到上游主页，文案与动作一并去掉。\n- 删除 Panels\Anniversary 与其 8 张语言图：没有任何磁贴引用它，唯一动作指向上游十周年纪念页。\n- 画廊右键菜单的入口从 2013 年的上游页面改到本 fork：关于 指向本 fork 的 GitHub 主页（原先是上游的 Credits.html），检查更新 指向 Releases 页，发送反馈 指向 Issue 列表（原先是给原作者 gmail 的 mailto:），捐赠 条目删除（原链接打款给原作者，与本 fork 无关）。
+- 天气磁贴的「如何找到你的天气代码?」原指向上游的 omnimo.info/weather/index.html（已不可达），现改为随皮肤分发的本地说明页 @Resources\Readme\WeatherCode.html（中英双语，三条取码路径：weather.com 网址末段 id、wxdata 时代的短代码、美国邮编），经 OmnimoApp.exe Browser 打开。\n- TextItems\Extra\Missing 占位项（保存的布局引用了未安装的皮肤时出现）原先写着「点此下载 Omnimo」并链到上游主页，文案与动作一并去掉。\n- 删除 Panels\Anniversary 与其 8 张语言图：没有任何磁贴引用它，唯一动作指向上游十周年纪念页。\n- 两份 README 去掉「What changed / 改动」表格：逐个版本的改动已在 CHANGELOG.md，一节概览与它重复且容易过期。
+- 画廊右键菜单的入口从 2013 年的上游页面改到本 fork：关于 指向本 fork 的 GitHub 主页（原先是上游的 Credits.html），检查更新 指向 Releases 页，发送反馈 指向 Issue 列表（原先是给原作者 gmail 的 mailto:），捐赠 条目删除（原链接打款给原作者，与本 fork 无关）。
 - **删除 60 个无面板的孤儿配置目录**（2026-10-18）：`@Resources\Config\Panels` 有 83 个配置目录，而 `REO\Panels` 只有 62 个面板；多出的 23 个（含 `TextItems` 侧同形目录）永远不会被任何 include 或设置窗口引用，共 347 个文件。清理后 `Config\Panels` 40 个目录、`TextItems` 17 个。设置窗口同时改为只列 schema 里真有一组设置的面板（此前 35 个空 schema 面板点开只有「0 项设置」）。
 
 ### 修复
 
+- 帮助页在深色皮肤下仍是白底英文：@Resources\Readme\Readme.html 与 Credits.html 补深色样式与中文正文（90 条 Readme 译文 + 整页 Credits），主题与语言参数缺失时退回系统配色与浏览器语言；Chinese.inc 的 langcode 由误写的 n-us 改为 zh-cn。
 - 15 个面板变体没写 `@include…=#@#Config\Panels\<名>\UserVariables.inc`，设置窗口能改能存而磁贴不读：`Notes`（Item / Item2 / Item3，用 `#NotesFont#`）、`Timer`（用 `#SoundFile#`）、`MediaKey` 的四个 `MediaRemote`、`Brightness`、`Folders`、`RAM`、`Volume` 的其余变体补齐 include；补插位置限定在 `[Variables]` 段内、最后一条 include 之后，按各文件原有编码写回。
 - 三个 GUI 工具窗口圆角处的白点：圆角此前由 DWM 圆角偏好（`DWMWA_WINDOW_CORNER_PREFERENCE`）与 WinForms `Region` 双重裁剪，两套半径不一致，DWM 抗锯齿在角上采样到未绘制的像素；现只保留 DWM 圆角，角部随窗口背景一同绘制。
 - ActivePanels 3x3 布局在启用面板达到 31 个时崩溃（AutoIt 报 `Variable used without being declared`）：`ActivePanels.au3:278` 使用了从未声明的 `$row9`（只声明了 `$row1..$row8`），第 31 个面板起排布中断；C# 版按源码本来的行表补全声明，可正常排到 row9 并放完剩余面板。
@@ -68,6 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 跨屏拖动后排版错位：DPI 系数原先只在创建句柄时算一次，窗口从 125% 屏拖到 150% 屏时系统只改窗口尺寸、控件树不重排，自绘内容按新 DPI 落在旧矩形里，右侧残留一块黑矩形。`ModernForm` 现接管 `WM_DPICHANGED`，按新旧 DPI 比值缩放子控件与字体、重跑标题栏布局、复位被系统改高的原生 TrackBar，再采用系统建议矩形；125%↔150% 往返实测窗口与各子控件矩形逐项一致。
 - 取色对话框未适配深色：`ColorPickerForm` 硬编码白底与灰字。现接 `ModernUi.Theme`——底色 / 输入井 / 分隔线 / 色板格 / 箭头条全部走主题，标题栏用 `DWMWA_USE_IMMERSIVE_DARK_MODE` 切深色，OK 按钮改主题强调色；吸管、色盘、箭头三个 2013 年的位图改为按控件尺寸现画的线性字形（DPI 变化不再糊）。
 - 强调色可能是中性灰：系统 `AccentColor` 本机为 `0xA1A1A1`，直接当强调色会让滑杆与主按钮整片发灰；现按饱和度判定，低于 12% 回落到工具集原本的蓝。
+- OmnimoApp.exe 的帮助页不再用内嵌 IE（WinForms WebBrowser）：那个引擎把 2026 年的页面排版全打乱。现改为查注册表取默认浏览器命令行直接启动，本地页的主题/语言参数走 # 片段——Chrome/Edge 把 ile:// 的查询串当文件名的一部分，带 ? 会报「无法访问此网站」，ShellExecute 又会把参数丢掉。
 - 设置窗的排版细节：勾选框从 16px 收到 14px（与 9pt 文字视觉等高），「使用图片」标签与勾选框同基线；滑杆拇指两端各内缩 6px，拉到最右不再被裁掉半个；`ConfigBackground` 行距统一到 36px、「上限 W × H」右对齐贴着数字框；列表滚动条走 `DarkMode_Explorer` 主题（条目填满后才补发一次——句柄创建时切主题对它无效），卡片补圆角 `Region` 并让非客户区重算，消除换掉原生滚动条后留下的竖痕。
 - 取色框的 R / G / B 三个输入框从未显示：`MakeNumberBox` 造出控件后没有 `Controls.Add`，屏幕上只剩三个字母；同时标签宽 13px 装不下「R:」。现补上入窗并把标签放宽到 17px、输入框右移到 35 / 99 / 163。
 - 取色框调色板菜单的排版：菜单项内边距从 2/3 改为 10/5（左 18 给点击余量），分隔线加 4px 竖向留白，弹出位置从齿轮正下方改为左上方向内弹出并夹在窗体内——原位置会压住 OK 一行。
