@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <!-- 纯 Win32 互操作（图标资源、WM_COPYDATA、Shell 对话框），无原生依赖 -->
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+    <Nullable>disable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>PanelCreator</AssemblyName>
+    <RootNamespace>OmnimoTools.PanelCreator</RootNamespace>
+    <Version>0.6.0.0</Version>
+    <FileVersion>0.6.0.0</FileVersion>
+    <ProductVersion>0.6.0.0</ProductVersion>
+    <AssemblyTitle>PanelCreator</AssemblyTitle>
+    <Company>Omnimo</Company>
+    <Product>ReOmnimo</Product>
+    <Copyright>Xyrfo 2013</Copyright>
+    <Description>ReOmnimo PanelCreator</Description>
+    <!-- 图标取自微软 Fluent UI System Icons（MIT），由 ..\Icons\make_icons.py 生成 -->
+    <ApplicationIcon>..\Icons\PanelCreator.ico</ApplicationIcon>
+    <!-- DPI 感知（PerMonitorV2）走共享清单；WinForms 的 AutoScaleMode.Dpi 只认清单声明 -->
+    <ApplicationManifest>..\Shared\app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- .rmskin 就是 zip，写入用 System.IO.Compression（.NET Framework 自带程序集，不是第三方依赖） -->
+    <Reference Include="System.IO.Compression" />
+    <Compile Include="..\Shared\*.cs" Link="*.cs" />
+  </ItemGroup>
+
+</Project>

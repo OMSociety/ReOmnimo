@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <!-- 必须 x86：WebView2 NuGet 给 net48 只带 x86 原生 WebView2Loader.dll，
+         SDK 风格工程默认 AnyCPU 无 32 位偏好 → 进程跑 64 位 → BadImageFormatException(0x8007000B) -->
+    <PlatformTarget>x86</PlatformTarget>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>config</AssemblyName>
+    <RootNamespace>SettingsCenter</RootNamespace>
+    <Version>0.6.0.0</Version>
+    <FileVersion>0.6.0.0</FileVersion>
+    <ProductVersion>0.6.0.0</ProductVersion>
+    <AssemblyTitle>SettingsCenter</AssemblyTitle>
+    <Company>Omnimo</Company>
+    <Product>ReOmnimo</Product>
+    <Copyright>Xyrfo 2013</Copyright>
+    <Description>ReOmnimo Settings Center</Description>
+    <!-- 图标取自微软 Fluent UI System Icons（MIT），由 ..\Tools\Icons\make_icons.py 生成 -->
+    <ApplicationIcon>..\Tools\Icons\config.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- net48 + WebView2 需要显式引用 WindowsBase 等 WPF 程序集？不需要，WinForms 足够 -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="lang\*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

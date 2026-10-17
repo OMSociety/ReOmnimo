@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+    <Nullable>disable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>MultiManager</AssemblyName>
+    <RootNamespace>OmnimoTools.MultiManager</RootNamespace>
+    <Version>0.6.0.0</Version>
+    <FileVersion>0.6.0.0</FileVersion>
+    <ProductVersion>0.6.0.0</ProductVersion>
+    <AssemblyTitle>MultiManager</AssemblyTitle>
+    <Company>Omnimo</Company>
+    <Product>ReOmnimo</Product>
+    <Copyright>Xyrfo 2013</Copyright>
+    <Description>ReOmnimo MultiManager</Description>
+    <!-- 图标取自微软 Fluent UI System Icons（MIT），由 ..\Icons\make_icons.py 生成 -->
+    <ApplicationIcon>..\Icons\MultiManager.ico</ApplicationIcon>
+    <!-- 不设 DPI 清单：Screen.PrimaryScreen.Bounds 与 AutoIt 的 @DesktopWidth/@DesktopHeight 同源 -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\OmnimoShared.cs" Link="OmnimoShared.cs" />
+  </ItemGroup>
+
+</Project>

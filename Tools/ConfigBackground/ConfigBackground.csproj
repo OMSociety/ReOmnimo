@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+    <Nullable>disable</Nullable>
+    <LangVersion>latest</LangVersion>
+
+    <AssemblyName>ConfigBackground</AssemblyName>
+    <RootNamespace>OmnimoTools.ConfigBackground</RootNamespace>
+
+    <Version>0.6.0.0</Version>
+    <FileVersion>0.6.0.0</FileVersion>
+    <ProductVersion>0.6.0.0</ProductVersion>
+    <AssemblyTitle>ConfigBackground</AssemblyTitle>
+    <Company>Omnimo</Company>
+    <Product>ReOmnimo</Product>
+    <Copyright>Xyrfo 2013</Copyright>
+    <Description>ReOmnimo Background Settings</Description>
+
+    <ApplicationIcon>..\Icons\ConfigBackground.ico</ApplicationIcon>
+    <!-- DPI 感知（PerMonitorV2）走共享清单；WinForms 的 AutoScaleMode.Dpi 只认清单声明 -->
+    <ApplicationManifest>..\Shared\app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\OmnimoShared.cs" Link="OmnimoShared.cs" />
+    <Compile Include="..\Shared\OmnimoShared.Tools.cs" Link="OmnimoShared.Tools.cs" />
+    <Compile Include="..\Shared\ColorSupport.cs" Link="ColorSupport.cs" />
+    <Compile Include="..\Shared\AutoItValue.cs" Link="AutoItValue.cs" />
+    <Compile Include="..\Shared\ColorPickerForm.cs" Link="ColorPickerForm.cs" />
+    <Compile Include="..\Shared\GuiFont.cs" Link="GuiFont.cs" />
+    <Compile Include="..\Shared\ModernUi.cs" Link="ModernUi.cs" />
+  </ItemGroup>
+
+</Project>

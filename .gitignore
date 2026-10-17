@@ -18,3 +18,20 @@ Thumbs.db
 # A published calendar URL grants read access to that calendar, so a private
 # feed must stay out of the repository.
 REO/@Resources/Config/Panels/Agenda/UserVariables.local.inc
+
+# Build outputs of the C# tools (SettingsCenter/, Tools/)
+[Bb]in/
+[Oo]bj/
+*.pdb
+*.user
+*.suo
+.vs/
+
+# WebView2 user-data directory created beside a running config.exe: a browser
+# profile holding cookies, history and saved logins. Never commit it.
+*.exe.WebView2/
+
+# Panel-tool scratch file (REO\@Resources\Common\Config\hue.ini)
+# ActivePanels/MultiManager delete and rewrite it on every run; nothing in the
+# repository ever reads it, so it is per-machine state, not source.
+REO/@Resources/Common/Config/hue.ini

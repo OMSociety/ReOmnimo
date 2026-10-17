@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 三个 GUI 工具（ColorChanger / ConfigBackground / PanelCreator）共享的应用清单。
+     PerMonitorV2 DPI 感知：必须走清单声明——运行时 API（SetProcessDpiAwareness）虽能把进程
+     设为感知，但 WinForms 的 AutoScaleMode.Dpi 不吃这一套（2026-10-17 实测：API 声明后
+     子控件全部保持 1:1 设计尺寸），只有清单声明才会触发按显示器倍率的自动缩放。
+     不声明则进程按 96 DPI 渲染、DWM 位图拉伸，细描边与圆角发糊。 -->
+<assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1">
+  <assemblyIdentity version="1.0.0.0" name="OmnimoTools.app"/>
+  <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
+    <security>
+      <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
+        <requestedExecutionLevel level="asInvoker" uiAccess="false"/>
+      </requestedPrivileges>
+    </security>
+  </trustInfo>
+  <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+    <application>
+      <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15f95}"/>
+    </application>
+  </compatibility>
+  <application xmlns="urn:schemas-microsoft-com:asm.v3">
+    <windowsSettings>
+      <dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">true/pm</dpiAware>
+      <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2</dpiAwareness>
+    </windowsSettings>
+  </application>
+</assembly>
