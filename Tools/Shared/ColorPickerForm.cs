@@ -136,13 +136,17 @@ namespace OmnimoTools
             Controls.Add(_gear);
             _gear.Click += (s, e) => ShowPaletteMenu();
 
-            // R / G / B 输入
-            Controls.Add(MakeLabel("R:", 19, 362, 13));
-            _txtR = MakeNumberBox(33, 360, 34);
-            Controls.Add(MakeLabel("G:", 79, 362, 13));
-            _txtG = MakeNumberBox(93, 360, 34);
-            Controls.Add(MakeLabel("B:", 139, 362, 13));
-            _txtB = MakeNumberBox(153, 360, 34);
+            // R / G / B 输入：标签 18px 宽才放得下「R:」，输入框必须自己塞进 Controls，
+            // 否则屏幕上只剩三个孤零零的字母（Box 从未加入窗体，永远不显示）。
+            Controls.Add(MakeLabel("R:", 18, 363, 17));
+            _txtR = MakeNumberBox(35, 360, 34);
+            Controls.Add(_txtR);
+            Controls.Add(MakeLabel("G:", 82, 363, 17));
+            _txtG = MakeNumberBox(99, 360, 34);
+            Controls.Add(_txtG);
+            Controls.Add(MakeLabel("B:", 146, 363, 17));
+            _txtB = MakeNumberBox(163, 360, 34);
+            Controls.Add(_txtB);
 
             // '#' 十六进制输入（限 6 字符）
             Controls.Add(MakeLabel("#", 20, 389, 10));
@@ -338,9 +342,15 @@ namespace OmnimoTools
             menu.Items.Add(MenuItem(L("PaletteColorful"), (s, e) => { GenerateColorful(); SetPaletteImages(); }));
             menu.Items.Add(MenuItem(L("PaletteContiguous"), (s, e) => { GenerateContigious(); SetPaletteImages(); }));
             menu.Items.Add(MenuItem(L("PaletteContrasting"), (s, e) => { GenerateContrasting(); SetPaletteImages(); }));
-            menu.Items.Add(new ToolStripSeparator { BackColor = _t.Card });
+            menu.Items.Add(new ToolStripSeparator { BackColor = _t.Card, Margin = new Padding(6, 4, 6, 4) });
             menu.Items.Add(MenuItem(L("PaletteApplyAll"), (s, e) => ApplyColorsToAll()));
-            menu.Show(_gear, new Point(0, _gear.Height));
+            // 齿轮贴在右下角，菜单往下弹会压住 OK 一行；改向左上方弹，并夹进窗体里
+            var size = menu.GetPreferredSize(Size.Empty);
+            int x = _gear.Left - size.Width + _gear.Width;
+            int y = _gear.Top - size.Height - 2;
+            x = Math.Max(4, Math.Min(x, ClientSize.Width - size.Width - 4));
+            y = Math.Max(4, y);
+            menu.Show(this, new Point(x, y));
         }
 
         /// <summary>菜单项统一走这里：专业渲染器按 item.ForeColor 画文字，不设就是系统菜单字色。</summary>
@@ -349,7 +359,7 @@ namespace OmnimoTools
             var item = new ToolStripMenuItem(text);
             item.ForeColor = _t.Fg;
             item.BackColor = _t.Card;
-            item.Padding = new Padding(2, 3, 2, 3);
+            item.Padding = new Padding(10, 5, 18, 5);   // 左侧留出文字起笔、右侧留出点击余量，否则字贴着边框
             item.Click += onClick;
             return item;
         }

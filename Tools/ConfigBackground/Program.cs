@@ -135,7 +135,7 @@ namespace OmnimoTools.ConfigBackground
             _height = AddSlider(94, 176, 150, 25, Screen.PrimaryScreen.Bounds.Height, heightValue);
 
             _image = AddCheckBox(170, 66, 17, 25);
-            AddLabel(L("UseImage"), 188, 66, 65, 25);   // 与勾选框同 top/同高，文字与方框才垂直居中对齐
+            AddCheckLabel(L("UseImage"), 188, 66, 65, 25);   // 与勾选框同 top/同高，且文字垂直居中
             _browse = new ModernUi.ModernButton(T, L("Browse"), ghost: true) { Bounds = new Rectangle(S(253), S(66), S(62), S(22)) };
             Controls.Add(_browse);
 
@@ -144,19 +144,19 @@ namespace OmnimoTools.ConfigBackground
             AddLabel(L("GradientAngle"), 120, 370, 132, 17);  // "Gradient" 文本结束约 x=100；输入框从 255 起，标签放 120..252 不再被截断
 
             _leftRight = AddCheckBox(84, 262, 17, 17);
-            AddLabel(L("LeftRight"), 102, 262, 34, 17);     // 原版两个勾选框没有文字，只能靠位置猜左右/上下
+            AddCheckLabel(L("LeftRight"), 102, 262, 34, 17);   // 原版两个勾选框没有文字，只能靠位置猜左右/上下
             _topBottom = AddCheckBox(140, 262, 17, 17);
-            AddLabel(L("TopBottom"), 158, 262, 34, 17);
+            AddCheckLabel(L("TopBottom"), 158, 262, 34, 17);
             _borderWidth = AddNumberInput("", 270, 260, 45, 21, center: false);   // au3:175-177 输入框 + GUICtrlCreateUpdown（现代化壳里退化为纯数字输入框）
             _borderWidth.Value = AutoIt.Num(borderWidthValue);
             if (Same(leftRightValue, "0")) _leftRight.Checked = true;     // 语义反转：存 0 表示显示左右边框 → 勾选
             if (Same(topBottomValue, "0")) _topBottom.Checked = true;
 
             _aeroGlass = AddCheckBox(32, 336, 17, 17);
-            AddLabel(L("EnableAero"), 50, 336, 129, 17);
+            AddCheckLabel(L("EnableAero"), 50, 336, 129, 17);
 
             _gradient = AddCheckBox(32, 370, 17, 17);
-            AddLabel(L("Gradient"), 50, 370, 113, 17);
+            AddCheckLabel(L("Gradient"), 50, 370, 113, 17);
             _gradientAngle = AddNumberInput("", 255, 368, 60, 21, center: false); // au3:194-196 输入框 + GUICtrlCreateUpdown
             _gradientAngle.Value = AutoIt.Num(AutoIt.ToNumber(gradientAngleValue));
             if (Same(aeroGlassValue, "1")) _aeroGlass.Checked = true;
@@ -264,8 +264,16 @@ namespace OmnimoTools.ConfigBackground
             var label = AddLabel(text, left, top, 200, 17);
             label.ForeColor = T.Fg;
             label.Font = ModernUi.UiFont(9.5f);
-            int lineX = text.Length * 5 + 35;
-            AddLine(lineX, lineY, 315 - lineX, 1);
+            // 分组标题右侧原本接一条细分隔线：中文标题比英文短，线从标题尾部一路拖到卡片右边，
+            // 看上去像一条没人认领的横条，故只保留标题本身（lineY 形参仅为兼容调用点保留）。
+            return label;
+        }
+
+        /// <summary>勾选框旁的说明文字：与勾选框同 top/同高，并垂直居中，否则文字顶在 25px 高盒子的上沿。</summary>
+        private Label AddCheckLabel(string text, int left, int top, int width, int height)
+        {
+            var label = AddLabel(text, left, top, width, height);
+            label.TextAlign = ContentAlignment.MiddleLeft;
             return label;
         }
 
