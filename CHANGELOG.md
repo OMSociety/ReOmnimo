@@ -52,6 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 多语言收尾（2026-10-17）：八语键集对齐到 46 键——此前 Dutch / French / German / Portuguese / Spanish 缺 `Apply`（ConfigBackground 右下角按钮在这些语言下显示英文键名）；PanelCreator 的拖放提示（新键 `DropHint`，替代 2013 年内嵌英文位图 droptext.png）与作者输入框标题接语言键；六份 UTF-16LE+BOM 语种编码与行尾保持不变。三窗跟随皮肤语言包（`Varrar.inc` 的 `Language=`），实机验证中文与德文界面。
 - 版面核对的三轮修正（2026-10-17）：ColorChanger 色板网格右列溢出窗口、末行缺一角——间距从 44px 改回原版 au3 的 40px，并把常驻的自定义色块（原版第 18 格，点击弹系统取色器）放回网格末格；PanelCreator 预览区面板名被居中格式钉在 x=10、左半裁掉——改回原版的默认左对齐绘制。
 - **删除贡献者包分类**（2026-10-18）：`Gallery\cat5.inc`、「贡献者包」侧栏项与其图标、`mask-contrib.png` 覆盖层、`Icons\heart.png`、主题模板里只给这些磁贴用的 `[P]` 样式（`!ToggleConfig "REO\DonatorPanels\…"`，而 `REO\DonatorPanels` 目录从未存在）一并移除；`Gallery\main.ini` 里 `[Cat5]`、`[Cat5Indicator]`、`[CatIcon5]` 三段删除后，设置标题与下一分类图标各上移一行（370→320、392→344）。四类贡献者语言键从 8 份运行时包与 `lang.inc` / `Backup\English.inc` / `Readme\Translate\**` 中移除，Chinese / English 现各 281 键。
+- 画廊右键菜单的三个入口从 2013 年的上游页面改到本 fork：检查更新 指向 Releases 页，发送反馈 指向 Issue 列表（原先是给原作者 gmail 的 mailto:），捐赠 条目删除（原链接打款给原作者，与本 fork 无关）。
 - **删除 60 个无面板的孤儿配置目录**（2026-10-18）：`@Resources\Config\Panels` 有 83 个配置目录，而 `REO\Panels` 只有 62 个面板；多出的 23 个（含 `TextItems` 侧同形目录）永远不会被任何 include 或设置窗口引用，共 347 个文件。清理后 `Config\Panels` 40 个目录、`TextItems` 17 个。设置窗口同时改为只列 schema 里真有一组设置的面板（此前 35 个空 schema 面板点开只有「0 项设置」）。
 
 ### 修复
