@@ -332,7 +332,7 @@ namespace OmnimoTools.ColorChanger
         }
 
         private void ChooseCustomColor()
-        {            int data = ColorPickerForm.Show(this, 0x000000, T);
+        {            int data = ColorPickerForm.Show(this, 0x000000, T, _lang);
             if (data == -1) return;   // 取消：AutoIt 走 ContinueCase，等价于什么都不做
             string selected = ColorText.HexToRGB(data) + "," + _opacity;
             ForEachSelected(p => ApplyColor(p, selected));

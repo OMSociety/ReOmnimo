@@ -45,7 +45,8 @@ namespace OmnimoTools
         private readonly int[] _hsb = new int[3];   // H 0..359, S/B 0..100
         private readonly int[] _colors = new int[17];  // 内置色板 [0]=count（不使用），[1..16] 用
         private bool _return = false;
-        private readonly ModernUi.Theme _t;   // 深色主题（调用方传入，见 Show）
+        private readonly ModernUi.Theme _t;             // 深色主题（调用方传入，见 Show）
+        private readonly System.Collections.Generic.Dictionary<string, string> _lang;   // 语言包（同上）
 
         // ---- 控件 ----
         private PictureBox _main;       // [1] 主色区 243×243
@@ -66,9 +67,10 @@ namespace OmnimoTools
         /// 弹出取色对话框；返回 0xRRGGBB，取消返回 -1。
         /// 等价于 _ColorChooserDialog($iColor, $hParent)。
         /// </summary>
-        public static int Show(IWin32Window parent, int initialColor, ModernUi.Theme theme)
+        public static int Show(IWin32Window parent, int initialColor, ModernUi.Theme theme,
+                               System.Collections.Generic.Dictionary<string, string> lang)
         {
-            using (var form = new ColorPickerForm(initialColor, theme))
+            using (var form = new ColorPickerForm(initialColor, theme, lang))
             {
                 form.StartPosition = FormStartPosition.CenterParent;
                 DialogResult result = form.ShowDialog(parent);
@@ -78,9 +80,11 @@ namespace OmnimoTools
             }
         }
 
-        private ColorPickerForm(int initialColor, ModernUi.Theme theme)
+        private ColorPickerForm(int initialColor, ModernUi.Theme theme,
+                                System.Collections.Generic.Dictionary<string, string> lang)
         {
             _t = theme;                     // 深色主题由调用方传入，与主窗口一致
+            _lang = lang;                   // 语言包同样由调用方传入：exe 与 Language\ 不同级，别在这里猜路径
             _flags = CC_FLAG_DEFAULT;
             int h1 = ((_flags & CC_FLAG_SOLIDCOLOR) == CC_FLAG_SOLIDCOLOR) ? 69 : 0;
             int h2 = ((_flags & CC_FLAG_USERCOLOR) == CC_FLAG_USERCOLOR) ? 56 : 0;
@@ -326,13 +330,33 @@ namespace OmnimoTools
         private void ShowPaletteMenu()
         {
             var menu = new ContextMenuStrip();
-            menu.Items.Add("Default", null, (s, e) => { LoadDefaultColors(); SetPaletteImages(); });
-            menu.Items.Add("Colorful", null, (s, e) => { GenerateColorful(); SetPaletteImages(); });
-            menu.Items.Add("Contigious", null, (s, e) => { GenerateContigious(); SetPaletteImages(); });
-            menu.Items.Add("Contrasting", null, (s, e) => { GenerateContrasting(); SetPaletteImages(); });
-            menu.Items.Add(new ToolStripSeparator());
-            menu.Items.Add("Apply to all panels", null, (s, e) => ApplyColorsToAll());
+            menu.Renderer = new ModernUi.MenuTheme(_t);   // 深色渲染：底色/边框/选中态都跟主题走
+            menu.BackColor = _t.Card;
+            menu.ForeColor = _t.Fg;
+            menu.ShowImageMargin = false;
+            menu.Items.Add(MenuItem(L("PaletteDefault"), (s, e) => { LoadDefaultColors(); SetPaletteImages(); }));
+            menu.Items.Add(MenuItem(L("PaletteColorful"), (s, e) => { GenerateColorful(); SetPaletteImages(); }));
+            menu.Items.Add(MenuItem(L("PaletteContiguous"), (s, e) => { GenerateContigious(); SetPaletteImages(); }));
+            menu.Items.Add(MenuItem(L("PaletteContrasting"), (s, e) => { GenerateContrasting(); SetPaletteImages(); }));
+            menu.Items.Add(new ToolStripSeparator { BackColor = _t.Card });
+            menu.Items.Add(MenuItem(L("PaletteApplyAll"), (s, e) => ApplyColorsToAll()));
             menu.Show(_gear, new Point(0, _gear.Height));
+        }
+
+        /// <summary>菜单项统一走这里：专业渲染器按 item.ForeColor 画文字，不设就是系统菜单字色。</summary>
+        private ToolStripMenuItem MenuItem(string text, EventHandler onClick)
+        {
+            var item = new ToolStripMenuItem(text);
+            item.ForeColor = _t.Fg;
+            item.BackColor = _t.Card;
+            item.Padding = new Padding(2, 3, 2, 3);
+            item.Click += onClick;
+            return item;
+        }
+
+        private string L(string key)
+        {
+            return ModernUi.Lang.T(_lang, key);
         }
 
         // ---------- 交互 ----------

@@ -367,7 +367,7 @@ namespace OmnimoTools.ConfigBackground
         private void ChooseColor(int index)
         {
             AutoItValue current = index == 1 ? _color1 : (index == 2 ? _color2 : _color3);
-            int chosen = ColorPickerForm.Show(this, (int)current.Number, T);
+            int chosen = ColorPickerForm.Show(this, (int)current.Number, T, _lang);
             AutoItValue value = AutoItValue.FromNumber(chosen);
 
             if (index == 1)
