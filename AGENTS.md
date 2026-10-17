@@ -101,7 +101,7 @@ REO\                              皮肤根（桌面 junction 指到这里）
 | `Tools\`（30 个文件：ActivePanels / MultiManager / ColorChanger / ConfigBackground / PanelCreator / OmnimoApp 六个 net48 工程 + Shared（含 ModernUi.cs 共享界面层） + Icons） | **未跟踪** |
 | `REO\@Resources\Common\Config\` 的 WebView2 部署件（3 个托管 DLL、`WebView2Loader.dll`、`config.exe.config`、`lang\`） | **未跟踪**，但 `config.exe` 已替换为 0.6.0.0——不补提交，干净检出里设置中心跑不起来 |
 | `REO\@Resources\Common\Config\hue.ini` | 已暂存删除，`.gitignore` 已覆盖 |
-| 七份 C# 分发 exe（`ColorChanger.exe` 99328、`OmnimoApp.exe` 67072、`Background\ConfigBackground.exe` 102400、`PanelCreator\PanelCreator.exe` 116224、`Config\ActivePanels.exe` 40448、`Config\config.exe` 78848、`MultiManager\MultiManager.exe` 38400 字节，均 0.6.0.0；2026-10-18 现查） | 已替换/已部署，属已跟踪文件的修改；`config.exe` 与 `ActivePanels`/`MultiManager` 为 2026-10-18 重建（前两份此前是旧代码或缺图标）；三个 GUI 工具又经窗口打磨（关闭键、占位提示、跨屏重排、深色取色框）后重建 |
+| 七份 C# 分发 exe（`ColorChanger.exe` 100352、`OmnimoApp.exe` 67072、`Background\ConfigBackground.exe` 102912、`PanelCreator\PanelCreator.exe` 117248、`Config\ActivePanels.exe` 40448、`Config\config.exe` 78848、`MultiManager\MultiManager.exe` 38400 字节，均 0.6.0.0；2026-10-18 现查） | 已替换/已部署，属已跟踪文件的修改；`config.exe` 与 `ActivePanels`/`MultiManager` 为 2026-10-18 重建（前两份此前是旧代码或缺图标）；三个 GUI 工具又经窗口打磨（关闭键、占位提示、跨屏重排、深色取色框、调色板菜单）后重建 |
 | 语言自动跟随（新增 `Common\Variables\AutoLang.lua`、`Languages\Auto.inc`；改 `Common\Variables\UserVariables.inc`、`Common\Background\Varrar.inc`、`Background\bg.ini`、`Gallery\main.ini`） | 已实机验证（德语注入→自动写回中文、0 新增 ERRO）；`UserVariables.inc` 转 UTF-8+BOM（§3）；`Varrar.inc` 现查 `Language=Chinese`（= 本机系统语言，检测器写回） |
 | 文案与文档修正 | 若干 `RainConfigure.cfg` 标题、`Slideshow\Item.ini` Height 196→195、`.gitignore`、`THIRD-PARTY.md`、`CHANGELOG.md`；Delicious / StumbleUpon 的面板配置已删 |
 

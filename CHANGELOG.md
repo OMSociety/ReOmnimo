@@ -45,7 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 多语言补齐：`Common\Background\Language\` 八语 cfg 此前缺 ColorChanger 与 ConfigBackground 的文案键（界面只有英文）。补齐 ColorChanger 的 10 个键（ChangePanelColor / SelectAll / Refresh / NoActivePanels / Random / NewPalette / Default 等）与 ConfigBackground 的分组标题（GroupColors / GroupSize）；六份 UTF-16LE+BOM 语种的编码保持不变，English / Dutch 维持 UTF-8 无 BOM。
   - `ConfigBackground` 由逐控件移植重写为 ModernForm 壳上的重组件界面（滑杆 / 输入框 / 勾选 / 色块），设置分组与标签全部走语言包。
   - `PanelCreator` 接入 ModernForm 壳：内容区仍是 `PanelCreator.au3` 的 GDI+ 单窗口布局（拖放预览、名称 / 操作输入、导出 `*.rmskin` 含 16 字节 PackageFooter、预览图与临时文件清理），行为与原 .au3 逐段对应。
-  - 验证：夹具下三工具截图逐区核对（主题取色、标题栏图标、中文界面）；部署产物 97–114 KB（尺寸见 `AGENTS.md` 在途表）。
+  - 验证：夹具下三工具截图逐区核对（主题取色、标题栏图标、中文界面）；部署产物 98–115 KB（尺寸见 `AGENTS.md` 在途表）。
   - 实机回看后的二轮修正（2026-10-17）：ColorChanger 空列表提示被列表控件盖住（WinForms 后 `Add` 的控件在 z-order 底部，需 `SetChildIndex` 提前）；ConfigBackground 去掉原版四条 1px 装饰括线（深色界面里呈游离细线）、`GradientAngle` 标签加宽不再截断、黑/白色块补描边；PanelCreator 内容区去旧（droptext.png 改直绘提示文字且不再被名字轮询清掉、白色输入框改深色输入井、file/folder 旧图标改线条字形、按钮加悬停反馈）；修复共享缓存字体 `UiFont` 被 `using` 释放导致整窗绘制抛 `ArgumentException` 的崩溃。
   - 三轮修正（2026-10-17）：ColorChanger 整体布局下移出标题栏、窗口加高 24px、左右边距对齐（此前色板第一行压标题栏、左侧背景色带被读成「黑条」）；PanelCreator 原生输入框与全部自绘文字从环境继承的宋体改到 YaHei UI 字体栈（`Font = GuiFont.Default` 是忠实对照移植的遗留，现代化窗口不该再用）；窗口描边内缩 1px、半径 8 画（贴边画时外半像素被 DWM 圆角裁剪，角上呈缺口）。
   - 四轮修正（2026-10-17，DPI 根修）：此前三个窗口是 DPI 不感知进程，Windows 把 96 DPI 位图拉伸到屏幕倍率（用户屏 150%），1px 描边与圆角弧线被重采样成糊、勾选框在 150% 屏上冒出主题引擎画的花色碎片字形。现三个 exe 内嵌 `PerMonitorV2` 清单（`Tools\Shared\app.manifest`），`ModernForm.OnHandleCreated` 按 `GetDpiForWindow` 手动 `Scale` 统一缩放窗体与子控件（net48 的 `AutoScaleMode.Dpi` 实测缩放因子算成 1，不可用），自绘控件内部几何走 `PxU/DpiU` 系数；`ModernCheckBox` 基类从 `CheckBox` 换成 `Control`（主题引擎对继承 CheckBox 的 UserPaint 控件仍会画原生勾选字形）。
@@ -65,6 +65,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 取色对话框未适配深色：`ColorPickerForm` 硬编码白底与灰字。现接 `ModernUi.Theme`——底色 / 输入井 / 分隔线 / 色板格 / 箭头条全部走主题，标题栏用 `DWMWA_USE_IMMERSIVE_DARK_MODE` 切深色，OK 按钮改主题强调色；吸管、色盘、箭头三个 2013 年的位图改为按控件尺寸现画的线性字形（DPI 变化不再糊）。
 - 强调色可能是中性灰：系统 `AccentColor` 本机为 `0xA1A1A1`，直接当强调色会让滑杆与主按钮整片发灰；现按饱和度判定，低于 12% 回落到工具集原本的蓝。
 - 设置窗的排版细节：勾选框从 16px 收到 14px（与 9pt 文字视觉等高），「使用图片」标签与勾选框同基线；滑杆拇指两端各内缩 6px，拉到最右不再被裁掉半个；`ConfigBackground` 行距统一到 36px、「上限 W × H」右对齐贴着数字框；列表滚动条走 `DarkMode_Explorer` 主题（条目填满后才补发一次——句柄创建时切主题对它无效），卡片补圆角 `Region` 并让非客户区重算，消除换掉原生滚动条后留下的竖痕。
+- 取色框的 R / G / B 三个输入框从未显示：`MakeNumberBox` 造出控件后没有 `Controls.Add`，屏幕上只剩三个字母；同时标签宽 13px 装不下「R:」。现补上入窗并把标签放宽到 17px、输入框右移到 35 / 99 / 163。
+- 取色框调色板菜单的排版：菜单项内边距从 2/3 改为 10/5（左 18 给点击余量），分隔线加 4px 竖向留白，弹出位置从齿轮正下方改为左上方向内弹出并夹在窗体内——原位置会压住 OK 一行。
+- 设置窗侧栏列出「0 项设置」的面板：`Config\Panels` 下 83 个配置目录里有 35 个的 `RainConfigure.cfg` 不足四行（空 schema），列在侧栏只会在点开时显示「0 项设置」；侧栏现按 schema 行数过滤，只列有可编辑项的面板。
+- `ConfigBackground` 分组标题右侧的细分隔线已去掉：中文标题比英文短，线从标题尾部一路拖到卡片右边，看起来像一条没有含义的横条；勾选框旁的说明文字改走 `AddCheckLabel`（垂直居中），不再顶在 25px 高容器的上沿。
 - 背景设置点开没反应：`Background\bg.ini` 与 `Background\DayNight\Item.ini` 调用的是不存在的 `Common\Background\config.exe`（该目录实际部署名是 `ConfigBackground.exe`），而且只传了一个参数——工具契约是 `ConfigBackground.exe <VarFile> <SkinPath>`，原版 AutoIt 同样读 `$CmdLine[2]`，缺参直接越界。现改为正确文件名并补上 `#SKINSPATH#`。
 - 面板设置项的说明文字：10 个 `RainConfigure.cfg` 的描述行原是从上游带来的玩笑与笔误（`URL to DDoS.. err I mean ping`、`Make it wider why dontcha?`、`Toggle from Low Brightness Value`、`If you have several audio devices, specify which to switch Index to switch`），在一个要用户照着填的对话框里说不清字段含义。逐条改写为说明实际行为，产品名与大小写一并订正（Steam / Big Picture）；参数名、控件类型与四行一组的 schema 结构未动。
 
