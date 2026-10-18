@@ -42,7 +42,7 @@ y=R
 Group=Cat6 | Bye
 [DarkMode2]
 Meter=Image
-ImageName=#@#\Graphics\Gallery\on#OnOff#1#ttgallerystyle#.png
+ImageName=#@#\Graphics\Gallery\on#OnOff##DarkMode##ttgallerystyle#.png
 Group=Cat6 | Bye
 x=(360*#ScaleDpi#)
 w=(85*#ScaleDpi#)
@@ -50,7 +50,7 @@ y=(-25*#ScaleDpi#)R
 LeftMouseUpAction=[!WriteKeyValue Variables FontColor 0x[&Lua:ConvertToHex('30,30,30')] "#@#Common\PanelCreator\Resources\Colors.inc"][!WriteKeyValue Variables FooterBG 0x[&Lua:ConvertToHex('230,230,230')] "#@#Common\PanelCreator\Resources\Colors.inc"][!WriteKeyValue Variables GuiBG 0x[&Lua:ConvertToHex('255,255,255')] "#@#Common\PanelCreator\Resources\Colors.inc"][!WriteKeyValue Variables DarkMode 0 "#@#Common\Variables\UserVariables.inc"][!WriteKeyValue Variables ConfigBackgroundColor 0xffffff "#@#Common\Variables\UserVariables.inc"][!WriteKeyValue Variables ConfigBackgroundColor2 0xd2d2d2 "#@#Common\Variables\UserVariables.inc"][!WriteKeyValue Variables ConfigTextColor 0x323232 "#@#Common\Variables\UserVariables.inc"][!WriteKeyValue Variables ttgallerystyle Light "#@#Common\Variables\UserVariables.inc"][!WriteKeyValue Variables LastCat "cat6" "scroll.inc"][!RefreshGroup Gallery]
 [DarkMode3]
 Meter=Image
-ImageName=#@#\Graphics\Gallery\off#OnOff#0#ttgallerystyle#.png
+ImageName=#@#\Graphics\Gallery\off#OnOff##DarkMode##ttgallerystyle#.png
 Group=Cat6 | Bye
 x=(360*#ScaleDpi#)
 w=(85*#ScaleDpi#)
@@ -227,7 +227,7 @@ y=R
 Group=Cat6 | Bye
 [Glass2]
 Meter=Image
-ImageName=#@#\Graphics\Gallery\on#OnOff#1#ttgallerystyle#.png
+ImageName=#@#\Graphics\Gallery\on#OnOff##globalblurenable##ttgallerystyle#.png
 Group=Cat6 | Bye
 x=(360*#ScaleDpi#)
 y=(-25*#ScaleDpi#)R
@@ -236,7 +236,7 @@ LeftMouseUpAction=[!WriteKeyValue Variables win10blur none "#@#Common\Color\colo
 
 [Glass3]
 Meter=Image
-ImageName=#@#\Graphics\Gallery\off#OnOff#0#ttgallerystyle#.png
+ImageName=#@#\Graphics\Gallery\off#OnOff##globalblurenable##ttgallerystyle#.png
 Group=Cat6 | Bye
 x=(360*#ScaleDpi#)
 y=R
