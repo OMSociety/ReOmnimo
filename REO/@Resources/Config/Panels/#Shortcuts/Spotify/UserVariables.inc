@@ -1,4 +1,4 @@
 [Variables]
 PanelName=spotify
-IconLocation=#@#\Graphics\Icons\Web\spotify.png
+IconLocation=#@#\Graphics\Icons\Apps\spotify.png
 PanelAction=http://spotify.com/

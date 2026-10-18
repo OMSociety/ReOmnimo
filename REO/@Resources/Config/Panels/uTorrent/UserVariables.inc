@@ -1,5 +1,5 @@
 
 [Variables]
-Path=C:\Program Files (x86)\uTorrent\utorrent.exe
+Path=
 Username=user
 Password=pass

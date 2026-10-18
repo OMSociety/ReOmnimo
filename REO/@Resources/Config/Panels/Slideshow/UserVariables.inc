@@ -1,12 +1,12 @@
 [Variables]
-PicturesFolder=#@#Graphics\Panels\Slideshow\Sample
+PicturesFolder=
 SlideshowSpeed=20
 Subfolders=0
-open=["%USERPROFILE\Pictures"]
+open=["%USERPROFILE%\Pictures"]
 next=[!Refresh]
 Action=#open#
-showpicturestext=1
-PicturesFolderText=D:\Users\User\Pictures\150 Top Quality Wallpapers
+PicturesFolderText=
 PicturesButtonAction=#open#
 FramePadding=0
+ShowPicturesText=1
 KeepAspectRatio=2

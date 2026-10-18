@@ -1,28 +1,27 @@
-[Variables]
+﻿[Variables]
 hidelabels=0
 App1=WINWORD.EXE
 App2=Photoshop.exe
-App2Path=C:\Program Files\Google\Picasa3\Picasa3.exe
-App2Label=PHOTOS
+App2Path=WINWORD.EXE
+App2Label=Photoshop
 App3=firefox.exe
 App3Path=firefox.exe
 App3Label=NET
 App4=%windir%\System32\mspaint.exe
-App4Path=notepad.exe
-App4Label=TEXT
+App4Path=%windir%\System32\mspaint.exe
+App4Label=Mspaint
 App5=zune.exe
-App5Path=C:\Program Files\Trillian\trillian.exe
-App5Label=CHAT
+App5Path=zune.exe
+App5Label=Zune
 Appname1=Winword
 Appname2=Photoshop
 Appname3=Firefux
 Appname4=Mspaint
-Enc0=#SKINSPATH#\REO\Common\Variables\Dependencies\0\notes.txt
 Appname5=Zune
 App6=miranda32.exe
 Appname6=Miranda
-App7=C:\Program Files\uTorrent.exe
-Appname7=�Torrent
+App7=
+Appname7=µTorrent
 App8=recycle.lnk
 Appname8=Recycle Bin
 Appicon1=word.png

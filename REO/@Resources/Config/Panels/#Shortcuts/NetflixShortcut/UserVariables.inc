@@ -1,4 +1,4 @@
 [Variables]
 PanelName=NetflixShortcut
-IconLocation=#@#\Graphics\Icons\Web\NetflixShortcut.png
+IconLocation=#@#\Graphics\Icons\Web\netflix.png
 PanelAction=http://NetflixShortcut.com/

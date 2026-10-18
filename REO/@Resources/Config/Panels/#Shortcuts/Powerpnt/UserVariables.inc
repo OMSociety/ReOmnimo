@@ -1,4 +1,4 @@
 [Variables]
 PanelName=Powerpnt
-IconLocation=#@#\Graphics\Icons\Apps\Powerpnt.png
+IconLocation=#@#\Graphics\Icons\Apps\powerpoint.png
 PanelAction=Powerpnt.exe

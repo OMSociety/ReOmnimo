@@ -1,4 +1,4 @@
 [Variables]
 PanelName=
-IconLocation=#@#\Graphics\Icons\Apps\.png
+IconLocation=
 PanelAction=.exe

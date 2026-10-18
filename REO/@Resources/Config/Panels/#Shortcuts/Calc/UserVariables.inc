@@ -1,4 +1,4 @@
 [Variables]
 PanelName=Calc
-IconLocation=#@#\Graphics\Icons\Apps\Calc.png
+IconLocation=#@#\Graphics\Icons\Apps\calculator.png
 PanelAction=Calc.exe

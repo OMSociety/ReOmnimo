@@ -5,7 +5,6 @@ StaticImage=
 24Hour=%H:%M
 12Hour=%I:%M %p
 PanelAction=http://time.is/
-SlideshowLocation=#currentpath#\placeholders
 ShowCurlCorner=0
 ShowTitle=1
 BlocksColor=#textcolor2#

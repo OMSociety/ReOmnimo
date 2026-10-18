@@ -5,7 +5,7 @@
 ; Modified by JSMorley
 
 [Variables]
-@Include=#@#WeatherComVariables.inc
+@Include=#@#Common\Weather\WeatherComVariables.inc
 
 LocationName=(?siU)(?(?=.*<h1 class="h4 today_nowcard-location").* className="h4 today_nowcard-location">(.*)<span class=".*" className=".*"></span></h1>)
 

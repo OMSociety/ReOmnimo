@@ -1,11 +1,8 @@
 ﻿[Variables]
 language=dutch
-Enc=file://#SKINSPATH#\REO\Common\Variables\Dependencies\0\notes.txt
 SubstituteFeed="&apos;":"'","&quot;":"","&Quot;":"","&amp;":"&","&lt;br&gt;":"","![CDATA[":"","]]":"","...":"","<":"",">":"","/PRE&gt;":"","PRE&gt;":"","&lt;":"","&#39;":"'","&#228;":"ä","&#246;":"ö","&#8211;":"–"
 SubstituteLink="&amp;":"&","<![CDATA[":"","]]>":""
 skincolor=Images
-Enc0=#SKINSPATH#REO\Common\Variables\Dependencies\0\notes.txt
-C:\Users\User\Documents\Rainmeter\Skins\\REO\Common\Panel\Rounded=none
 TimeFormat=%H:%M
 MainLanguage=Chinese
 ; Auto = follow the system language (resolved by Common\Variables\AutoLang.lua
