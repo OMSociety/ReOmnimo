@@ -148,7 +148,7 @@ namespace OmnimoTools
         /// 与 ActivePanels.au3:200 一致：配置路径**不带** #SKINSPATH# 前缀（相对当前工作目录），
         /// 因此实际几乎总是读不到而回落默认值 "1"。此处保持原行为。
         /// </summary>
-        private static bool IsNotColorizable(string section)
+        internal static bool IsNotColorizable(string section)
         {
             string config = section.Replace("REO\\", "REO\\@Resources\\Config\\") + "\\RainConfigure.cfg";
             IniDoc cfg = IniDoc.TryLoad(config);

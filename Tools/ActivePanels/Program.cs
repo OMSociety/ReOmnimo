@@ -114,7 +114,7 @@ namespace OmnimoTools.ActivePanels
                 if (!LockableSection.IsMatch(section)) continue;
                 if (!AutoIt.IsNonZeroString(doc.Get(section, "Active", "0"))) continue;
                 if (!Directory.Exists(Paths.Combine(skinPath, section))) continue;
-                if (IsNotColorizable(section)) continue;
+                if (Aligner.IsNotColorizable(section)) continue;
 
                 Rainmeter.SendBang(Same(variant, "lock")
                     ? "!Draggable 0 " + section
@@ -155,7 +155,7 @@ namespace OmnimoTools.ActivePanels
                 if (!PanelSection.IsMatch(section)) continue;
                 if (!AutoIt.IsNonZeroString(doc.Get(section, "Active", "0"))) continue;
                 if (!Directory.Exists(Paths.Combine(skinPath, section))) continue;
-                if (IsNotColorizable(section)) continue;
+                if (Aligner.IsNotColorizable(section)) continue;
 
                 if (hue == null) hue = IniDoc.LoadOrCreate(huePath);
                 hue.Set("Variables", "Panel" + iCount, section);
@@ -172,19 +172,6 @@ namespace OmnimoTools.ActivePanels
             }
 
             if (hue != null) hue.Save();
-        }
-
-        /// <summary>
-        /// 面板是否不可着色（RainConfigure.cfg 的 Options\Colorizable=0）。
-        /// 与 ActivePanels.au3:200 一致：配置路径**不带** #SKINSPATH# 前缀（相对当前工作目录），
-        /// 因此实际几乎总是读不到而回落默认值 "1"。此处保持原行为，见 CHANGELOG 与本工具 README。
-        /// </summary>
-        private static bool IsNotColorizable(string section)
-        {
-            string config = section.Replace("REO\\", "REO\\@Resources\\Config\\") + "\\RainConfigure.cfg";
-            IniDoc cfg = IniDoc.TryLoad(config);
-            if (cfg == null) return false;
-            return cfg.Get("Options", "Colorizable", "1") == "0";
         }
     }
 }
