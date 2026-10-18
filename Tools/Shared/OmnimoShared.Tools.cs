@@ -168,8 +168,9 @@ namespace OmnimoTools
         /// 注：原版 3x3 分支的 $row9 从未声明（ActivePanels.au3:278 / OmnimoApp.au3:841），
         /// 启用面板 ≥31 时 AutoIt 报 "Variable used without being declared" 后中止；此处按源码
         /// 本来的行表补上声明，故该点是唯一有意保留的差异（见 CHANGELOG）。
+        /// ActivePanels.ReadActiveSkins 与 OmnimoApp.Align（经 Compute）共用本实现。
         /// </summary>
-        private static bool GridPosition(string variant, int iCount, double initialX, double initialY,
+        internal static bool GridPosition(string variant, int iCount, double initialX, double initialY,
             double moveX, double moveY,
             ref int row1, ref int row2, ref int row3, ref int row4, ref int row5,
             ref int row6, ref int row7, ref int row8, ref int row9,

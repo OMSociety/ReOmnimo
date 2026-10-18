@@ -75,8 +75,9 @@ namespace OmnimoTools
         public static void Error(string title, string message)
         {
             string text = message + "\r\n\r\n"
-                + "Please send an e-mail to omnimosupport@gmail.com or" + "\r\n"
-                + "file an issue at github with the following information:" + "\r\n\r\n"
+                + "Please report this issue at" + "\r\n"
+                + "https://github.com/OMSociety/ReOmnimo/issues" + "\r\n"
+                + "with the following information:" + "\r\n\r\n"
                 + "- This error message" + "\r\n"
                 + "- Steps to reproduce the issue" + "\r\n"
                 + "- Your version of Rainmeter and Windows";
@@ -179,8 +180,6 @@ namespace OmnimoTools
             _hasBom = hasBom;
         }
 
-        public string PathName { get { return _path; } }
-
         /// <summary>读入失败（文件不存在 / 无权限 / 目录）返回 null，对应 AutoIt IniRead 的 @error。</summary>
         public static IniDoc TryLoad(string path)
         {
@@ -208,12 +207,18 @@ namespace OmnimoTools
             }
         }
 
-        /// <summary>新建（或读入现有）文件；新文件按系统 ANSI 编码写出，与 AutoIt IniWrite 一致。</summary>
+        /// <summary>
+        /// 新建（或读入现有）文件；新文件按系统 ANSI 编码写出，与 AutoIt IniWrite 一致。
+        /// 文件存在但读入失败（被占用 / IO 错误）时抛 IOException，由调用方中止本次写回——
+        /// 绝不回落到空文档：那会在随后的 Save 里把原文件覆写成近空文件。
+        /// </summary>
         public static IniDoc LoadOrCreate(string path)
         {
+            if (!File.Exists(path)) return new IniDoc(path, Encoding.Default, false);
             IniDoc doc = TryLoad(path);
-            if (doc != null) return doc;
-            return new IniDoc(path, Encoding.Default, false);
+            if (doc == null)
+                throw new IOException("File exists but could not be read (locked or IO error): " + path);
+            return doc;
         }
 
         /// <summary>编码嗅探（顺序与 AGENTS.md 一致）：UTF-16LE+BOM → UTF-8+BOM → UTF-8 → cp936 → cp1252。</summary>
@@ -412,8 +417,8 @@ namespace OmnimoTools
                 string k, v;
                 if (!IsKeyLine(_lines[i].Text, out k, out v)) continue;
                 if (!string.Equals(k, key, StringComparison.OrdinalIgnoreCase)) continue;
-                // 只换 "=" 之后的值，保留文件里原有的键名拼写与等号前后空白
-                // （Windows 配置文件语义 / AutoIt IniWrite 实测行为：键名大小写不变）
+                // 只换 "=" 之后的值：保留文件里原有的键名拼写与等号（含等号前的空白），
+                // 等号之后的原值连同其前导空白整体替换为 value（键名不区分大小写匹配）
                 Line line = _lines[i];
                 int eq = line.Text.IndexOf('=');
                 if (eq >= 0) line.Text = line.Text.Substring(0, eq + 1) + value;
@@ -591,12 +596,6 @@ namespace OmnimoTools
         public static long Int(string value)
         {
             return (long)Math.Truncate(ToNumber(value));
-        }
-
-        /// <summary>AutoIt 的 `Round($v)`：四舍五入、**.5 远离零**。实测 `Round(1.5)=2`、`Round(2.5)=3`。</summary>
-        public static double RoundString(string value)
-        {
-            return Math.Round(ToNumber(value), MidpointRounding.AwayFromZero);
         }
 
         /// <summary>前导数值：可选符号 + 0x 十六进制 或 十进制（可带小数/指数），与 AutoIt 的字符串取数一致。</summary>

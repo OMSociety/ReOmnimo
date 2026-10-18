@@ -858,10 +858,12 @@ namespace OmnimoTools
         [DllImport("user32.dll", SetLastError = true)]
         private static extern bool GetIconInfo(IntPtr hIcon, out ICONINFO info);
 
-        [DllImport("user32.dll", SetLastError = true)]
+        // DeleteObject / GetObject 属 GDI（gdi32.dll）；user32 没有这两个导出。
+        // gdi32 只有 GetObjectW / GetObjectA，没有按序数裸名的 GetObject，故显式指 EntryPoint。
+        [DllImport("gdi32.dll", SetLastError = true)]
         private static extern bool DeleteObject(IntPtr handle);
 
-        [DllImport("user32.dll", SetLastError = true)]
+        [DllImport("gdi32.dll", SetLastError = true, EntryPoint = "GetObjectW")]
         private static extern int GetObject(IntPtr handle, int size, ref BITMAP data);
 
         [DllImport("gdi32.dll", SetLastError = true)]

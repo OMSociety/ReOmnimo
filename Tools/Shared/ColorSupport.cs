@@ -8,19 +8,35 @@
 // 数组口径与 AutoIt 完全一致：int[] colors，colors[0] = 行数，colors[1..count] = 0xRRGGBB。
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 
 namespace OmnimoTools
 {
+    /// <summary>
+    /// 共享 Random 单例。net48 没有 Random.Shared，无参 new Random() 以 TickCount 播种
+    /// （粒度约 15.6ms）：短时间内连续 new 会拿到相同种子、产出相同序列——正是「连续随机取色全同色」的根源。
+    /// .NET Framework 的 Random 非线程安全，取数走锁。
+    /// </summary>
+    internal static class SharedRandom
+    {
+        private static readonly Random Rnd = new Random();
+
+        /// <summary>等价于 Random.Next(minValue, maxValue)：含下界、不含上界。</summary>
+        public static int Next(int minValue, int maxValue)
+        {
+            lock (Rnd) return Rnd.Next(minValue, maxValue);
+        }
+    }
+
     /// <summary>Common.au3 的颜色文本换算。</summary>
     internal static class ColorText
     {
         /// <summary>
-        /// 等价于 HexToRGB($iColor)：0xRRGGBB 整数 → "R,G,B"；-1 → "255,255,255"。
-        /// 注意 AutoIt 版对负值（含 -1）统一返回白色。
+        /// 等价于 HexToRGB($iColor)：0xRRGGBB 整数 → "R,G,B"。
+        /// AutoIt 版无负值特判，直接按位取字节（-1 经位运算恰好产出 "255,255,255"）；
+        /// 本实现的 color &lt; 0 特判是防御分支——现调用图所有实参均经 &amp; 0xFFFFFF（0..0xFFFFFF），该分支不可达。
         /// </summary>
         public static string HexToRGB(int color)
         {
@@ -47,16 +63,6 @@ namespace OmnimoTools
             if (index >= parts.Length) return "00";
             int v = (int)AutoIt.Number(parts[index]) & 0xFF;
             return v.ToString("X2", CultureInfo.InvariantCulture);
-        }
-
-        /// <summary>
-        /// 把 AutoIt 的颜色参数（'0xRRGGBB' 串 / 十进制数串 / -1）转成 Color。
-        /// 等价于 AutoIt 控件内部对颜色参数的处理：Number() 取前导数值后取低 24 位。
-        /// </summary>
-        public static Color ParseColor(string value)
-        {
-            int v = (int)AutoIt.Number(value) & 0xFFFFFF;
-            return Color.FromArgb((v >> 16) & 0xFF, (v >> 8) & 0xFF, v & 0xFF);
         }
 
         /// <summary>

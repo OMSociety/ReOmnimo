@@ -11,9 +11,9 @@
     <LangVersion>latest</LangVersion>
     <AssemblyName>PanelCreator</AssemblyName>
     <RootNamespace>OmnimoTools.PanelCreator</RootNamespace>
-    <Version>0.6.0.0</Version>
-    <FileVersion>0.6.0.0</FileVersion>
-    <ProductVersion>0.6.0.0</ProductVersion>
+    <Version>0.7.0.0</Version>
+    <FileVersion>0.7.0.0</FileVersion>
+    <ProductVersion>0.7.0.0</ProductVersion>
     <AssemblyTitle>PanelCreator</AssemblyTitle>
     <Company>Omnimo</Company>
     <Product>ReOmnimo</Product>
@@ -28,7 +28,16 @@
   <ItemGroup>
     <!-- .rmskin 就是 zip，写入用 System.IO.Compression（.NET Framework 自带程序集，不是第三方依赖） -->
     <Reference Include="System.IO.Compression" />
-    <Compile Include="..\Shared\*.cs" Link="*.cs" />
+    <!-- 共享源码按链接编进本 exe，不产出独立 DLL（与 OmnimoApp / ConfigBackground 同一形态）。
+         点名式清单与另两工程一致：Shared 新增文件必须在此显式加入，不随通配静默进入。 -->
+    <Compile Include="..\Shared\AutoItValue.cs" Link="AutoItValue.cs" />
+    <Compile Include="..\Shared\ColorPickerForm.cs" Link="ColorPickerForm.cs" />
+    <Compile Include="..\Shared\ColorSupport.cs" Link="ColorSupport.cs" />
+    <Compile Include="..\Shared\IconExtractor.cs" Link="IconExtractor.cs" />
+    <Compile Include="..\Shared\ModernUi.cs" Link="ModernUi.cs" />
+    <Compile Include="..\Shared\OmnimoShared.cs" Link="OmnimoShared.cs" />
+    <Compile Include="..\Shared\OmnimoShared.Tools.cs" Link="OmnimoShared.Tools.cs" />
+    <Compile Include="..\Shared\ZipWriter.cs" Link="ZipWriter.cs" />
   </ItemGroup>
 
 </Project>

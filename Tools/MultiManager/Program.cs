@@ -19,7 +19,7 @@ namespace OmnimoTools.MultiManager
         private static int Main(string[] args)
         {
             if (args.Length < 5)
-                OmnimoDialogs.Error("Omnimo MultiManager", "Too few command line arguments specified.");
+                OmnimoDialogs.Error("Individual Panel Color", "Too few command line arguments specified.");
 
             string settings = args[0];
             string skins = args[1];
@@ -37,6 +37,8 @@ namespace OmnimoTools.MultiManager
                 OmnimoDialogs.EnsureDirectory(Paths.Combine(saved, index));
                 SaveScreenshot(Paths.Combine(saved, index + "\\screenshot.png"));
 
+                // 有意差异：C# 在复制 Rainmeter.ini 失败时早退（au3 的 FileCopy 不检查失败、会继续
+                // 执行后续写键步骤）；不追平 au3 语义，见评审 RO-39。
                 if (!OmnimoDialogs.CopyFile(Paths.Combine(settings, "Rainmeter.ini"), savedIni))
                     return 0;
                 if (Same(command, "Save1"))
@@ -109,6 +111,8 @@ namespace OmnimoTools.MultiManager
         /// </summary>
         private static void CopyShortcutSettings(string settings, string saved, string index)
         {
+            // 有意差异：live ini 读不到时 C# 直接返回；au3 的 IniRead 拿到缺省值 "0"、会走 else
+            // 分支把三个快捷方式段写成 Active=0（照样改写存档）。本工具不追平该行为，见评审 RO-39。
             IniDoc live = IniDoc.TryLoad(Paths.Combine(settings, "Rainmeter.ini"));
             if (live == null) return;
 

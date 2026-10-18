@@ -11,9 +11,9 @@
     <LangVersion>latest</LangVersion>
     <AssemblyName>ColorChanger</AssemblyName>
     <RootNamespace>OmnimoTools.ColorChanger</RootNamespace>
-    <Version>0.6.0.0</Version>
-    <FileVersion>0.6.0.0</FileVersion>
-    <ProductVersion>0.6.0.0</ProductVersion>
+    <Version>0.7.0.0</Version>
+    <FileVersion>0.7.0.0</FileVersion>
+    <ProductVersion>0.7.0.0</ProductVersion>
     <AssemblyTitle>ColorChanger</AssemblyTitle>
     <Company>Omnimo</Company>
     <Product>ReOmnimo</Product>
@@ -30,7 +30,6 @@
     <Compile Include="..\Shared\OmnimoShared.Tools.cs" Link="OmnimoShared.Tools.cs" />
     <Compile Include="..\Shared\ColorSupport.cs" Link="ColorSupport.cs" />
     <Compile Include="..\Shared\ColorPickerForm.cs" Link="ColorPickerForm.cs" />
-    <Compile Include="..\Shared\GuiFont.cs" Link="GuiFont.cs" />
     <Compile Include="..\Shared\ModernUi.cs" Link="ModernUi.cs" />
   </ItemGroup>
 

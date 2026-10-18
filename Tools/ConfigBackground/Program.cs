@@ -9,12 +9,18 @@
 // 2026-10 现代化（用户批准）：界面套用 ModernUi（视觉权威=SettingsCenter：系统强调色、
 // 深浅两主题、无边框自绘标题栏、圆角控件），文案走皮肤语言包（8 种语言，回退 English）。
 // 行为逻辑（VarFile 读写、预览、ApplySettings、!Refresh）与 AutoIt 原版逐条等价，未动。
+//
+// 2026-10 修正：VarFile 写回编码按目标文件现有形态探测——无 BOM 纯 ASCII 的目标一旦写入
+// 非 ASCII 值（常见：中文目录的壁纸路径进 BackgroundImage），IniDoc 的「UTF-8 无 BOM」写回
+// 会被按系统 ANSI 读取的 Rainmeter 读成乱码；这里改为改写系统 ANSI，对齐 au3 IniWrite 与
+// Rainmeter 的读取口径，见 VarFileWriteback。
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Windows.Forms;
 
 namespace OmnimoTools.ConfigBackground
@@ -463,6 +469,8 @@ namespace OmnimoTools.ConfigBackground
         /// </summary>
         private void ApplySettings()
         {
+            // 编码探测必须落在读盘的同一瞬间（LoadOrCreate 之前、任何 Set 之前），见 VarFileWriteback
+            bool asciiNoBom = VarFileWriteback.IsAsciiNoBom(_varFile);
             IniDoc doc = IniDoc.LoadOrCreate(_varFile);
             doc.Set("Variables", "Width", AutoIt.Num(_width.Value));
             doc.Set("Variables", "Height", AutoIt.Num(_height.Value));
@@ -487,7 +495,7 @@ namespace OmnimoTools.ConfigBackground
             {
                 doc.Set("Variables", "BackgroundImageHidden", "1");
             }
-            doc.Save();
+            VarFileWriteback.Save(doc, _varFile, asciiNoBom);
 
             Rainmeter.SendBang(@"!Refresh REO\Background");
         }
@@ -497,6 +505,64 @@ namespace OmnimoTools.ConfigBackground
             if (_sync != null) _sync.Stop();
             if (_preview != null) { _preview.Dispose(); _preview = null; }
             base.OnFormClosed(e);
+        }
+    }
+
+    /// <summary>
+    /// VarFile 写回编码策略。IniDoc.Save 按载入时嗅探的编码原样写回：无 BOM 的纯 ASCII 文件
+    /// 会嗅探成「UTF-8 无 BOM」，写入的值一旦含非 ASCII 字符（中文壁纸路径）就落成 UTF-8 字节，
+    /// 而 Rainmeter 对无 BOM 文件按系统 ANSI（本机 CP936）读 → 路径静默乱码；au3 的 IniWrite
+    /// 写 ANSI 反而与 Rainmeter 的读取一致。这里在载入后探测目标形态：
+    /// · 无 BOM 且纯 ASCII —— 保持无 BOM；写回结果出现非 ASCII 时整文件转系统 ANSI
+    ///   （转不了的字符落 '?'，与 au3 IniWrite 同款）；
+    /// · 带 BOM（UTF-16LE / UTF-8）—— Rainmeter 原生识别，保持 IniDoc 原样；
+    /// · 无 BOM 且已有高位字节 —— IniDoc 已嗅探为原编码（cp936/cp1252）并按它写回，不重编码既有内容；
+    /// · 文件不存在 —— IniDoc.LoadOrCreate 按系统 ANSI 新建（au3 IniWrite 同款），无需处理。
+    /// </summary>
+    internal static class VarFileWriteback
+    {
+        /// <summary>必须在 IniDoc.LoadOrCreate 之前调用：探测的是载入那一刻的文件形态。</summary>
+        public static bool IsAsciiNoBom(string path)
+        {
+            try
+            {
+                if (!File.Exists(path)) return false;
+                byte[] bytes = File.ReadAllBytes(path);
+                if (bytes.Length >= 2 && bytes[0] == 0xFF && bytes[1] == 0xFE) return false;             // UTF-16LE BOM
+                if (bytes.Length >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF) return false;   // UTF-8 BOM
+                foreach (byte b in bytes)
+                {
+                    if (b >= 0x80) return false;   // 无 BOM 且已有高位字节：按 IniDoc 嗅探到的原编码写回
+                }
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>替代 doc.Save()：先按 IniDoc 嗅探编码写回，再把「载入时无 BOM 纯 ASCII」的
+        /// 目标里的非 ASCII 内容转成系统 ANSI（结果仍纯 ASCII 时字节不变、保持无 BOM）。</summary>
+        public static void Save(IniDoc doc, string path, bool asciiNoBomAtLoad)
+        {
+            doc.Save();
+            if (!asciiNoBomAtLoad) return;
+            try
+            {
+                byte[] bytes = File.ReadAllBytes(path);
+                bool nonAscii = false;
+                foreach (byte b in bytes) { if (b >= 0x80) { nonAscii = true; break; } }
+                if (!nonAscii) return;
+
+                // IniDoc 对该形态刚按「UTF-8 无 BOM」写出，字节必然是合法 UTF-8，严格解码不会抛
+                string text = new UTF8Encoding(false, true).GetString(bytes);
+                File.WriteAllBytes(path, Encoding.Default.GetBytes(text));
+            }
+            catch
+            {
+                // 转码失败（例如读回窗口内文件被外部改动）时保持 UTF-8 无 BOM 原样，不低于修复前行为
+            }
         }
     }
 }

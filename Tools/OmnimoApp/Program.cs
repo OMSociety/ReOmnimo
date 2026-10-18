@@ -709,6 +709,15 @@ namespace OmnimoTools.OmnimoApp
         /// <summary>Missing：把缺失组件的处置方式写回 UserVariables.inc。</summary>
         private static void Missing(string[] args)
         {
+            // 裸调用（第二参缺失或空串）时 Arg 返空串，WriteVars 会把相对路径落进当前目录、
+            // IniDoc.Save 自建整棵目录树（au3 IniWrite 对缺失目录是静默失败、不建树）。
+            // 这里改为明确报错：打印用法并以非零码退出，不落任何文件。
+            if (Arg(args, 2).Length == 0)
+            {
+                Console.Error.WriteLine("Usage: OmnimoApp.exe Missing <skinPath>");
+                Environment.Exit(2);
+            }
+
             // 比 ActivePanels 的同名功能多写一个 EditManually（原样保留）
             WriteVars(Paths.Combine(Arg(args, 2), @"REO\@Resources\Common\Variables\UserVariables.inc"),
                 "MissingComponents", "!DeactivateConfig", "EditManually", "0");

@@ -77,7 +77,8 @@ namespace OmnimoTools.ColorChanger
 
             _opacity = ReadOrDefault(Paths.Combine(_skinPath, @"REO\@Resources\Common\Color\color.inc"), "Opacity", "255");
 
-            // ---- 窗口内容区（标题栏 32 由 ModernForm 提供）；设计坐标 96dpi 逻辑像素（DPI 感知后由 AutoScaleMode.Dpi 放大）----
+            // ---- 窗口内容区（标题栏 32 由 ModernForm 提供）；设计坐标 96dpi 逻辑像素
+            //（DPI 感知后由 ModernForm.OnHandleCreated 的手动 Scale 放大；AutoScaleMode=None，不用 AutoScaleMode.Dpi）----
             ClientSize = new Size(464, 248);   // 标题栏 32 + 内容 192 + 边距
 
             // 左卡：面板列表（左右边距 22，与右侧色板对齐；内容整体在标题栏之下）
@@ -158,7 +159,7 @@ namespace OmnimoTools.ColorChanger
 
         private int RandomColor()
         {
-            return _colors[new Random().Next(1, 18)];
+            return _colors[SharedRandom.Next(1, 18)];
         }
 
         // ---------- 色块 ----------
@@ -347,12 +348,24 @@ namespace OmnimoTools.ColorChanger
             string[] files;
             try { files = Directory.GetFiles(Paths.Combine(_skinPath, panel), "*.ini"); }
             catch { return; }
-            foreach (string file in files)
+            try
             {
-                IniDoc doc = IniDoc.LoadOrCreate(file);
-                if (newColor == null) doc.DeleteKey("Variables", "ColorSkin");
-                else doc.Set("Variables", "ColorSkin", newColor);
-                doc.Save();
+                foreach (string file in files)
+                {
+                    IniDoc doc = IniDoc.LoadOrCreate(file);
+                    if (newColor == null) doc.DeleteKey("Variables", "ColorSkin");
+                    else doc.Set("Variables", "ColorSkin", newColor);
+                    doc.Save();
+                }
+            }
+            catch (IOException ex)
+            {
+                // IniDoc.LoadOrCreate 在目标文件被占用/读失败时抛出（不回落空文档、不覆写）：
+                // 中止本次 ApplyColor 并提示用户，面板保持原色、不发 !Refresh
+                MessageBox.Show(this,
+                    string.Format("Unable to update panel colors for {0}:\r\n{1}", panel, ex.Message),
+                    "Individual Panel Color", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
 
             // Refresh panel

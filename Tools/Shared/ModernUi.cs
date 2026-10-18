@@ -98,11 +98,12 @@ internal static class ModernUi
         }
     }
 
-    private static readonly Dictionary<float, Font> FontCache = new Dictionary<float, Font>();
-    /// <summary>UI 字体栈：Microsoft YaHei UI → Segoe UI → 系统默认（GDI+ 无 600 字重，标题用 Bold 近似）。</summary>
+    private static readonly Dictionary<(float, bool), Font> FontCache = new Dictionary<(float, bool), Font>();
+    /// <summary>UI 字体栈：Microsoft YaHei UI → Segoe UI → 系统默认（GDI+ 无 600 字重，标题用 Bold 近似）。
+    /// 缓存键是 (字号, 粗细) 元组：9f+bold 与 9.5f+regular 必须是两个条目，浮点合成键会碰撞。</summary>
     public static Font UiFont(float size = 9f, bool bold = false)
     {
-        float key = size * 2 + (bold ? 1 : 0);
+        var key = (size, bold);
         Font f;
         if (FontCache.TryGetValue(key, out f)) return f;
         string[] faces = { "Microsoft YaHei UI", "Segoe UI" };
@@ -119,6 +120,14 @@ internal static class ModernUi
         f = new Font(SystemFonts.DefaultFont.FontFamily, size, bold ? FontStyle.Bold : FontStyle.Regular);
         FontCache[key] = f;
         return f;
+    }
+
+    /// <summary>该字体是否为 UiFont 的共享缓存实例。缓存实例被多个窗口共用，严禁 Dispose。</summary>
+    internal static bool IsCachedFont(Font font)
+    {
+        foreach (Font cached in FontCache.Values)
+            if (ReferenceEquals(cached, font)) return true;
+        return false;
     }
 
     public static GraphicsPath Rounded(Rectangle r, int radius)
@@ -174,7 +183,7 @@ internal static class ModernUi
             // DPI 缩放不用 AutoScaleMode.Dpi：net48 的自动缩放会在 handle 创建时用系统 DPI 提前把
             // AutoScaleDimensions 改写成当前值、缩放因子算成 1（实测 DeviceDpi=96、字被放大而坐标不动），
             // 黑箱且不可控。这里 AutoScaleMode=None，改为 OnHandleCreated 里用 GetDpiForWindow 手动
-            // Scale（见下方注释）。GuiFont 那条「None」契约与本约定一致。
+            // Scale（见下方注释）。
             AutoScaleMode = AutoScaleMode.None;
             FormBorderStyle = FormBorderStyle.None;
             StartPosition = FormStartPosition.CenterScreen;
@@ -373,7 +382,12 @@ internal static class ModernUi
                 {
                     float size = f.SizeInPoints * factor;
                     if (size >= 1f)
-                        c.Font = new Font(f.FontFamily, size, f.Style, GraphicsUnit.Point);
+                    {
+                        Font scaled = new Font(f.FontFamily, size, f.Style, GraphicsUnit.Point);
+                        c.Font = scaled;
+                        // 旧字体不再被本控件引用；UiFont 的共享缓存实例除外（其余窗口还在用，Dispose 会炸掉后续绘制）
+                        if (!IsCachedFont(f)) f.Dispose();
+                    }
                 }
                 if (c.HasChildren) RescaleChildren(c, factor);
             }
@@ -790,68 +804,6 @@ internal static class ModernUi
         }
     }
 
-    /// <summary>数字微调：Input 容器 + TextBox + 右侧 ▲▼。</summary>
-    public class SpinBox : Panel
-    {
-        public readonly Theme T;
-        public readonly TextBox Inner;
-        public int Minimum = 0, Maximum = 100;
-        public SpinBox(Theme t, int value)
-        {
-            T = t; Height = 30;
-            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
-            Inner = new TextBox { BorderStyle = BorderStyle.None, BackColor = t.Input, ForeColor = t.Fg, Font = UiFont(9f), Text = value.ToString() };
-            Inner.KeyPress += (s, e) => { if (!char.IsDigit(e.KeyChar) && e.KeyChar != '\b') e.Handled = true; };
-            Controls.Add(Inner);
-        }
-        public int Value
-        {
-            get { int v; if (int.TryParse(Inner.Text, out v)) return Math.Max(Minimum, Math.Min(Maximum, v)); return Minimum; }
-            set { Inner.Text = Math.Max(Minimum, Math.Min(Maximum, value)).ToString(); }
-        }
-        protected override void OnLayout(LayoutEventArgs levent)
-        {
-            base.OnLayout(levent);
-            if (Inner == null) return;   // 构造函数里 Height=30 会先触发一次 OnLayout
-            int pad = PxU(9, this);
-            Inner.Bounds = new Rectangle(pad, (Height - Inner.PreferredHeight) / 2, Width - PxU(34, this), Inner.PreferredHeight);
-        }
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            var g = e.Graphics;
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            using (var path = Rounded(new Rectangle(0, 0, Width - 1, Height - 1), PxU(8, this)))
-            using (var b = new SolidBrush(T.Input)) g.FillPath(b, path);
-            int bw = PxU(22, this), bx = Width - bw - 1, bh = (Height - 2) / 2;
-            DrawSpin(g, new Rectangle(bx, 1, bw, bh), true);
-            DrawSpin(g, new Rectangle(bx, 1 + bh, bw, Height - 2 - bh), false);
-        }
-        private void DrawSpin(Graphics g, Rectangle r, bool up)
-        {
-            bool hov = r.Contains(PointToClient(MousePosition));
-            using (var b = new SolidBrush(hov ? T.HoverOn(T.Input) : T.Input)) g.FillRectangle(b, r);
-            using (var p = new Pen(T.Sub, 1.2f))
-            {
-                int cx = r.X + r.Width / 2, cy = r.Y + r.Height / 2;
-                int d = PxU(3, this), o = PxU(2, this);
-                if (up) { g.DrawLine(p, cx - d, cy + o, cx, cy - o); g.DrawLine(p, cx, cy - o, cx + d, cy + o); }
-                else { g.DrawLine(p, cx - d, cy - o, cx, cy + o); g.DrawLine(p, cx, cy + o, cx + d, cy - o); }
-            }
-            MouseClick += SpinBox_MouseClick;
-        }
-        private void SpinBox_MouseClick(object s, MouseEventArgs e)
-        {
-            int bw = PxU(22, this), bx = Width - bw - 1, bh = (Height - 2) / 2;
-            if (e.X >= bx)
-            {
-                Value += (e.Y <= 1 + bh) ? 1 : -1;
-                OnValueChanged(EventArgs.Empty);
-            }
-        }
-        public event EventHandler ValueChanged;
-        protected virtual void OnValueChanged(EventArgs e) { var h = ValueChanged; if (h != null) h(this, e); }
-    }
-
     /// <summary>卡片容器：Card 底色 + 1px 描边，圆角 10。</summary>
     public class CardPanel : Panel
     {
@@ -972,7 +924,7 @@ internal static class ModernUi
 
     /// <summary>
     /// 工具窗 i18n：读 REO\@Resources\Common\Background\Varrar.inc 指定的语言文件，
-    /// 键缺失时回退 English，再缺回退键名（皮肤语言包共 8 种，工具共用同一目录）。
+    /// 键缺失时回退 English（皮肤语言包共 8 种，工具共用同一目录）。
     /// </summary>
     public static class Lang
     {
@@ -999,11 +951,12 @@ internal static class ModernUi
             return doc.Section("Variables");
         }
 
+        /// <summary>取语言键；缺失返回空串（与 OmnimoShared.LanguagePack.Text 语义一致——两处统一为空串，
+        /// 不再回退键名：键名会原样进入界面/写回目标，不可控）。</summary>
         public static string T(Dictionary<string, string> lang, string key)
         {
             string v;
-            if (lang.TryGetValue(key, out v) && v.Length > 0) return v;
-            return key;
+            return lang.TryGetValue(key, out v) ? v : string.Empty;
         }
     }
 

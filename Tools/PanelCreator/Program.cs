@@ -26,7 +26,10 @@ namespace OmnimoTools.PanelCreator
         private static void Main(string[] args)
         {
             // DPI 感知由 Tools\Shared\app.manifest（PerMonitorV2）声明，删清单比删这行更致命
-            // 与 SettingsCenter 同款诊断：未处理异常落盘 %TEMP%\pc_crash.txt，弹窗只点「退出」会丢失堆栈
+            // 诊断：未处理异常落盘 %TEMP%\pc_crash.txt。net48 实测两条通道语义不同：
+            // UI 线程（Application.ThreadException）——挂上处理器后默认异常框不再出现，异常被吞、程序继续跑；
+            // 非 UI 线程/致命异常（AppDomain.UnhandledException）——落盘后进程终止。两条通道都不弹窗，
+            // 要「弹窗+退出」需在处理器内显式实现。
             AppDomain.CurrentDomain.UnhandledException += (s, e) =>
             {
                 try { System.IO.File.WriteAllText(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "pc_crash.txt"), e.ExceptionObject.ToString()); }
@@ -39,6 +42,10 @@ namespace OmnimoTools.PanelCreator
             };
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+            // --light/--dark 与 ConfigBackground/ColorChanger 同款：先剥旗标再读位置参数
+            bool forceLight, forceDark;
+            args = ModernUi.ParseThemeFlags(args, out forceLight, out forceDark);
 
             // If $CmdLine[0] < 1 Then OmnimoError("Omnimo Panel Creator", "Too few command line arguments specified.")
             if (args.Length < 1)
@@ -70,7 +77,7 @@ namespace OmnimoTools.PanelCreator
 
             // 原版还读了 $BrowseBG = $ColorVariables[3][1] 与 $Color1..$Color6，但只用于被注释掉的色板分支，
             // 移植时不再声明，避免出现「赋值未使用」的编译警告。
-            using (var form = new PanelCreatorForm(skinPath, panelsInc, language, scale, colors))
+            using (var form = new PanelCreatorForm(skinPath, panelsInc, language, scale, colors, forceLight, forceDark))
             {
                 Application.Run(form);
             }
@@ -285,8 +292,6 @@ namespace OmnimoTools.PanelCreator
         private readonly Timer _pollTimer;
 
         private readonly Image _saveImage;
-        private readonly Image _browseImage;
-        private readonly Image _selectImage;
 
         private readonly Bitmap _backbuffer;    // 150x150 双缓冲，画好后再拉伸到控件
         private readonly object _bufferLock = new object();
@@ -298,15 +303,20 @@ namespace OmnimoTools.PanelCreator
         private float _imageWidth;              // $imagew
         private float _imageHeight;             // $imageh
 
+        private readonly bool _forceLight;      // --light/--dark 剥出的主题覆盖旗标
+        private readonly bool _forceDark;
+
         public PanelCreatorForm(string skinPath, string panelsIncPath, Dictionary<string, string> language, float scale,
-            List<KeyValuePair<string, string>> colors)
-            : base(BuildTheme(colors), LanguagePack.Text(language, "PanelCreator").Length > 0
+            List<KeyValuePair<string, string>> colors, bool forceLight, bool forceDark)
+            : base(BuildTheme(colors, forceLight, forceDark), LanguagePack.Text(language, "PanelCreator").Length > 0
                   ? LanguagePack.Text(language, "PanelCreator") : "Panel Creator", resizable: false)
         {
             _skinPath = skinPath;
             _panelsIncPath = panelsIncPath;
             _language = language;
             _scale = scale;
+            _forceLight = forceLight;
+            _forceDark = forceDark;
 
             _panelArgb = AddAlpha(ColorVariable(colors, 2));
             _createColor = RgbColor(AutoItColor(ColorVariable(colors, 4)));
@@ -323,12 +333,10 @@ namespace OmnimoTools.PanelCreator
 
             _backbuffer = new Bitmap(150, 150);
             _saveImage = LoadImage("Resources\\save.png");
-            _browseImage = LoadImage("Resources\\file.png");
-            _selectImage = LoadImage("Resources\\folder.png");
 
             // 2026-10 现代化：无边框 + 自绘标题栏（ModernForm），视觉壳与 ColorChanger/ConfigBackground 同套；
             // 内容区仍按 Colors.inc 的调色板自绘（原版 GDI+ 直绘窗口的移植），整体随皮肤走。
-            Font = ModernUi.UiFont(9f);   // 现代 UI 字体栈（YaHei UI），原生 TextBox 走环境字体继承——GuiFont/SimSun 只用于忠实对照移植，本窗已现代化
+            Font = ModernUi.UiFont(9f);   // 现代 UI 字体栈（YaHei UI），原生 TextBox 走环境字体继承
             ClientSize = new Size(Px(230), Px(420) + TitleOffset);
             BackColor = RgbColor(AutoItColor(ColorVariable(colors, 1)));   // GUISetBkColor($GuiBG)
 
@@ -440,10 +448,14 @@ namespace OmnimoTools.PanelCreator
         {
             return (int)(value * _scale);
         }
-        /// <summary>内容区本来就按 Colors.inc 调色板自绘，标题栏主题直接从同一调色板构，保证壳与内容同色。</summary>
-        private static ModernUi.Theme BuildTheme(List<KeyValuePair<string, string>> colors)
+        /// <summary>内容区本来就按 Colors.inc 调色板自绘，标题栏主题直接从同一调色板构，保证壳与内容同色。
+        /// 调色板本身不随旗标重选（视觉权威=皮肤）：皮肤调色板按深色处理，无旗标时 Light=false 即既有行为；
+        /// --light/--dark 在这里只决定明暗语义位 Theme.Light（悬停加亮/压暗方向、强调色叠加透明度），
+        /// --dark 与默认同为深色、无可切换，--light 才有可见差异（旗标优先级与 Theme.Detect 相同：--light 压过 --dark）。
+        /// 系统主题驱动的窗口（AuthorInputForm）走 ModernUi.Theme.Detect(forceLight, forceDark)，两旗标全量生效。</summary>
+        private static ModernUi.Theme BuildTheme(List<KeyValuePair<string, string>> colors, bool forceLight, bool forceDark)
         {
-            var t = new ModernUi.Theme { Light = false };
+            var t = new ModernUi.Theme { Light = forceLight };
             t.Bg = RgbColor(AutoItColor(ColorVariable(colors, 1)));      // $GuiBG
             t.Card = RgbColor(AddAlpha(ColorVariable(colors, 2)));      // $PanelBG
             t.Fg = RgbColor(AutoItColor(ColorVariable(colors, 7)));     // $FontColor
@@ -900,7 +912,7 @@ namespace OmnimoTools.PanelCreator
 
                 string author;
                 // InputBox("Author", $Language.Item("AuthorName"), @UserName, Default, 120, 125)
-                using (var input = new AuthorInputForm(_language, LanguagePack.Text(_language, "AuthorName"), Environment.UserName))
+                using (var input = new AuthorInputForm(_language, LanguagePack.Text(_language, "AuthorName"), Environment.UserName, _forceLight, _forceDark))
                 {
                     if (input.ShowDialog(this) != DialogResult.OK) break;
                     author = input.Value;
@@ -1091,8 +1103,8 @@ namespace OmnimoTools.PanelCreator
             get { return _input.Value; }
         }
 
-        public AuthorInputForm(Dictionary<string, string> language, string prompt, string defaultValue)
-            : base(ModernUi.Theme.Detect(), LanguagePack.Text(language, "AuthorName"), resizable: false)
+        public AuthorInputForm(Dictionary<string, string> language, string prompt, string defaultValue, bool forceLight, bool forceDark)
+            : base(ModernUi.Theme.Detect(forceLight, forceDark), LanguagePack.Text(language, "AuthorName"), resizable: false)
         {
             ShowInTaskbar = false;
             ClientSize = new Size(240, 150);

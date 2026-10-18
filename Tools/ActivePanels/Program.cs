@@ -18,8 +18,11 @@ namespace OmnimoTools.ActivePanels
 
         private static int Main(string[] args)
         {
-            if (args.Length < 5)
-                OmnimoDialogs.Error("Omnimo Panel Config", "Too few command line arguments specified.");
+            // 缺参或 skinPath 为空串都按缺参处理：skinPath 为空时 WriteVars 会把相对路径落进
+            // 当前目录、IniDoc.Save 自建整棵目录树（au3 IniWrite 对缺失目录静默失败、不建树），
+            // 故提前报错退出（OmnimoDialogs.Error 弹框后即结束进程）。
+            if (args.Length < 5 || args[0].Length == 0)
+                OmnimoDialogs.Error("Individual Panel Color", "Too few command line arguments specified.");
 
             string skinPath = args[0];
             string sY = args[1];
@@ -121,7 +124,8 @@ namespace OmnimoTools.ActivePanels
 
         /// <summary>
         /// 等价于 AutoIt 的 ReadActiveSkins()：把活动面板写进 hue.ini 并按所选网格发 !Move。
-        /// 注意：hue.ini 写在 exe 所在目录（REO\@Resources\Common\Config\hue.ini），该文件被 git 跟踪。
+        /// 注意：hue.ini 写在 exe 所在目录（REO\@Resources\Common\Config\hue.ini），
+        /// 该文件已取消跟踪并被 .gitignore 覆盖（只写不读的遗留产物）。
         /// </summary>
         private static void ReadActiveSkins(string skinPath, string settingsPath, string variant, string sX, string sY, string scriptDir)
         {
@@ -159,7 +163,7 @@ namespace OmnimoTools.ActivePanels
                 iCount++;
 
                 double x, y;
-                if (GridPosition(variant, iCount, initialX, initialY, moveX, moveY,
+                if (Aligner.GridPosition(variant, iCount, initialX, initialY, moveX, moveY,
                         ref row1, ref row2, ref row3, ref row4, ref row5, ref row6, ref row7, ref row8, ref row9,
                         out x, out y))
                 {
@@ -168,101 +172,6 @@ namespace OmnimoTools.ActivePanels
             }
 
             if (hue != null) hue.Save();
-        }
-
-        /// <summary>
-        /// 网格排布：逐字对应 ActivePanels.au3 的 if/elseif 链（含原代码的边界重叠与空档）。
-        /// 返回 false 表示原始代码在该 iCount 上不发 !Move（例如 3x3 的 25、26）。
-        /// </summary>
-        private static bool GridPosition(string variant, int iCount, double initialX, double initialY,
-            double moveX, double moveY,
-            ref int row1, ref int row2, ref int row3, ref int row4, ref int row5,
-            ref int row6, ref int row7, ref int row8, ref int row9,
-            out double x, out double y)
-        {
-            x = 0; y = 0;
-
-            if (Same(variant, "4x4"))
-            {
-                if (iCount < 5) { x = initialX + moveX * iCount - moveX; y = initialY + moveY - moveY; }
-                else if (iCount >= 4 && 8 >= iCount) { row1 += 1; x = initialX + moveX * row1 - moveX; y = initialY + moveY * 2 - moveY; }
-                else if (iCount >= 8 && 12 >= iCount) { row2 += 1; x = initialX + moveX * row2 - moveX; y = initialY + moveY * 3 - moveY; }
-                else if (iCount >= 12 && 16 >= iCount) { row3 += 1; x = initialX + moveX * row3 - moveX; y = initialY + moveY * 4 - moveY; }
-                else if (iCount >= 16 && 20 >= iCount) { row4 += 1; x = initialX + moveX * row4 - moveX; y = initialY + moveY * 5 - moveY; }
-                else if (iCount >= 20 && 24 >= iCount) { row5 += 1; x = initialX + moveX * row5 - moveX; y = initialY + moveY * 6 - moveY; }
-                else if (iCount >= 24 && 28 >= iCount) { row6 += 1; x = initialX + moveX * row6 - moveX; y = initialY + moveY * 7 - moveY; }
-                else if (iCount >= 28 && 32 >= iCount) { row7 += 1; x = initialX + moveX * row7 - moveX; y = initialY + moveY * 8 - moveY; }
-                else return false;
-            }
-            else if (Same(variant, "3x3"))
-            {
-                if (iCount < 4) { x = initialX + moveX * iCount - moveX; y = initialY + moveY - moveY; }
-                else if (iCount >= 3 && 6 >= iCount) { row1 += 1; x = initialX + moveX * row1 - moveX; y = initialY + moveY * 2 - moveY; }
-                else if (iCount >= 6 && 9 >= iCount) { row2 += 1; x = initialX + moveX * row2 - moveX; y = initialY + moveY * 3 - moveY; }
-                else if (iCount >= 9 && 12 >= iCount) { row3 += 1; x = initialX + moveX * row3 - moveX; y = initialY + moveY * 4 - moveY; }
-                else if (iCount >= 12 && 15 >= iCount) { row4 += 1; x = initialX + moveX * row4 - moveX; y = initialY + moveY * 5 - moveY; }
-                else if (iCount >= 15 && 18 >= iCount) { row5 += 1; x = initialX + moveX * row5 - moveX; y = initialY + moveY * 6 - moveY; }
-                else if (iCount >= 18 && 21 >= iCount) { row6 += 1; x = initialX + moveX * row6 - moveX; y = initialY + moveY * 7 - moveY; }
-                else if (iCount >= 21 && 24 >= iCount) { row7 += 1; x = initialX + moveX * row7 - moveX; y = initialY + moveY * 8 - moveY; }
-                else if (iCount >= 27 && 30 >= iCount) { row8 += 1; x = initialX + moveX * row8 - moveX; y = initialY + moveY * 9 - moveY; }
-                else if (iCount >= 30 && 33 >= iCount) { row9 += 1; x = initialX + moveX * row9 - moveX; y = initialY + moveY * 10 - moveY; }
-                else return false;
-            }
-            else if (Same(variant, "5x5"))
-            {
-                if (iCount < 6) { x = initialX + moveX * iCount - moveX; y = initialY + moveY - moveY; }
-                else if (iCount >= 5 && 10 >= iCount) { row1 += 1; x = initialX + moveX * row1 - moveX; y = initialY + moveY * 2 - moveY; }
-                else if (iCount >= 10 && 15 >= iCount) { row2 += 1; x = initialX + moveX * row2 - moveX; y = initialY + moveY * 3 - moveY; }
-                else if (iCount >= 15 && 20 >= iCount) { row3 += 1; x = initialX + moveX * row3 - moveX; y = initialY + moveY * 4 - moveY; }
-                else if (iCount >= 20 && 25 >= iCount) { row4 += 1; x = initialX + moveX * row4 - moveX; y = initialY + moveY * 5 - moveY; }
-                else if (iCount >= 25 && 30 >= iCount) { row5 += 1; x = initialX + moveX * row5 - moveX; y = initialY + moveY * 6 - moveY; }
-                else if (iCount >= 30 && 35 >= iCount) { row6 += 1; x = initialX + moveX * row6 - moveX; y = initialY + moveY * 7 - moveY; }
-                else return false;
-            }
-            else if (Same(variant, "6x6"))
-            {
-                if (iCount < 7) { x = initialX + moveX * iCount - moveX; y = initialY + moveY - moveY; }
-                else if (iCount >= 6 && 12 >= iCount) { row1 += 1; x = initialX + moveX * row1 - moveX; y = initialY + moveY * 2 - moveY; }
-                else if (iCount >= 12 && 18 >= iCount) { row2 += 1; x = initialX + moveX * row2 - moveX; y = initialY + moveY * 3 - moveY; }
-                else if (iCount >= 18 && 24 >= iCount) { row3 += 1; x = initialX + moveX * row3 - moveX; y = initialY + moveY * 4 - moveY; }
-                else if (iCount >= 24 && 30 >= iCount) { row4 += 1; x = initialX + moveX * row4 - moveX; y = initialY + moveY * 5 - moveY; }
-                else if (iCount >= 30 && 36 >= iCount) { row5 += 1; x = initialX + moveX * row5 - moveX; y = initialY + moveY * 6 - moveY; }
-                else return false;
-            }
-            else if (Same(variant, "7x7"))
-            {
-                if (iCount < 8) { x = initialX + moveX * iCount - moveX; y = initialY + moveY - moveY; }
-                else if (iCount >= 7 && 14 >= iCount) { row1 += 1; x = initialX + moveX * row1 - moveX; y = initialY + moveY * 2 - moveY; }
-                else if (iCount >= 14 && 21 >= iCount) { row2 += 1; x = initialX + moveX * row2 - moveX; y = initialY + moveY * 3 - moveY; }
-                else if (iCount >= 21 && 28 >= iCount) { row3 += 1; x = initialX + moveX * row3 - moveX; y = initialY + moveY * 4 - moveY; }
-                else if (iCount >= 28 && 35 >= iCount) { row4 += 1; x = initialX + moveX * row4 - moveX; y = initialY + moveY * 5 - moveY; }
-                else return false;
-            }
-            else if (Same(variant, "8x8"))
-            {
-                if (iCount < 9) { x = initialX + moveX * iCount - moveX; y = initialY + moveY - moveY; }
-                else if (iCount >= 8 && 16 >= iCount) { row1 += 1; x = initialX + moveX * row1 - moveX; y = initialY + moveY * 2 - moveY; }
-                else if (iCount >= 16 && 24 >= iCount) { row2 += 1; x = initialX + moveX * row2 - moveX; y = initialY + moveY * 3 - moveY; }
-                else if (iCount >= 24 && 32 >= iCount) { row3 += 1; x = initialX + moveX * row3 - moveX; y = initialY + moveY * 4 - moveY; }
-                else if (iCount >= 32 && 40 >= iCount) { row4 += 1; x = initialX + moveX * row4 - moveX; y = initialY + moveY * 5 - moveY; }
-                else return false;
-            }
-            else if (Same(variant, "9x9"))
-            {
-                if (iCount < 10) { x = initialX + moveX * iCount - moveX; y = initialY + moveY - moveY; }
-                else if (iCount >= 9 && 18 >= iCount) { row1 += 1; x = initialX + moveX * row1 - moveX; y = initialY + moveY * 2 - moveY; }
-                else if (iCount >= 18 && 27 >= iCount) { row2 += 1; x = initialX + moveX * row2 - moveX; y = initialY + moveY * 3 - moveY; }
-                else if (iCount >= 27 && 36 >= iCount) { row3 += 1; x = initialX + moveX * row3 - moveX; y = initialY + moveY * 4 - moveY; }
-                else if (iCount >= 36 && 45 >= iCount) { row4 += 1; x = initialX + moveX * row4 - moveX; y = initialY + moveY * 5 - moveY; }
-                else return false;
-            }
-            else
-            {
-                // 未识别的变体：原代码在 if 链上全部落空，不发 !Move
-                return false;
-            }
-
-            return true;
         }
 
         /// <summary>
