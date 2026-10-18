@@ -14,13 +14,15 @@
 [![Stars](https://img.shields.io/github/stars/OMSociety/ReOmnimo)](https://github.com/OMSociety/ReOmnimo/stargazers)
 [![Issues](https://img.shields.io/github/issues/OMSociety/ReOmnimo)](https://github.com/OMSociety/ReOmnimo/issues)
 
+[ReOmnimo 是什么](#reomnimo-是什么) • [安装](#安装) • [日程面板](#日程面板) • [开发](#开发) • [更新日志](CHANGELOG.md) • [English](README.md)
+
 </div>
 
 ---
 
 ## ReOmnimo 是什么
 
-**ReOmnimo** 是一套基于 [Rainmeter](https://www.rainmeter.net/) 的 Windows Phone 7 风格多功能交互式桌面信息中心。它把桌面变成高效又好看的工作区,只呈现你需要的信息。每一块可交互磁贴都能一眼给出信息与设置,并可按你的需要定制 —— 与最初的 Metro 设计不同,ReOmnimo 给了你几乎无限的定制空间。
+**ReOmnimo** 是一套基于 [Rainmeter](https://www.rainmeter.net/) 的 Windows Phone 7 风格多功能交互式桌面信息中心。它把桌面变成高效又好看的工作区,只呈现你需要的信息。每一块可交互磁贴都能一眼给出信息与设置,并可按你的需要定制 —— 与最初的 Metro 设计不同,ReOmnimo 给了你无限的定制空间。
 
 ReOmnimo 接手 [Omnimo](https://github.com/fediaFedia/Omnimo)(fediaFedia 与 Xyrfo 作品)的开发。
 
@@ -28,7 +30,7 @@ ReOmnimo 接手 [Omnimo](https://github.com/fediaFedia/Omnimo)(fediaFedia 与 Xy
 
 ReOmnimo 以 Rainmeter 皮肤套件分发。先安装 [Rainmeter](https://www.rainmeter.net/) 5.0 或更高版本——5.0 目前经其[预发布主题](https://forum.rainmeter.net/viewtopic.php?t=45991)分发——再经 Rainmeter 的皮肤管理加载本套件。仓库根的 `Rainstaller.cfg` 描述了该包(`MinRainmeterVer=5.0`)。
 
-> **注意**：桌面映射要求套件位于 `Documents\Rainmeter\Skins\REO`,工作配置见 `AGENTS.md`。
+> **注意**: 桌面映射要求套件位于 `Documents\Rainmeter\Skins\REO`,工作配置见 `AGENTS.md`。
 
 ## 日程面板
 
@@ -39,7 +41,7 @@ ReOmnimo 以 Rainmeter 皮肤套件分发。先安装 [Rainmeter](https://www.ra
 - 事件时间经内置固定偏移表换算到本机时间;偏移不跟夏令时走,部分区域在夏令时期间可能差一小时,这是刻意取舍。
 - `RangeDays` 是显示的确切日历日天数。
 
-> **注意**：公开的日历订阅 URL 本身就是凭据,不要提交进任何被跟踪文件,放在未跟踪的 `UserVariables.local.inc` 里。详见 `AGENTS.md`。
+> **注意**: 公开的日历订阅 URL 本身就是凭据,不要提交进任何被跟踪文件,放在未跟踪的 `UserVariables.local.inc` 里。详见 `AGENTS.md`。
 
 ## 开发
 

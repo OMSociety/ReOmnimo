@@ -24,15 +24,15 @@ traceable to its upstream author, and so upstream changes can still be merged. T
 > Images and Media — [CC BY-NC-SA 3.0](https://creativecommons.org/licenses/by-nc-sa/3.0/)
 
 **What the files themselves declare.** Independently of that, most `.ini` files under `REO/` carry a
-`[Metadata] License=` line. Counted on this repository's tree:
+`[Metadata] License=` line. Counted on this repository's tree (2026-10-19, after the 0.7.0 cleanup):
 
 | Declaration | Files |
 |---|---|
-| `Creative Commons Attribution-Noncommercial-Share Alike 3.0 License` | 592 |
+| `Creative Commons Attribution-Noncommercial-Share Alike 3.0 License` | 584 |
 | `Creative Commons Attribution-Non-Commercial-Share Alike 3.0` (same licence, different spelling) | 2 |
 | `Creative Commons Attribution-NonCommercial-NoDerivs 3.0` | 3 |
 | `License=` present but empty | 2 |
-| **`.ini` carrying a declaration** | **599** |
+| **`.ini` carrying a declaration** | **591** |
 | `.ini` with no `License=` line at all | 22 |
 
 The two statements disagree in scope: `readme.md` puts "software and components" under GPL-2.0, while
@@ -55,9 +55,10 @@ carry a declaration or do not have one anywhere in the tree:
 
 | Group | Count | Note |
 |---|---|---|
-| `.inc` / `.lua` / `.cfg` / `.js` | 548 / 9 / 398 / 4 | No `[Metadata]` section exists in these formats |
-| `.png` / `.jpg` / `.gif` / `.ico` / `.bmp` / `.thm` | 1434 / 103 / 21 / 100 / 5 / 7 | No sidecar licence anywhere in the tree |
-| `.txt` / `.html` / `.url` / `.lnk` / `.bat` / `.wav` / `.xml` | 60 / 3 / 2 / 12 / 2 / 1 / 1 | Various; no licence stated |
+| `.inc` / `.lua` / `.cfg` / `.js` | 380 / 11 / 223 / 4 | No `[Metadata]` section exists in these formats |
+| `.png` / `.jpg` / `.gif` / `.ico` / `.bmp` / `.thm` | 1419 / 103 / 21 / 100 / 5 / 7 | No sidecar licence anywhere in the tree |
+| `.txt` / `.html` / `.url` / `.lnk` / `.bat` / `.wav` / `.xml` | 60 / 4 / 2 / 12 / 2 / 1 / 1 | Various; no licence stated |
+| `.dll` / `.config` / `.json` | 4 / 1 / 1 | WebView2 SDK files and the settings UI language pack (section 3) |
 | `.exe` / `.ttf` | 7 / 1 | See sections 3 and 4 |
 
 ## 2. This fork's own changes
@@ -77,8 +78,8 @@ Added:
 | `THIRD-PARTY.md` | This file |
 | `README.md` | The repository's own README, English primary, under the name ReOmnimo |
 | `README.zh.md` | The same README in Chinese, standalone |
-| `REO/@Resources/Common/Variables/Languages/Chinese.inc` | Simplified Chinese UI language pack, 284 keys, mirroring `English.inc` |
-| `REO/@Resources/Common/Background/Language/Chinese.cfg` | Simplified Chinese strings for the AutoIt tools, 33 keys |
+| `REO/@Resources/Common/Variables/Languages/Chinese.inc` | Simplified Chinese UI language pack, 280 unique keys, mirroring `English.inc` |
+| `REO/@Resources/Common/Background/Language/Chinese.cfg` | Simplified Chinese strings for the C# tools, 54 keys |
 | `REO/Panels/Agenda/` (`Item.ini`, `Item2.ini`, `Item3.ini`, `agenda.lua`, `Agenda.png`) | The Agenda calendar panel: published ICS subscriptions, merged, deduplicated and sorted |
 | `REO/@Resources/Config/Panels/Agenda/` (`UserVariables.inc`, `RainConfigure.cfg`) | Its user parameters and settings schema |
 | `SettingsCenter/` | This fork's C# (net48 + WebView2) rewrite of `config.exe` |
@@ -131,17 +132,20 @@ from `SettingsCenter/` and `Tools/`; the AutoIt sources they replaced were remov
 licence; the C# rewrites contain no third-party source - they reimplement the UDFs credited in
 section 5.
 
+Each executable embeds an application icon generated from [Microsoft's Fluent UI System Icons](https://github.com/microsoft/fluentui-system-icons) (MIT, Copyright (c) 2020 Microsoft Corporation); the icons are built by `Tools/Icons/make_icons.py` from the official `FluentSystemIcons-Regular.ttf` distribution, and the full MIT text ships alongside them in `Tools/Icons/LICENSE-Fluent.md`.
+
+
 ```
-REO/@Resources/Common/ColorChanger.exe                          92160 bytes   C# net48          (Tools/ColorChanger/)
-REO/@Resources/Common/OmnimoApp.exe                             67072 bytes   C# net48          (Tools/OmnimoApp/)
-REO/@Resources/Common/Background/ConfigBackground.exe           95744 bytes   C# net48          (Tools/ConfigBackground/)
-REO/@Resources/Common/Config/ActivePanels.exe                   40448 bytes   C# net48          (Tools/ActivePanels/)
-REO/@Resources/Common/Config/config.exe                         78848 bytes   C# net48 + WebView2 (SettingsCenter/)
+REO/@Resources/Common/ColorChanger.exe                          95232 bytes   C# net48          (Tools/ColorChanger/)
+REO/@Resources/Common/OmnimoApp.exe                             66560 bytes   C# net48          (Tools/OmnimoApp/)
+REO/@Resources/Common/Background/ConfigBackground.exe           97280 bytes   C# net48          (Tools/ConfigBackground/)
+REO/@Resources/Common/Config/ActivePanels.exe                   47616 bytes   C# net48          (Tools/ActivePanels/)
+REO/@Resources/Common/Config/config.exe                         85504 bytes   C# net48 + WebView2 (SettingsCenter/)
 REO/@Resources/Common/MultiManager/MultiManager.exe             38400 bytes   C# net48          (Tools/MultiManager/)
-REO/@Resources/Common/PanelCreator/PanelCreator.exe            109568 bytes   C# net48          (Tools/PanelCreator/)
+REO/@Resources/Common/PanelCreator/PanelCreator.exe            110592 bytes   C# net48          (Tools/PanelCreator/)
 ```
 
-`config.exe` also ships `config.exe.config`, the `lang/` JSON language pack, and four files taken
+The sizes above are the 0.7.0.0 builds (`FileVersion` 0.7.0.0, 2026-10-19). `config.exe` also ships `config.exe.config`, the `lang/` JSON language pack, and four files taken
 from Microsoft's WebView2 SDK - the managed `Microsoft.Web.WebView2.Core.dll`, `.WinForms.dll` and
 `.Wpf.dll` plus the native `WebView2Loader.dll` (NuGet `Microsoft.Web.WebView2` 1.0.2903.40, not
 written here); the WebView2 Runtime itself belongs to the user's system and is not bundled.
@@ -217,6 +221,7 @@ licensing is not determined by Rainmeter's.
 ## 7. Attribution
 
 - **Omnimo / fediaFedia** — the design this fork is based on and the source of almost every file.
+- **Microsoft** — the Fluent UI System Icons the seven executables' application icons are drawn from (MIT; section 3).
 - **Yashied, Ward, wraithdu, guinness and MrCreatoR** — the AutoIt UDFs, bundled through 0.6.0 in `AutoIT/Includes/` and removed with that tree in 0.7.0 (derivative credits in section 5).
 - The upstream Omnimo translators, credited inside each language pack's `Translated=` key. The
   Chinese pack carries `Translated=fediaFedia`, as upstream wrote it.
@@ -226,7 +231,7 @@ licensing is not determined by Rainmeter's.
 | # | Item | Status |
 |---|---|---|
 | 1 | Upstream's GPL-2.0 vs CC BY-NC-SA 3.0 statement conflict | Recorded in section 1; per-file declarations treated as governing that file. |
-| 2 | 22 `.ini` plus 960 `.inc`/`.lua`/`.cfg`/`.js` and 1670 images with no declaration | Carried as-is with provenance traceable through the retained git history. No rights claimed. |
+| 2 | 22 `.ini` plus 618 `.inc`/`.lua`/`.cfg`/`.js` and 1655 images with no declaration | Carried as-is with provenance traceable through the retained git history. No rights claimed. |
 | 3 | ~~7 upstream `.exe` with no source and no declared licence~~ | Resolved in 0.6.0: all seven executables are this fork's own C# rewrites (section 3); the upstream binaries are gone. |
 | 4 | ~~6 Microsoft Segoe `.ttf` in `REO/@Resources/Fonts/`~~ | Resolved: the six files are removed. The skin resolved those faces by system name and never loaded the files, so nothing renders differently; the Segoe WP fallback on systems without that face is unchanged. |
 | 5 | ~~The repository has no README of its own. Upstream's `readme.md` is brought forward but **not** left unchanged: a 25-line fork header was added to it~~ | Resolved: the repository now has its own `README.md` (English) and `README.zh.md` (Chinese) under the name ReOmnimo, and upstream's `readme.md` is deleted. |

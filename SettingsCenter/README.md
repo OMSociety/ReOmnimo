@@ -1,7 +1,7 @@
 # SettingsCenter — ReOmnimo 设置中心（.NET Framework 4.8 零依赖版）
 
 > 替代原 AutoIt `config.exe` 的现代设置面板。右键皮肤 →「设置」即弹出。
-> 目标框架 **net48**（Windows 10 1607+ 内置），分发体积 ~360 KB，无需安装运行时。
+> 目标框架 **net48**（Windows 10 1607+ 内置），分发体积 ≈ 934 KiB（部署 7 文件 927174 B + `lang\` 28994 B，2026-10-19 实查），无需安装运行时。
 
 ## 架构
 
@@ -9,7 +9,7 @@
 config.exe                ← 本程序（net48，WinForms 无边框窗体）
 ├─ WebView2 (Edge Chromium) ← 渲染设置界面（HTML/CSS/JS）
 ├─ lang\zh-CN.json        ← 语言包（标签/hint/界面文案）
-└─ REO\@Resources\Config\ ← 375 个 RainConfigure.cfg（schema）+ UserVariables.inc（值）
+└─ REO\@Resources\Config\ ← RainConfigure.cfg schema（此子树 202，仓库级共 203）+ UserVariables.inc（值）
 ```
 
 ## 工作流程
@@ -24,7 +24,7 @@ config.exe                ← 本程序（net48，WinForms 无边框窗体）
 ```powershell
 cd SettingsCenter
 dotnet build -c Release
-# 产物：bin\Release\net48\config.exe + WebView2Loader.dll + lang\
+# 产物：bin\Release\net48\ 下的 config.exe + config.exe.config + 3 个 Microsoft.Web.WebView2.*.dll + WebView2Loader.dll + lang\
 ```
 
 ## 部署
