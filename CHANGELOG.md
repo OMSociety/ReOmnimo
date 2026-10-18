@@ -10,6 +10,26 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### 移除
+
+- Gallery 设置页指向不存在的 `Gallery\themes` 的死「布局主题」按钮（绿块与标题一并移除）；「检查更新」按钮改为绝对定位。
+
+### 变更
+
+- Gallery 设置页的四个主题快捷按钮补纯色占位块：此前无图无尺寸，在页面上不可见也不可点。
+- ActivePanels 的面板着色判断改用共享实现（行为不变）。
+
+### Removed
+
+- Removed the dead "Layout Themes" button in the Gallery settings page that pointed to the nonexistent `Gallery\themes` (green block and title included); the "Check for Updates" button is now absolutely positioned.
+
+### Changed
+
+- The four theme shortcut buttons in the Gallery settings page now show solid color placeholders: previously they had no image and no size, so they were invisible and unclickable.
+- The per-panel colorizable check in ActivePanels now uses the shared implementation (no behavior change).
+
 ## [0.7.0] - 2026-10-19
 
 ### 移除

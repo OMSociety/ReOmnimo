@@ -142,7 +142,7 @@ REO/@Resources/Common/Background/ConfigBackground.exe           97280 bytes   C#
 REO/@Resources/Common/Config/ActivePanels.exe                   47616 bytes   C# net48          (Tools/ActivePanels/)
 REO/@Resources/Common/Config/config.exe                         85504 bytes   C# net48 + WebView2 (SettingsCenter/)
 REO/@Resources/Common/MultiManager/MultiManager.exe             38400 bytes   C# net48          (Tools/MultiManager/)
-REO/@Resources/Common/PanelCreator/PanelCreator.exe            110592 bytes   C# net48          (Tools/PanelCreator/)
+REO/@Resources/Common/PanelCreator/PanelCreator.exe            111104 bytes   C# net48          (Tools/PanelCreator/)
 ```
 
 The sizes above are the 0.7.0.0 builds (`FileVersion` 0.7.0.0, 2026-10-19). `config.exe` also ships `config.exe.config`, the `lang/` JSON language pack, and four files taken
