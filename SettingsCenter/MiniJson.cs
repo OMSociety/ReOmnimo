@@ -7,32 +7,52 @@ namespace SettingsCenter;
 // 迷你 JSON：只支持本项目用到的子集（对象/数组/字符串/数字/true/false/null），
 // 用来替代 System.Text.Json —— 避免 net48 引入 8 个依赖 DLL。
 // 解析结果是 object：Dictionary<string,object> / List<object> / string / double / bool / null。
+// 解析错误（RO-23）：坏输入不再静默产出垃圾结构或抛裸 FormatException，
+// 调用方（OnWebMessage / Lang.Load）捕获后给提示或降级
+public sealed class MiniJsonException : Exception
+{
+    public MiniJsonException(string message) : base(message) { }
+}
+
 public static class MiniJson
 {
     public static object? Parse(string text)
     {
         int i = 0;
         var v = ReadValue(text, ref i);
+        Ws(text, ref i);
+        if (i < text.Length)
+            throw new MiniJsonException($"尾随内容：位置 {i} 附近「{Snippet(text, i)}」");
         return v;
     }
+
+    private static string Snippet(string s, int i) =>
+        s.Substring(i, Math.Min(16, s.Length - i)).Replace("\r", "\\r").Replace("\n", "\\n");
 
     private static void Ws(string s, ref int i)
     {
         while (i < s.Length && char.IsWhiteSpace(s[i])) i++;
     }
 
+    private static void Expect(string s, ref int i, string word)
+    {
+        if (i + word.Length > s.Length || string.CompareOrdinal(s, i, word, 0, word.Length) != 0)
+            throw new MiniJsonException($"非法字面量：位置 {i} 附近「{Snippet(s, i)}」");
+        i += word.Length;
+    }
+
     private static object? ReadValue(string s, ref int i)
     {
         Ws(s, ref i);
-        if (i >= s.Length) return null;
+        if (i >= s.Length) throw new MiniJsonException("内容意外结束（应为值）");
         switch (s[i])
         {
             case '{': return ReadObject(s, ref i);
             case '[': return ReadArray(s, ref i);
             case '"': return ReadString(s, ref i);
-            case 't': i += 4; return true;          // true
-            case 'f': i += 5; return false;         // false
-            case 'n': i += 4; return null;          // null
+            case 't': Expect(s, ref i, "true"); return true;
+            case 'f': Expect(s, ref i, "false"); return false;
+            case 'n': Expect(s, ref i, "null"); return null;
             default: return ReadNumber(s, ref i);
         }
     }
@@ -43,18 +63,23 @@ public static class MiniJson
         i++; // {
         Ws(s, ref i);
         if (i < s.Length && s[i] == '}') { i++; return d; }
-        while (i < s.Length)
+        while (true)
         {
             Ws(s, ref i);
+            if (i >= s.Length) throw new MiniJsonException("对象未闭合（缺 }）");
+            if (s[i] == '}') throw new MiniJsonException($"尾随逗号产生幽灵键：位置 {i}");
+            if (s[i] != '"') throw new MiniJsonException($"应为字符串键：位置 {i} 附近「{Snippet(s, i)}」");
             var key = ReadString(s, ref i);
             Ws(s, ref i);
+            if (i >= s.Length || s[i] != ':')
+                throw new MiniJsonException($"应为冒号：位置 {i} 附近「{Snippet(s, i)}」");
             i++; // :
-            var val = ReadValue(s, ref i);
-            d[key] = val;
+            d[key] = ReadValue(s, ref i);
             Ws(s, ref i);
-            if (i < s.Length && s[i] == ',') { i++; continue; }
-            if (i < s.Length && s[i] == '}') { i++; break; }
-            break;
+            if (i >= s.Length) throw new MiniJsonException("对象未闭合（缺 }）");
+            if (s[i] == ',') { i++; continue; }
+            if (s[i] == '}') { i++; break; }
+            throw new MiniJsonException($"应为 , 或 }}：位置 {i} 附近「{Snippet(s, i)}」");
         }
         return d;
     }
@@ -65,13 +90,14 @@ public static class MiniJson
         i++; // [
         Ws(s, ref i);
         if (i < s.Length && s[i] == ']') { i++; return list; }
-        while (i < s.Length)
+        while (true)
         {
             list.Add(ReadValue(s, ref i));
             Ws(s, ref i);
-            if (i < s.Length && s[i] == ',') { i++; continue; }
-            if (i < s.Length && s[i] == ']') { i++; break; }
-            break;
+            if (i >= s.Length) throw new MiniJsonException("数组未闭合（缺 ]）");
+            if (s[i] == ',') { i++; continue; }
+            if (s[i] == ']') { i++; break; }
+            throw new MiniJsonException($"应为 , 或 ]：位置 {i} 附近「{Snippet(s, i)}」");
         }
         return list;
     }
@@ -80,12 +106,14 @@ public static class MiniJson
     {
         var sb = new StringBuilder();
         i++; // "
-        while (i < s.Length)
+        while (true)
         {
+            if (i >= s.Length) throw new MiniJsonException("字符串未闭合");
             var c = s[i++];
             if (c == '"') break;
-            if (c == '\\' && i < s.Length)
+            if (c == '\\')
             {
+                if (i >= s.Length) throw new MiniJsonException("字符串未闭合（转义符在末尾）");
                 var e = s[i++];
                 switch (e)
                 {
@@ -98,13 +126,16 @@ public static class MiniJson
                     case '\\': sb.Append('\\'); break;
                     case '"': sb.Append('"'); break;
                     case 'u':
-                        if (i + 4 <= s.Length)
-                        {
-                            sb.Append((char)Convert.ToInt32(s.Substring(i, 4), 16));
-                            i += 4;
-                        }
+                        if (i + 4 > s.Length)
+                            throw new MiniJsonException("\\u 转义不足 4 位十六进制");
+                        var hex = s.Substring(i, 4);
+                        if (!int.TryParse(hex, System.Globalization.NumberStyles.HexNumber,
+                                          System.Globalization.CultureInfo.InvariantCulture, out var cp))
+                            throw new MiniJsonException($"非法 \\u 转义：\\{hex}");
+                        sb.Append((char)cp);
+                        i += 4;
                         break;
-                    default: sb.Append(e); break;
+                    default: throw new MiniJsonException($"非法转义字符：\\{e}");
                 }
             }
             else sb.Append(c);
@@ -116,8 +147,13 @@ public static class MiniJson
     {
         int start = i;
         while (i < s.Length && (char.IsDigit(s[i]) || s[i] == '-' || s[i] == '+' || s[i] == '.' || s[i] == 'e' || s[i] == 'E')) i++;
-        double.TryParse(s.Substring(start, i - start), System.Globalization.NumberStyles.Any,
-                        System.Globalization.CultureInfo.InvariantCulture, out var v);
+        if (i == start)
+            throw new MiniJsonException($"意外的字符：位置 {i} 附近「{Snippet(s, i)}」");
+        var raw = s.Substring(start, i - start);
+        // 前导零等宽松容忍（"01" 按 1 解）：本项目输入只来自自家 JS 与语言包，不会出现
+        if (!double.TryParse(raw, System.Globalization.NumberStyles.Any,
+                             System.Globalization.CultureInfo.InvariantCulture, out var v))
+            throw new MiniJsonException($"非法数字：{raw}");
         return v;
     }
 

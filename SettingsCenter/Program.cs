@@ -34,12 +34,31 @@ static class Program
             else if (a == "--light") forceLight = true;
             else if (a == "--dark") forceDark = true;
         }
-        // 位置参数：REO\ 开头的是 config；含 Skins 的已存在目录是 skinsRoot；Rainmeter.exe 是 programPath
+        // 位置参数：REO\ 开头的是 config；含 Skins 的已存在目录是 skinsRoot；Rainmeter 安装目录/exe 是 programPath
         foreach (var a in positional)
         {
             if (a.StartsWith("REO\\", StringComparison.OrdinalIgnoreCase)) config = a;
             else if (a.IndexOf("Skins", StringComparison.OrdinalIgnoreCase) >= 0 && Directory.Exists(a)) skinsRoot = a;
-            else if (a.EndsWith("Rainmeter.exe", StringComparison.OrdinalIgnoreCase) && File.Exists(a)) programPath = a;
+            else if (File.Exists(a) && a.EndsWith("Rainmeter.exe", StringComparison.OrdinalIgnoreCase)) programPath = a;
+            // 第 6 参 #PROGRAMPATH# 是 Rainmeter 安装目录而非 exe 路径（REO 全部 6 参调用点均如此，
+            // 旧版 Config.au3:75-80 同口径按目录拼 Rainmeter.exe）
+            else if (Directory.Exists(a) && File.Exists(Path.Combine(a, "Rainmeter.exe")))
+                programPath = Path.Combine(a, "Rainmeter.exe");
+        }
+
+        // 用法校验（RO-24）：皮肤侧契约是 6 参（模式/config/file/settings/skins/program），
+        // 位置参数不足 4 个（Background\SolidBG\bg.ini 与 AnotherBG\bg.ini 的 3 参旧调用点、裸双击启动）
+        // 不再静默降级——旧行为缺 config 默认 REO\Panels\Slideshow、缺 skinsRoot 兜底 Documents，
+        // 用户看到的是「看似相关的空窗口」，失败完全不可见。对齐旧版 OmnimoError 的大声失败。
+        // 退出码语义：正常 0 / 用法错误 2 / 运行失败 1。
+        if (positional.Length < 4)
+        {
+            var usage = "ReOmnimo 设置中心\n\n" +
+                        "用法：config.exe <模式> <config> <file> <settings> [skins] [program]\n" +
+                        "示例：config.exe text \"REO\\Panels\\Slideshow\" Item.ini \"#SETTINGSPATH#\" \"#SKINSPATH#\" \"#PROGRAMPATH#\"";
+            Console.Error.WriteLine(usage);
+            MessageBox.Show(usage, "ReOmnimo 设置", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            Environment.Exit(2);
         }
 
         // 未处理异常落盘：AppDomain 只接非 UI 线程异常，WinForms UI 线程异常走 ThreadException
@@ -66,7 +85,10 @@ static class Program
 
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
-        Application.Run(new MainForm(config, forceLight, forceDark, skinsRoot, programPath));
+        var form = new MainForm(config, forceLight, forceDark, skinsRoot, programPath);
+        Application.Run(form);
+        // 运行失败（WebView2 环境创建失败/同面板双开提示后关闭）以非零退出码上报（RO-24）
+        if (form.InitFailed) Environment.Exit(1);
     }
 }
 
@@ -88,6 +110,9 @@ public class MainForm : Form
     private System.Windows.Forms.Timer? refreshDebounce;
     private readonly bool light;
     private readonly string? programPath;    // 皮肤右键菜单传入的 #PROGRAMPATH#
+
+    /// <summary>初始化失败（WebView2 环境创建失败/同面板双开）：Main 据此以退出码 1 结束（RO-24）。</summary>
+    public bool InitFailed { get; private set; }
 
     public MainForm(string config, bool forceLight = false, bool forceDark = false, string? skinsRootOverride = null, string? programPathOverride = null)
     {
@@ -126,6 +151,7 @@ public class MainForm : Form
             catch (Exception ex)
             {
                 // WebView2 环境创建失败（常见：同面板双开，0x800700AA 用户数据目录被占用）
+                InitFailed = true;
                 MessageBox.Show(this,
                     "设置窗口初始化失败：\n" + ex.Message +
                     "\n\n若刚打开过同一面板的设置窗口，请先关闭它再试。",
@@ -182,15 +208,14 @@ public class MainForm : Form
     {
         schema.Clear();
         values.Clear();
-        incKeys = null;
         var cfgPath = CfgPath("RainConfigure.cfg");
         var incPath = CfgPath("UserVariables.inc");
         // 皮肤 @include 链是 base → local，local 的键覆盖 base；设置工具必须读两个、写 local
         //（与老 config.exe 一致，否则 Agenda 这类面板的改动会被 local 里的旧值静默盖回）
         localIncPath = null;
-        if (File.Exists(incPath)) LoadValues(incPath);
+        if (File.Exists(incPath)) LoadValues(values, incPath);
         var localPath = CfgPath("UserVariables.local.inc");
-        if (File.Exists(localPath)) { LoadValues(localPath); localIncPath = localPath; }
+        if (File.Exists(localPath)) { LoadValues(values, localPath); localIncPath = localPath; }
         if (File.Exists(cfgPath)) LoadSchema(cfgPath);
         // 剥掉推断标记（渲染端只认纯控件名）
         schema = schema.Select(s => s.Control.EndsWith("推断")
@@ -222,10 +247,14 @@ public class MainForm : Form
         public SettingItem(string k, string t, string c) { Key = k; Title = t; Control = c; }
     }
 
-    private void LoadSchema(string cfgPath)
+    private void LoadSchema(string cfgPath) => ParseSchema(cfgPath, values, schema);
+
+    // schema 解析：cfg 里的键必须锚定在 inc 的实际键集上；三行组（键/标题/控件）、
+    // 两行组（键/控件）、裸键推断三种形态。抽成静态以便侧栏过滤（HasSettings）按同一口径计数（RO-20）。
+    private static void ParseSchema(string cfgPath, Dictionary<string, string> values, List<SettingItem> outSchema)
     {
         var lines = ReadTextAuto(cfgPath).Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
-        var keys = KeysFromInc();   // 以 UserVariables.inc 的实际键集为锚点
+        var keys = new HashSet<string>(values.Keys, StringComparer.OrdinalIgnoreCase);   // 以 inc 的实际键集为锚点
 
         for (int i = 0; i < lines.Length; i++)
         {
@@ -243,7 +272,7 @@ public class MainForm : Form
             if (LooksLikeControl(candidate))
             {
                 // 紧凑组：键/控件
-                schema.Add(new SettingItem(key, "", candidate));
+                outSchema.Add(new SettingItem(key, "", candidate));
                 i = j;
             }
             else if (!keys.Contains(candidate))
@@ -253,7 +282,7 @@ public class MainForm : Form
                 while (k < lines.Length && lines[k].Trim().Length == 0) k++;
                 if (k < lines.Length && LooksLikeControl(lines[k].Trim()))
                 {
-                    schema.Add(new SettingItem(key, candidate == "!" ? "" : candidate, lines[k].Trim()));
+                    outSchema.Add(new SettingItem(key, candidate == "!" ? "" : candidate, lines[k].Trim()));
                     i = k;
                 }
                 else
@@ -261,7 +290,7 @@ public class MainForm : Form
                     // 裸键 + 说明文字（无控件行）→ 按 inc 值推断控件（标"推断"供排序沉底）
                     var val = values.TryGetValue(key, out var v) ? v : "";
                     var title0 = candidate == "!" ? "" : candidate;
-                    schema.Add(new SettingItem(key, title0, InferControl(key, val, title0) + "推断"));
+                    outSchema.Add(new SettingItem(key, title0, InferControl(key, val, title0) + "推断"));
                     i = j;
                 }
             }
@@ -269,7 +298,7 @@ public class MainForm : Form
             {
                 // 裸键 + 下一行还是键 → 无 hint，推断控件
                 var val = values.TryGetValue(key, out var v) ? v : "";
-                schema.Add(new SettingItem(key, "", InferControl(key, val, "") + "推断"));
+                outSchema.Add(new SettingItem(key, "", InferControl(key, val, "") + "推断"));
             }
         }
     }
@@ -298,14 +327,6 @@ public class MainForm : Form
         return "Text";
     }
 
-    private HashSet<string>? incKeys;
-
-    private HashSet<string> KeysFromInc()
-    {
-        incKeys ??= new HashSet<string>(values.Keys, StringComparer.OrdinalIgnoreCase);
-        return incKeys;
-    }
-
     private static bool LooksLikeControl(string s)
     {
         if (s.Length == 0) return false;
@@ -314,29 +335,69 @@ public class MainForm : Form
         return head is "text" or "checkbox" or "slider" or "browse" or "color";
     }
 
-    private void LoadValues(string incPath)
+    private static void LoadValues(Dictionary<string, string> into, string incPath)
     {
         foreach (var line in ReadTextAuto(incPath).Split(new[] { "\r\n", "\n" }, StringSplitOptions.None))
         {
             var m = Regex.Match(line, @"^\s*([^=;\s][^=]*?)\s*=\s*(.*)$");
             if (m.Success && !line.TrimStart().StartsWith("[") && !line.TrimStart().StartsWith(";"))
-                values[m.Groups[1].Value] = m.Groups[2].Value;
+                into[m.Groups[1].Value] = m.Groups[2].Value;
         }
+    }
+
+    // 编码嗅探实例：BOM 优先，非 BOM 依 AGENTS.md §3 的既定顺序——严格 UTF-8 试解 →
+    // cp936 严格试解 → cp1252，每一档都要求「解码→再编码」逐字节还原，达不到就降到下一档。
+    // cp1252 终档字节级无损（256 字节全部有映射，往返还原），与 latin-1 保底同性质；
+    // 仓库实况（RO-05 修复前）：cp936/cp1252 文件被强按 UTF-8 解、写回即不可逆毁损（EF BF BD）。
+    private static readonly Encoding Utf8NoBom = new UTF8Encoding(false);
+    private static readonly Encoding Utf8Strict = new UTF8Encoding(false, true);
+    private static readonly Encoding Gbk = Encoding.GetEncoding(936);
+    private static readonly Encoding GbkStrict =
+        Encoding.GetEncoding(936, new EncoderExceptionFallback(), new DecoderExceptionFallback());
+    private static readonly Encoding Cp1252 = Encoding.GetEncoding(1252);
+
+    /// <summary>识别字节序列的文本编码与 BOM 长度。链尾 cp1252 字节级无损兜底。</summary>
+    private static (Encoding enc, int bomLen) SniffEncoding(byte[] b)
+    {
+        if (b.Length >= 2 && b[0] == 0xFF && b[1] == 0xFE) return (Encoding.Unicode, 2);
+        if (b.Length >= 3 && b[0] == 0xEF && b[1] == 0xBB && b[2] == 0xBF) return (Utf8NoBom, 3);
+        try { Utf8Strict.GetString(b); return (Utf8NoBom, 0); } catch (DecoderFallbackException) { }
+        // cp936 与 cp1252 会互相误判（cp936 常把 cp1252 的高位字节读成合法双字节），
+        // 故两档都以严格试解 + 往返还原双门槛择优；cp936 不过则 cp1252 兜底（往返恒还原）
+        try { if (BytesEqual(Gbk.GetBytes(GbkStrict.GetString(b)), b)) return (Gbk, 0); }
+        catch (DecoderFallbackException) { }
+        return (Cp1252, 0);
+    }
+
+    private static bool BytesEqual(byte[] x, byte[] y)
+    {
+        if (x.Length != y.Length) return false;
+        for (int i = 0; i < x.Length; i++) if (x[i] != y[i]) return false;
+        return true;
     }
 
     private static string ReadTextAuto(string path)
     {
         var b = File.ReadAllBytes(path);
-        if (b.Length >= 2 && b[0] == 0xFF && b[1] == 0xFE) return Encoding.Unicode.GetString(b, 2, b.Length - 2);
-        if (b.Length >= 3 && b[0] == 0xEF && b[1] == 0xBB && b[2] == 0xBF) return Encoding.UTF8.GetString(b, 3, b.Length - 3);
-        return Encoding.UTF8.GetString(b);
+        var (enc, bomLen) = SniffEncoding(b);
+        return enc.GetString(b, bomLen, b.Length - bomLen);
     }
 
     // ---------- messages ----------
 
     private void OnWebMessage(object? s, CoreWebView2WebMessageReceivedEventArgs e)
     {
-        var msg = MiniJson.Parse(e.WebMessageAsJson);
+        object? msg;
+        try
+        {
+            msg = MiniJson.Parse(e.WebMessageAsJson);
+        }
+        catch (MiniJsonException ex)
+        {
+            // 坏消息不再静默吞（旧行为解析出垃圾结构继续跑，或抛裸 FormatException 落 sc_crash 而界面无感）
+            ShowStatus("设置消息解析失败：" + ex.Message);
+            return;
+        }
         var type = MiniJson.Str(msg, "type");
 
         switch (type)
@@ -396,26 +457,55 @@ public class MainForm : Form
         DebounceRefresh();
     }
 
+    // 非阻断状态提示（RO-22）：页面内冒一条 toast。WebView2 未就绪时静默跳过。
+    // 调用方都在 UI 线程（webmessage/定时器/对话框回调），ExecuteScriptAsync 直接可用
+    private void ShowStatus(string msg)
+    {
+        try { _ = web.CoreWebView2?.ExecuteScriptAsync("toast(" + MiniJson.JsStr(msg) + ")"); }
+        catch { }
+    }
+
     private void WriteValue(string key, string value)
     {
         // local 覆盖文件存在时写 local（皮肤 @include 链里 local 后加载、键值胜出）
         var incPath = localIncPath ?? CfgPath("UserVariables.inc");
-        if (!File.Exists(incPath)) return;
+        if (!File.Exists(incPath))
+        {
+            // 静默失败改提示（RO-22）：用户改了值却什么都没发生，旧行为连状态都不给
+            ShowStatus("设置未写入：找不到 " + Path.GetFileName(incPath));
+            return;
+        }
         var raw = File.ReadAllBytes(incPath);
-        bool u16 = raw.Length >= 2 && raw[0] == 0xFF && raw[1] == 0xFE;
-        var enc = u16 ? Encoding.Unicode : new UTF8Encoding(false);
-        var text = enc.GetString(raw, u16 ? 2 : 0, raw.Length - (u16 ? 2 : 0));
+        // 写回保原编码（RO-05）：与读侧同一套嗅探，BOM 原样重建；
+        // 旧行为只认 FF FE，cp936/cp1252 文件读改写即不可逆毁损
+        var (enc, bomLen) = SniffEncoding(raw);
+        var bom = bomLen > 0 ? raw.Take(bomLen).ToArray() : Array.Empty<byte>();
+        var text = enc.GetString(raw, bomLen, raw.Length - bomLen);
+        // 值压成单行（RO-21）：正常 UI 控件产生不了换行，畸形 webmessage 的多行值若原样落盘，
+        // 一行替换会变成多行注入 inc
+        value = value.Replace("\r\n", " ").Replace("\r", " ").Replace("\n", " ");
         // Rainmeter 变量名大小写不敏感，文件里的键可能与 schema 键大小写不同
         // 值必须走 MatchEvaluator：替换串里拼 "$1"+value 时，数字开头的值（复选框写 0/1、
         // 滑杆与数字框写整数）会被当作组引用 "$10" 之类，.NET 找不到该组就把整个 "$10"
         // 原样写进文件，行内容被毁。正则也只吃到行尾前，保留原行尾符。
-        var pattern = new Regex(@"(?im)^(" + Regex.Escape(key) + @"\s*=)[^\r\n]*");
-        text = pattern.IsMatch(text)
-            ? pattern.Replace(text, m => m.Groups[1].Value + value, 1)
-            : text.TrimEnd() + "\r\n" + key + "=" + value + "\r\n";
-        File.WriteAllBytes(incPath, u16
-            ? new byte[] { 0xFF, 0xFE }.Concat(Encoding.Unicode.GetBytes(text)).ToArray()
-            : enc.GetBytes(text));
+        // 同名键多次出现时对齐显示侧语义（LoadValues 顺序赋值 = 后行覆盖）：
+        // 更新最后一处、删除其余重复行——旧代码只改首行，后行旧值仍在，
+        // Rainmeter 后写者胜 → 「显示已改、实际未变」（RO-19）
+        var lineRe = new Regex(@"(?im)^[ \t]*" + Regex.Escape(key) + @"[ \t]*=[^\r\n]*(\r?\n|$)");
+        var ms = lineRe.Matches(text);
+        if (ms.Count > 0)
+        {
+            var lastIdx = ms[ms.Count - 1].Index;
+            text = lineRe.Replace(text, m =>
+            {
+                if (m.Index != lastIdx) return "";   // 重复键的其余行整行删除（含行尾）
+                var nl = m.Groups[1].Value;
+                // 保留原「键=」前缀（键名大小写与空白原样），只换值，行尾符不变
+                return m.Value.Substring(0, m.Value.IndexOf('=') + 1) + value + nl;
+            });
+        }
+        else text = text.TrimEnd() + "\r\n" + key + "=" + value + "\r\n";
+        File.WriteAllBytes(incPath, bom.Concat(enc.GetBytes(text)).ToArray());
     }
 
     private void DebounceRefresh()
@@ -433,30 +523,59 @@ public class MainForm : Form
         RunRainmeterBang("!Refresh", configName);   // 实时预览：写盘后刷新面板
     }
 
-    // Rainmeter 安装路径解析顺序与旧 AutoIt 版 _RainmeterExe() 一致：
-    // #PROGRAMPATH# → ProgramW6432\Rainmeter → ProgramFiles\Rainmeter → ProgramFiles(x86)\Rainmeter
+    // Rainmeter 安装路径解析顺序与旧 AutoIt 版 _RainmeterExe()（Config.au3:75-88）一致：
+    // 第 6 参（#PROGRAMPATH#，调用点传的是安装目录）→ ProgramW6432 / ProgramFiles / ProgramFiles(x86)
+    // → PATH（旧版 Return "Rainmeter.exe" 交给 PATH 解析，这里显式逐目录找，RO-06）
     private void RunRainmeterBang(string bang, string arg)
     {
-        string? exe = programPath;
-        if (string.IsNullOrEmpty(exe) || !File.Exists(exe))
+        string? exe = ResolveRainmeterExe(programPath);
+        if (exe == null)
         {
-            exe = null;
-            // net48 无 Environment.SpecialFolder.ProgramW6432 枚举，走环境变量
-            var roots = new[]
-            {
-                Environment.GetEnvironmentVariable("ProgramW6432"),
-                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
-                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
-            };
-            foreach (var root in roots)
-            {
-                var p = Path.Combine(root, "Rainmeter", "Rainmeter.exe");
-                if (File.Exists(p)) { exe = p; break; }
-            }
+            // 写盘已成功但面板不会刷新；旧行为静默 return，用户以为改坏了（RO-22）
+            ShowStatus(Lang.T("refresh_failed", "已写入，但找不到 Rainmeter.exe，面板未实时刷新"));
+            return;
         }
-        if (exe == null || !File.Exists(exe)) return;
         System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
         { FileName = exe, Arguments = $"{bang} \"{arg}\"", UseShellExecute = false, CreateNoWindow = true });
+    }
+
+    private static string? ResolveRainmeterExe(string? programPath)
+    {
+        // 兼容两种第 6 参形态：完整 exe 路径，或安装目录（Main 解析侧已按目录拼好 exe；
+        // 这里再兜一层，防其它调用方直接传目录进来）
+        if (!string.IsNullOrEmpty(programPath))
+        {
+            if (File.Exists(programPath)) return programPath;
+            var joined = Path.Combine(programPath, "Rainmeter.exe");
+            if (File.Exists(joined)) return joined;
+        }
+        // net48 无 Environment.SpecialFolder.ProgramW6432 枚举，走环境变量
+        var roots = new[]
+        {
+            Environment.GetEnvironmentVariable("ProgramW6432"),
+            Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+            Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
+        };
+        foreach (var root in roots)
+        {
+            if (string.IsNullOrEmpty(root)) continue;
+            var p = Path.Combine(root, "Rainmeter", "Rainmeter.exe");
+            if (File.Exists(p)) return p;
+        }
+        var path = Environment.GetEnvironmentVariable("PATH");
+        if (path != null)
+            foreach (var dir in path.Split(';'))
+            {
+                var d = dir.Trim();
+                if (d.Length == 0) continue;
+                try
+                {
+                    var p = Path.Combine(d, "Rainmeter.exe");
+                    if (File.Exists(p)) return p;
+                }
+                catch { }   // PATH 里的非法路径段跳过
+            }
+        return null;
     }
 
     // ---------- UI ----------
@@ -476,19 +595,26 @@ public class MainForm : Form
         return list;
     }
 
-    /// <summary>配置目录里有可编辑项才算数：只有空行/注释的 RainConfigure.cfg 会在侧栏点出「0 项设置」。</summary>
-    private bool HasSettings(string dirPath)
+    /// <summary>
+    /// 配置目录里有可编辑项才算数。口径与 LoadSchema/ParseSchema 完全一致（RO-20）：
+    /// 按 schema 解析数项数——键必须锚定在该目录 inc 的实际键集上。
+    /// 旧口径「原始非空非#行数≥4」会把 UserVariables.inc 为空的目录也列出来，
+    /// 点开是「0 项设置」（实况：TextItems\#Win8Sidebar）。
+    /// </summary>
+    private static bool HasSettings(string dirPath) => CountSchemaItems(dirPath) >= 1;
+
+    private static int CountSchemaItems(string dirPath)
     {
         var cfg = Path.Combine(dirPath, "RainConfigure.cfg");
-        if (!File.Exists(cfg)) return false;
-        int rows = 0;
-        foreach (var line in ReadTextAuto(cfg).Split(new[] { "\r\n", "\n" }, StringSplitOptions.None))
-        {
-            var t = line.Trim();
-            if (t.Length == 0 || t.StartsWith("#")) continue;
-            rows++;
-        }
-        return rows >= 4;   // schema 四行一组（参数名/标题/控件类型/空行）
+        if (!File.Exists(cfg)) return 0;
+        var values = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var inc = Path.Combine(dirPath, "UserVariables.inc");
+        if (File.Exists(inc)) LoadValues(values, inc);
+        var local = Path.Combine(dirPath, "UserVariables.local.inc");
+        if (File.Exists(local)) LoadValues(values, local);
+        var items = new List<SettingItem>();
+        ParseSchema(cfg, values, items);
+        return items.Count;
     }
 
     private string BuildHtml()
@@ -514,9 +640,15 @@ public class MainForm : Form
             switch (kind)
             {
                 case "Slider":
-                    rows.AppendFormat("<input type=\"range\" min=\"{0}\" max=\"{1}\" value=\"{2}\" data-key=\"{3}\" oninput=\"send(this)\"><span class=\"val\" id=\"v-{3}\">{2}</span>",
-                        parts[1], parts[2], H(cur), H(item.Key));
-                    break;
+                    {
+                        // min/max 数字白名单（RO-07）：parts 来自皮肤侧 schema，非数字回退默认量程，
+                        // 畸形值不进属性；顺带对缺参的裸 "Slider" 控件行兜底
+                        var mn = parts.Length > 1 && int.TryParse(parts[1].Trim(), out var minV) ? minV.ToString() : "0";
+                        var mx = parts.Length > 2 && int.TryParse(parts[2].Trim(), out var maxV) ? maxV.ToString() : "100";
+                        rows.AppendFormat("<input type=\"range\" min=\"{0}\" max=\"{1}\" value=\"{2}\" data-key=\"{3}\" oninput=\"send(this)\"><span class=\"val\" id=\"v-{3}\">{2}</span>",
+                            mn, mx, H(cur), H(item.Key));
+                        break;
+                    }
                 case "Checkbox":
                     bool on = cur == parts[2];
                     rows.AppendFormat("<label class=\"switch\"><input type=\"checkbox\" data-key=\"{0}\" data-on=\"{1}\" data-off=\"{2}\" {3} onchange=\"send(this)\"><span class=\"track\"></span></label>",
@@ -525,10 +657,12 @@ public class MainForm : Form
                 case "Color":
                     {
                         // 色板 + HEX 文本；值形如 "0,0,0,181"，alpha 由单独滑杆管
+                        // style 值过 ToCss 白名单；onclick 的键走 Js()——onclick 属性里的 JS 串
+                        // 先被 HTML 解码再被 JS 解析，只做 HTML 转义拦不住单引号闭合（RO-07）
                         rows.AppendFormat(
-                            "<span class=\"swatch\" id=\"sw-{0}\" style=\"background:{1}\" onclick=\"openPicker('{0}')\"></span>" +
-                            "<code class=\"chex\" id=\"cv-{0}\" title=\"{2}\">{3}</code>",
-                            H(item.Key), ToCss(cur), H(cur), H(ToHexDisplay(cur)));
+                            "<span class=\"swatch\" id=\"sw-{0}\" style=\"background:{1}\" onclick=\"openPicker({2})\"></span>" +
+                            "<code class=\"chex\" id=\"cv-{0}\" title=\"{3}\">{4}</code>",
+                            H(item.Key), ToCss(cur), Js(item.Key), H(cur), H(ToHexDisplay(cur)));
                         break;
                     }
                 case "Text":
@@ -548,8 +682,8 @@ public class MainForm : Form
                         break;
                     }
                 case "Browse":
-                    rows.AppendFormat("<input type=\"text\" value=\"{0}\" data-key=\"{1}\" onchange=\"send(this)\"><button class=\"btn\" onclick=\"browse('{1}')\">{2}</button>",
-                        H(cur), H(item.Key), H(Lang.T("browse", "浏览…")));
+                    rows.AppendFormat("<input type=\"text\" value=\"{0}\" data-key=\"{1}\" onchange=\"send(this)\"><button class=\"btn\" onclick=\"browse({2})\">{3}</button>",
+                        H(cur), H(item.Key), Js(item.Key), H(Lang.T("browse", "浏览…")));
                     break;
                 default:
                     rows.AppendFormat("<input type=\"text\" value=\"{0}\" data-key=\"{1}\" onchange=\"send(this)\">", H(cur), H(item.Key));
@@ -566,8 +700,10 @@ public class MainForm : Form
 
         var nav = new StringBuilder();
         foreach (var p in PanelList())
-            nav.AppendFormat("<div class=\"nav-item{0}\" onclick=\"nav('{1}')\">{1}</div>",
-                p == panelName ? " active" : "", H(p));
+            // 面板名进 onclick 的 JS 串：单引号面板名（如 It's）会截断旧写法 nav('...')，
+            // 用 Js() 双层转义（RO-07）；显示文本仍走 H()
+            nav.AppendFormat("<div class=\"nav-item{0}\" onclick=\"nav({2})\">{1}</div>",
+                p == panelName ? " active" : "", H(p), Js(p));
 
         var bg = light ? "#f6f7f9" : "#131417";
         var fg = light ? "#191b1f" : "#e8eaed";
@@ -653,6 +789,11 @@ input[type=range] { flex: 1; accent-color: {{accent}}; }
                 border-radius: 6px; padding: 6px 8px; font-size: 12.5px; user-select: text; }
 .pk-row input:focus { outline: none; border-color: {{accent}}; }
 .pk-preview { width: 34px; height: 34px; border-radius: 8px; border: 1px solid {{border}}; flex: 0 0 34px; }
+#toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); background: {{card}};
+         color: {{fg}}; border: 1px solid {{border}}; border-radius: 10px; padding: 10px 18px;
+         font-size: 13px; box-shadow: 0 12px 40px #000a; opacity: 0; transition: opacity .2s;
+         pointer-events: none; z-index: 99; }
+#toast.show { opacity: 1; }
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-thumb { background: {{sub}}44; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: {{sub}}77; }
@@ -760,6 +901,17 @@ function closePicker() {
   pk.el.remove(); pk = null;
   document.removeEventListener("mousedown", outsidePicker, true);
 }
+
+/* ---- 非阻断状态提示（写回/刷新失败时冒一条，4 秒后自行淡出） ---- */
+let toastTimer = null;
+function toast(m) {
+  let el = document.getElementById("toast");
+  if (!el) { el = document.createElement("div"); el.id = "toast"; document.body.appendChild(el); }
+  el.textContent = m;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 4000);
+}
 """;
 
         return $$"""
@@ -767,7 +919,7 @@ function closePicker() {
 {{css}}
 </style></head><body>
 <div id="titlebar">
-  <span class="logo"><span class="dot"></span>ReOmnimo</span><span class="sep">/</span><span>{{panelName}} {{Lang.T("settings", "设置")}}</span>
+  <span class="logo"><span class="dot"></span>ReOmnimo</span><span class="sep">/</span><span>{{H(panelName)}} {{Lang.T("settings", "设置")}}</span>
   <span class="spacer"></span>
   <span class="wbtn" onclick="win('min')"><svg viewBox="0 0 12 12"><path d="M1 6h10"/></svg></span>
   <span class="wbtn" onclick="win('max')"><svg viewBox="0 0 12 12"><rect x="2" y="2" width="8" height="8" rx="1.5"/></svg></span>
@@ -776,7 +928,7 @@ function closePicker() {
 <div id="main">
   <div id="rail"><h2>{{Lang.T("panels", "面板")}}</h2>{{nav}}</div>
   <div id="content">
-    <div class="page-head"><h1>{{panelName}}</h1><span class="count">{{schema.Count}} {{Lang.T("items", "项设置")}}</span></div>
+    <div class="page-head"><h1>{{H(panelName)}}</h1><span class="count">{{schema.Count}} {{Lang.T("items", "项设置")}}</span></div>
     {{rows}}
   </div>
 </div>
@@ -837,7 +989,11 @@ function closePicker() {
             var a = p.Length >= 4 && int.TryParse(p[3].Trim(), out var ai) ? ai / 255.0 : 1.0;
             return $"rgba({p[0].Trim()},{p[1].Trim()},{p[2].Trim()},{a.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture)})";
         }
-        return v.Trim().Length > 0 ? v : "transparent";
+        // 白名单（RO-07）：只放行 #RGB/#RGBA/#RRGGBB/#RRGGBBAA 十六进制——
+        // 其余值（含引号/分号/空白的名字色）一律 transparent，
+        // 防止恶意值从 style 属性逃逸出独立事件属性
+        var t = v.Trim();
+        return Regex.IsMatch(t, "^#[0-9a-fA-F]{3}([0-9a-fA-F]([0-9a-fA-F]{2}){0,2})?$") ? t : "transparent";
     }
 
     // "0,0,0,181" → "#000000b5"；非数字原样返回
@@ -852,5 +1008,10 @@ function closePicker() {
     }
 
     private static string H(string s) =>
-        s.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;");
+        s.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;").Replace("'", "&#39;");
+
+    // onclick 属性里的 JS 字符串字面量：先按 JS 转义（JsStr 产出双引号字面量），
+    // 再按 HTML 属性转义（引号变 &quot;）。浏览器先解 HTML 再解析 JS，两层都要过——
+    // 只补 &#39; 拦不住「先 HTML 解码后 JS 解析」的闭合（RO-07）
+    private static string Js(string s) => H(MiniJson.JsStr(s));
 }
