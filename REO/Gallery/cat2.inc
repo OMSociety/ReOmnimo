@@ -369,7 +369,7 @@ y=R
 Group=cat2 | Bye
 [Labels2]
 Meter=Image
-ImageName=#@#\Graphics\Gallery\on#OnOff##PanelLabels##ttgallerystyle#.png
+ImageName=#@#\Graphics\Gallery\on#OnOff#1#ttgallerystyle#.png
 Group=cat2 | Bye
 x=(360*#ScaleDpi#)
 y=(-25*#ScaleDpi#)R
@@ -379,7 +379,7 @@ LeftMouseUpAction=[!WriteKeyValue Variables PanelTitleOpacity "255" "#@#Common\C
 MouseActionCursor=1
 [Labels3]
 Meter=Image
-ImageName=#@#\Graphics\Gallery\off#OnOff##PanelLabels##ttgallerystyle#.png
+ImageName=#@#\Graphics\Gallery\off#OnOff#0#ttgallerystyle#.png
 Group=cat2 | Bye
 x=(360*#ScaleDpi#)
 y=R
