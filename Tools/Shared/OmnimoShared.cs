@@ -12,7 +12,7 @@ using System.Windows.Forms;
 
 namespace OmnimoTools
 {
-    /// <summary>Rainmeter 进程间通信（等价于 AutoIT\Includes\Common.au3 的 SendBang）。</summary>
+    /// <summary>Rainmeter 进程间通信（等价于原 AutoIt Common.au3 的 SendBang；AutoIT\ 源树已于 0.7.0 移除）。</summary>
     internal static class Rainmeter
     {
         [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]

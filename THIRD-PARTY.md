@@ -11,10 +11,10 @@ governs the software and components, exactly as upstream declares it in its `rea
 
 ## 1. Upstream Omnimo
 
-**Provenance.** The tree under `REO/`, `AutoIT/` and `Extra/`, plus `Rainstaller.bmp` and
+**Provenance.** The tree under ``REO/`` and ``Extra/``, plus ``Rainstaller.bmp`` and
 `Rainstaller.cfg`, comes from <https://github.com/fediaFedia/Omnimo>, default branch `master`, last
 commit `d6a69f1e` (2024-05-16). `upstream` is kept as a git remote so every file stays individually
-traceable to its upstream author, and so upstream changes can still be merged.
+traceable to its upstream author, and so upstream changes can still be merged. The bundled AutoIt sources (`AutoIT/`) come from the same upstream; that tree is removed as of 0.7.0 and survives in git history.
 
 **What upstream declares.** The upstream repository has **no `LICENSE` file** — GitHub reports
 `license: null`. The only repository-level statement is a section of upstream's `readme.md`:
@@ -79,7 +79,6 @@ Added:
 | `README.zh.md` | The same README in Chinese, standalone |
 | `REO/@Resources/Common/Variables/Languages/Chinese.inc` | Simplified Chinese UI language pack, 284 keys, mirroring `English.inc` |
 | `REO/@Resources/Common/Background/Language/Chinese.cfg` | Simplified Chinese strings for the AutoIt tools, 33 keys |
-| `AutoIT/Language/Chinese.cfg` | The same pack kept beside the AutoIt sources |
 | `REO/Panels/Agenda/` (`Item.ini`, `Item2.ini`, `Item3.ini`, `agenda.lua`, `Agenda.png`) | The Agenda calendar panel: published ICS subscriptions, merged, deduplicated and sorted |
 | `REO/@Resources/Config/Panels/Agenda/` (`UserVariables.inc`, `RainConfigure.cfg`) | Its user parameters and settings schema |
 | `SettingsCenter/` | This fork's C# (net48 + WebView2) rewrite of `config.exe` |
@@ -106,8 +105,9 @@ and `AutoIT/Config.au3`'s border-color branch read an undeclared variable instea
 picker's result, both fixed; a later hardening pass then touched every AutoIt source
 (argument-count guards, array-bounds checks, path-traversal rejection on panel delete, an
 `Execute()` restriction, a panel-layout counter fix, `@ScriptDir` path anchoring, and dropping
-the `wmic` dependency from the build script). These corrected sources stay in `AutoIT/` for
-reference; every executable shipped since 0.6.0 is a C# rewrite built from the same corrected
+the `wmic` dependency from the build script). The corrected AutoIt sources stayed in `AutoIT/` for
+reference until 0.7.0, when that tree was removed from the repository (it survives in git history);
+every executable shipped since 0.6.0 is a C# rewrite built from the same corrected
 logic (section 3), so the fixes and the hardening reach the binaries users run; `.gitignore`,
 which now excludes the Agenda panel's per-machine feed override so a private calendar URL can
 never be committed.
@@ -126,8 +126,8 @@ material.
 
 Seven executables ship inside the repository. As of release 0.6.0 all seven are this fork's own C#
 (.NET Framework 4.8) rewrites of upstream's AutoIt helper GUIs, built with `dotnet build -c Release`
-from `SettingsCenter/` and `Tools/`; the AutoIt sources they replace stay in `AutoIT/` for reference
-and no AutoIt binary is shipped any more. Upstream's binaries carried no source and no declared
+from `SettingsCenter/` and `Tools/`; the AutoIt sources they replaced were removed with the
+`AutoIT/` tree in 0.7.0 and no AutoIt binary is shipped any more. Upstream's binaries carried no source and no declared
 licence; the C# rewrites contain no third-party source - they reimplement the UDFs credited in
 section 5.
 
@@ -195,28 +195,18 @@ were never installed. Listed in section 8.
 
 ## 5. AutoIt user-defined functions
 
-`AutoIT/Includes/` bundles UDFs written by AutoIt community members. They are redistributed with the
-author attribution the files themselves carry; none of them states an explicit licence.
+Through release 0.6.0 `AutoIT/Includes/` bundled UDFs written by AutoIt community members,
+redistributed with the author attribution the files themselves carry; none of them states an
+explicit licence: `WinAPIEx.au3`, `APIConstants.au3` and `ColorChooser.au3` (Yashied), `_Zip.au3`
+(wraithdu), `IconImage.au3`, `Binary.au3`, `DragDropEvent.au3` (Ward), `MouseOnEvent.au3`
+(G.Sandler (MrCreatoR)), `_Startup.au3` (guinness), and `ColorGenerator.au3` / `Common.au3`
+(author not stated). The AutoIt source tree, these files included, is removed as of 0.7.0 and
+survives in git history.
 
-| File | Bytes | Author as declared in the file |
-|---|---|---|
-| `WinAPIEx.au3` | 1691123 | Yashied |
-| `APIConstants.au3` | 225396 | Yashied |
-| `ColorChooser.au3` | 52877 | Yashied |
-| `_Zip.au3` | 38995 | wraithdu |
-| `IconImage.au3` | 38380 | Ward |
-| `Binary.au3` | 26719 | Ward |
-| `DragDropEvent.au3` | 18024 | Ward |
-| `MouseOnEvent.au3` | 14840 | G.Sandler (MrCreatoR) |
-| `_Startup.au3` | 11656 | guinness |
-| `ColorGenerator.au3` | 2509 | not stated |
-| `Common.au3` | 2486 | not stated |
-
-Three of these UDFs are reimplemented in the C# tools: `Tools/Shared/ColorPickerForm.cs` follows
-`ColorChooser.au3` (Yashied), `Tools/Shared/IconExtractor.cs` follows `IconImage.au3` (Ward), and
-`Tools/Shared/ZipWriter.cs` covers the two `_Zip.au3` entry points `PanelCreator` uses (wraithdu).
-Those files are this fork's own code and carry the same author credit; the AutoIt originals stay in
-`AutoIT/Includes/`.
+Three of them are reimplemented in the C# tools, which remain in the tree: `Tools/Shared/ColorPickerForm.cs`
+follows `ColorChooser.au3` (Yashied), `Tools/Shared/IconExtractor.cs` follows `IconImage.au3` (Ward),
+and `Tools/Shared/ZipWriter.cs` covers the two `_Zip.au3` entry points `PanelCreator` uses (wraithdu).
+Those files are this fork's own code and carry the same author credit.
 
 ## 6. Rainmeter
 
@@ -227,7 +217,7 @@ licensing is not determined by Rainmeter's.
 ## 7. Attribution
 
 - **Omnimo / fediaFedia** — the design this fork is based on and the source of almost every file.
-- **Yashied, Ward, wraithdu, guinness and MrCreatoR** — the AutoIt UDFs in `AutoIT/Includes/`.
+- **Yashied, Ward, wraithdu, guinness and MrCreatoR** — the AutoIt UDFs, bundled through 0.6.0 in `AutoIT/Includes/` and removed with that tree in 0.7.0 (derivative credits in section 5).
 - The upstream Omnimo translators, credited inside each language pack's `Translated=` key. The
   Chinese pack carries `Translated=fediaFedia`, as upstream wrote it.
 
@@ -237,7 +227,7 @@ licensing is not determined by Rainmeter's.
 |---|---|---|
 | 1 | Upstream's GPL-2.0 vs CC BY-NC-SA 3.0 statement conflict | Recorded in section 1; per-file declarations treated as governing that file. |
 | 2 | 22 `.ini` plus 960 `.inc`/`.lua`/`.cfg`/`.js` and 1670 images with no declaration | Carried as-is with provenance traceable through the retained git history. No rights claimed. |
-| 3 | 7 upstream `.exe` with no source and no declared licence | Repository-only. Closes if the binaries are dropped and users build from `AutoIT/`. |
+| 3 | ~~7 upstream `.exe` with no source and no declared licence~~ | Resolved in 0.6.0: all seven executables are this fork's own C# rewrites (section 3); the upstream binaries are gone. |
 | 4 | ~~6 Microsoft Segoe `.ttf` in `REO/@Resources/Fonts/`~~ | Resolved: the six files are removed. The skin resolved those faces by system name and never loaded the files, so nothing renders differently; the Segoe WP fallback on systems without that face is unchanged. |
 | 5 | ~~The repository has no README of its own. Upstream's `readme.md` is brought forward but **not** left unchanged: a 25-line fork header was added to it~~ | Resolved: the repository now has its own `README.md` (English) and `README.zh.md` (Chinese) under the name ReOmnimo, and upstream's `readme.md` is deleted. |
 

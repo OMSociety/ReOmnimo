@@ -1,4 +1,4 @@
-// ReOmnimo PanelCreator —— AutoIt 源码 AutoIT\PanelCreator.au3 的 C# 移植。
+// ReOmnimo PanelCreator —— 原 AutoIt 版的 C# 等价实现（AutoIT\ 源树已于 0.7.0 移除）。
 //
 // 本文件按原 .au3 的语句顺序逐段对应：控件坐标与尺寸、Colors.inc 的取值方式、写文件的键与顺序、
 // SendBang 字符串、错误提示的标题与正文都照原样；只有 WinForms 与 AutoIt 语义无法一一对应的地方

@@ -1,4 +1,4 @@
-// ReOmnimo ColorChanger（等价于 AutoIT\ColorChanger.au3，251 行）
+// ReOmnimo ColorChanger（原 AutoIt 版的等价实现；AutoIT\ 源树已于 0.7.0 移除）
 //
 // 调用契约（不许改）：ColorChanger.exe <SettingsPath> [--light|--dark]
 // 部署：REO\@Resources\Common\ColorChanger.exe

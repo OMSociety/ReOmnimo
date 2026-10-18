@@ -1,4 +1,4 @@
-// ReOmnimo ActivePanels —— AutoIT\ActivePanels.au3 的 C# 等价实现
+// ReOmnimo ActivePanels —— 原 AutoIt 版的 C# 等价实现（AutoIT\ 源树已于 0.7.0 移除）
 //
 // 调用契约（皮肤侧 4 处，见 REO\Gallery\Alignment\Item.ini 与 REO\Gallery\Intro\introLang.ini）：
 //   ActivePanels.exe "#SKINSPATH#" "#CURRENTCONFIGY#" "#CURRENTCONFIGX#" "#SETTINGSPATH#" <变体>

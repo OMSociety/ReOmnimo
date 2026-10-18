@@ -1,4 +1,4 @@
-// ReOmnimo OmnimoApp（等价于 AutoIT\OmnimoApp.au3，1103 行）
+// ReOmnimo OmnimoApp（原 AutoIt 版的等价实现；AutoIT\ 源树已于 0.7.0 移除）
 //
 // 调用契约（不许改）：OmnimoApp.exe <子命令> [参数…]
 // 参数下标在 AutoIt 里逐个子命令写死（$CmdLine[N]，N 从 1 起），皮肤侧调用点因此形态各异：

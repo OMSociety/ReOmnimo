@@ -1,6 +1,6 @@
 // ReOmnimo 工具共享层（第三部分）：取色对话框
 //
-// 移植自 AutoIT\Includes\ColorChooser.au3（Yashied，Color Chooser Dialog UDF 1.1）。
+// 移植自 Yashied 的 AutoIt UDF ColorChooser.au3（Color Chooser Dialog UDF 1.1）；原 .au3 随 AutoIT\ 源树于 0.7.0 移除。
 // 调用点是 ColorChanger（_ColorChooserDialog(0x000000, $hGUI)）与 ConfigBackground
 // （三处 _ColorChooserDialog($ColorXValue, $Gui)），两者都用默认参数：
 //   iRefType=0、iReturnType=0、iFlags=-1 → CC_FLAG_DEFAULT = SOLIDCOLOR|CAPTURECOLOR = 0x03、

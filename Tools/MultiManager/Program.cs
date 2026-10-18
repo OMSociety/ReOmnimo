@@ -1,4 +1,4 @@
-// ReOmnimo MultiManager —— AutoIT\MultiManager.au3 的 C# 等价实现
+// ReOmnimo MultiManager —— 原 AutoIt 版的 C# 等价实现（AutoIT\ 源树已于 0.7.0 移除）
 //
 // 调用契约（皮肤侧见 REO\Gallery\MultiManager\*.inc 与 Noice.ini）：
 //   MultiManager.exe "#SETTINGSPATH#" "#SKINSPATH#" <命令> <序号> <壁纸路径>

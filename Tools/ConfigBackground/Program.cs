@@ -1,4 +1,4 @@
-// ReOmnimo ConfigBackground（等价于 AutoIT\ConfigBackground.au3，343 行）
+// ReOmnimo ConfigBackground（原 AutoIt 版的等价实现；AutoIT\ 源树已于 0.7.0 移除）
 //
 // 调用契约（不许改）：ConfigBackground.exe <VarFile> <SkinPath>
 // 部署：REO\@Resources\Common\Background\ConfigBackground.exe
