@@ -23,7 +23,7 @@
 | Rainmeter | 5.0，`C:\Program Files\Rainmeter\Rainmeter.exe`（**不在 PATH**，调用一律用完整路径）。5.0 测试版会自己跟进官方新 build，**版本号现查**：`(Get-Item 'C:\Program Files\Rainmeter\Rainmeter.dll').VersionInfo.FileVersion`（2026-10-16 现查 `5.0.0.5293`） |
 | .NET | `dotnet` SDK 3.1–11 已装；两个 C# 工程目标 `net48`，只用 `dotnet build -c Release` |
 | CI / 测试 | **无 CI、无测试框架**，验收标准即 §8 |
-| 暂存区 | 过程产物与助手脚本放 `D:\WorkSpace\WorkBench`，**不进仓库**。现存 ReOmnimo 相关：`_omni_set_logging2.py`（切 Rainmeter 日志开关）、`_omni_inventory.py`、`_reo_enc_patterns.py` / `_reo_lang.py`（§3 编码表与 §6 语言键数的重扫脚本）、`port_spec_4tools.md`（4 个工具的移植口径）、`omniapp_callsites.txt`、`cb_probe\` / `rt_cb\` / `rt_cb_new\` / `orig_tools\`（ConfigBackground 与 PanelCreator 的原版对照夹具、golden 截图与控件转储）、`_tool_shot.ps1` / `_win_probe.ps1` / `_dump_diff.ps1` / `_measure_window.au3` / `_frame_probe.au3` / `_updown_probe.au3` / `_font_probe.au3` / `_exe_loadcheck.ps1`（窗口截图与控件转储、外框/样式/字体/updown 探针、exe 可加载性自检）、`_omni_logcheck.ps1`（字节级开关 `Logging` 并比对开日志前后的 ERRO 形态）、`Rainmeter.ini.bak`（§10 BOM 事故的恢复资产）、`_reo_autolang_patch.py` / `_reo_autolang_fix.py` / `_reo_autolang_docs.py` / `_reo_autolang_roundtrip.ps1`（语言自动跟随的落地补丁、编码修复与实机验收，§6）。早期文档提到的 `_omni_build.ps1`、`_omni_vsver.py`、`_omni_loadcheck.ps1`、`_omni_tools_diff.ps1`、`_omni_fakerm\`、`_omni_bangtest\` **现已不存在**，用到时按本文描述重建，不要跳过自检 |
+| 暂存区 | 过程产物与助手脚本放 `D:\WorkSpace\WorkBench`，**不进仓库**。现存 ReOmnimo 相关：`port_spec_4tools.md`（4 个工具的移植口径）、`omniapp_callsites.txt`、`cb_probe\` / `rt_cb\` / `rt_cb_new\` / `orig_tools\`（ConfigBackground 与 PanelCreator 的原版对照夹具、golden 截图与控件转储）、`_tool_shot.ps1` / `_win_probe.ps1` / `_dump_diff.ps1` / `_measure_window.au3` / `_frame_probe.au3` / `_updown_probe.au3` / `_font_probe.au3` / `_exe_loadcheck.ps1`（窗口截图与控件转储、外框/样式/字体/updown 探针、exe 可加载性自检）、`Rainmeter.ini.bak`（§10 BOM 事故的恢复资产）、`ColorChooser.utf8.au3` / `IconImage.au3.utf8.au3` / `_Zip.au3.utf8.au3` / `ColorGenerator.au3.utf8.au3`（UDF 原文，`THIRD-PARTY.md` §5 署名的溯源件）。编码表重扫、语言包键集比对、日志开关三类脚本**不常驻**，按 §3 / §6 / §10 描述的方法现写，别跳过自检 |
 | 本机 git 附加物 | `.git/info/exclude`（本机忽略清单，未跟踪）、`.git/hooks/post-commit` 与 `post-checkout`（Qoder AI tracker，非仓库源码） |
 
 ## 3 常用命令
@@ -36,7 +36,7 @@
 | 找残留旧路径 | `git grep -In "wp7" -- 'REO/*'` |
 | 刷新全部并重扫描 config | `& 'C:\Program Files\Rainmeter\Rainmeter.exe' !RefreshApp`（**等约 9 秒**再继续，重扫描未完成就 Activate 会找不到 config） |
 | 激活单个面板 | `cmd /c '"C:\Program Files\Rainmeter\Rainmeter.exe" !ActivateConfig "REO\Panels\Agenda" "Item.ini"'`——pwsh 的 `&` 调用会吃掉带引号 bang 的内层引号（静默失效，2026-10-17 实测）；带引号参数的 bang 一律 `cmd /c` 包装，无参 bang（`!RefreshApp` / `!Quit`）`&` 直传即可 |
-| 开日志 | 完整闭环：`!Quit` → **备份** `%APPDATA%\Rainmeter\Rainmeter.ini` → `python D:\WorkSpace\WorkBench\_omni_set_logging2.py 1 --apply` → 手动启动 Rainmeter → 复现 → 读日志抓 `ERRO` → `!Quit` → `0 --apply` 关回 → 重启。脚本自检 BOM / CRLF / section 数，不满足直接退出不写盘；**改完要手动重启 Rainmeter 才生效**。该 ini 是 UTF-16LE+BOM，但**行尾实测出现过纯 LF**，此时脚本会拒写——改用 `D:\WorkSpace\WorkBench\_omni_logcheck.ps1`（字节级只改 `Logging=` 后的那一个字符，BOM 与行尾原样保留，并自动开→跑工具→抓 ERRO→关回） |
+| 开日志 | 该 ini 是 UTF-16LE+BOM、行尾实测出现过纯 LF，**必须字节级只改一个字符**：`!Quit` → 备份 `%APPDATA%\Rainmeter\Rainmeter.ini` → 按 UTF-16LE 解出全文，把 `(?m)^Logging=\d` 的单个数字改成 `1`，按原 BOM 与行尾写回 → 手动启动 Rainmeter → 复现 → 读日志抓 `ERRO`（日志是 **UTF-8 带 BOM**，用 `utf-8-sig` 解码）→ `!Quit` → 同样改回 `0` → 重启。**改完要手动重启 Rainmeter 才生效**，`!SetLogging` bang 实测无效；**关闭 Logging 时 Rainmeter 会删除日志文件**，要留证据必须在关之前先把日志另存 |
 | 构建设置中心 | `dotnet build SettingsCenter\SettingsCenter.csproj -c Release` |
 | 构建面板工具 | `dotnet build Tools\ActivePanels\ActivePanels.csproj -c Release`（MultiManager、ColorChanger、ConfigBackground、PanelCreator、OmnimoApp 同理） |
 | 还原被运行时写脏的文件 | `git checkout -- REO\Gallery\main.ini REO\Gallery\scroll.inc` |
@@ -54,7 +54,7 @@
 | `Structure\*\Main.inc`（11）、`*.lua`（11） | 全部 UTF-8 无 BOM |
 | `Gallery\cat*.inc`（6） | UTF-8 无 BOM 5；`cat7.inc` 是 UTF-16LE+BOM |
 
-`Common\Variables\UserVariables.inc` 是 **UTF-8+BOM**：它是语言检测器 `!WriteKeyValue` 的写回目标，无 BOM 的 cp1252 会被 Rainmeter 按系统 ANSI 读写、高位字节变 `?` 且可能吞行尾引号——**会被运行时写回的 inc 一律带 BOM**。现存 cp1252 19 个：`Panels\` 侧 10（9 个 `Item*.ini` + `Speedfan\SpeedFanMulti.ini`）、`TextItems\` 侧 4、`Common\Settings\Language\` 4、`Common\Weather\WeatherComRegExp.inc` 1，以 `_reo_enc_patterns.py` 重扫为准。`Common\Background\Language\` 下 6 个 `.cfg`（含 `Chinese.cfg`）是 UTF-16LE+BOM，而 `English.cfg` / `Dutch.cfg` 是 UTF-8 无 BOM。cp936 与 cp1252 会互相误判（cp936 常把 cp1252 的高位字节读成合法双字节）。判不准时改用 **latin-1** 读写：256 个字节与码点一一对应，字节级无损，只替换其中的 ASCII 片段即可。另注意 **`git grep` 会把 UTF-16 文件当二进制跳过（加 `-I` 更彻底）**——在那 75 个 UTF-16 文件里 grep 不到东西，不等于内容不存在，先解码再查。
+`Common\Variables\UserVariables.inc` 是 **UTF-8+BOM**：它是语言检测器 `!WriteKeyValue` 的写回目标，无 BOM 的 cp1252 会被 Rainmeter 按系统 ANSI 读写、高位字节变 `?` 且可能吞行尾引号——**会被运行时写回的 inc 一律带 BOM**。现存 cp1252 19 个：`Panels\` 侧 10（9 个 `Item*.ini` + `Speedfan\SpeedFanMulti.ini`）、`TextItems\` 侧 4、`Common\Settings\Language\` 4、`Common\Weather\WeatherComRegExp.inc` 1，改动前现扫（按本节规则逐个嗅探）。`Common\Background\Language\` 下 6 个 `.cfg`（含 `Chinese.cfg`）是 UTF-16LE+BOM，而 `English.cfg` / `Dutch.cfg` 是 UTF-8 无 BOM。cp936 与 cp1252 会互相误判（cp936 常把 cp1252 的高位字节读成合法双字节）。判不准时改用 **latin-1** 读写：256 个字节与码点一一对应，字节级无损，只替换其中的 ASCII 片段即可。另注意 **`git grep` 会把 UTF-16 文件当二进制跳过（加 `-I` 更彻底）**——在那 75 个 UTF-16 文件里 grep 不到东西，不等于内容不存在，先解码再查。
 
 ## 4 架构
 
@@ -108,7 +108,7 @@ REO\                              皮肤根（桌面 junction 指到这里）
 - **改面板用户参数**：`Config\Panels\【名】\UserVariables.inc` 第一行必须是 `[Variables]`——缺段头整文件键被静默忽略，日志里只有下游异常。这些文件被跟踪，改完会显示脏，提交前逐个确认。
 - **改私人订阅**：只写 `Config\Panels\Agenda\UserVariables.local.inc`（未跟踪，`.gitignore` 已覆盖）。它经 `@include5` 与 `UserVariables.inc` 合并，同名键以后者为准；面板缺的键回落到 `UserVariables.inc`。`config.exe` 会**自动跟随**：同目录存在该文件时读写都指向它（0.7.0 起该逻辑在 `SettingsCenter\Program.cs`），界面另显示一行本地覆盖提示——**在设置界面改的值会写进这个未跟踪文件**，这是有意行为，不要当成「设置不生效」的缺陷去修。
 - **改语言文案**：`Chinese.inc` 与 `English.inc` 键集逐键对照——现查各 **280** 行定义、280 个唯一键（区分大小写口径）、双向零差——`Chinese.inc` 里 144 个键含中文。两个文件都是 **UTF-16LE+BOM**（§3），`git grep -I` 会把它们当二进制跳过，**必须先解码再查**。**全库唯一的占位符约定是 `AgendaNoEvents` 的 `%1`**（`agenda.lua` 用 `gsub('%%1', …)` 替换），不要发明第二种写法。7 个键在中文包里**故意保持英文**：`Folders` / `weather` / `Humidity` / `Pressure` / `Wind` / `brightness` / `start`——不要翻译。磁贴名的本地化在 `Gallery\cat*.inc` 覆盖 `Text="#键#"`，不要在磁贴里写死中文。
-- **改工具语言包**（`Common\Background\Language\*.cfg`）：**八语键集必须一致**——新增键要同时补全 8 份（现查 8 份各 54 键两两全等；缺键时按钮显示英文键名）；六份 UTF-16LE+BOM、English / Dutch 为 UTF-8 无 BOM，改动走 §3 编码感知流程。键集重比对用 `D:\WorkSpace\WorkBench\_reo_lang.py`。
+- **改工具语言包**（`Common\Background\Language\*.cfg`）：**八语键集必须一致**——新增键要同时补全 8 份（现查 8 份各 54 键两两全等；缺键时按钮显示英文键名）；六份 UTF-16LE+BOM、English / Dutch 为 UTF-8 无 BOM，改动走 §3 编码感知流程。键集重比对：解码 8 份后逐键取 `=` 前段做集合比较，两两差集必须为空。
 - **改语言跟随机制**（`Common\Variables\AutoLang.lua` + `Languages\Auto.inc`）：宿主是 `REO\Background\bg.ini` 与 `REO\Gallery\main.ini` 末尾的 measure 对（Registry 读 `LocaleName` + Script，`UpdateDivider=-1` 每次宿主加载跑一次）。语言→包映射表在 lua 顶部，**改语言包集合必须同步 lua、README 与 `Languages\Auto.inc`**。`Auto.inc` 必须保持为指向 `English.inc` 的一行 shim（嵌套 include）。`UserVariables.inc` 是 UTF-8+BOM（§3，勿转回无 BOM）。两个宿主 ini 编码不同：`bg.ini` 单字节、`main.ini` UTF-16LE+BOM——追加内容按各自编码写（2026-10-17 在 main.ini 上踩过 ASCII 直拼变乱码）。检测器写回只认 `LangAuto`（`0` = 手动锁定）与 `MainLanguage` 的比较结果。
 - **改面板设置 schema**：`RainConfigure.cfg` 4 行一组（参数名 / 标题 / 控件类型 / 空行）。**编码不统一**（现查 203 个：UTF-8 无 BOM 202、Agenda 是 UTF-16LE+BOM），改前按 §3 逐个嗅探。`Checkbox:a:b` 的契约是**未勾选写 a、勾选写 b**（0.7.0 起由 `SettingsCenter\Program.cs` 实现）——把 `Checkbox:1:0` 读成「勾选=1」会把 `Hidden=#X#` 判反。
 - **加 Agenda 渲染样式**：0.4.0 起只剩一套排布——style 3/4 死分支与恒为 1 的 `AgendaStyle` 变量已删除（现查 `AgendaStyle` 命中 0）。不要再按「未接线分支」去改 ini 或 `RainConfigure.cfg`；要加样式请单独提案。
@@ -163,9 +163,9 @@ REO\                              皮肤根（桌面 junction 指到这里）
 | 截图每张都不同 | 半透明面板透出动态壁纸与亚像素抖动；先关动态壁纸，改用差异像素占比判据，不要要求逐字节相同 |
 | Python 写回后文件行尾全乱 | `\r\n` 被写成 `\r\r\n`；补丁脚本补 `newline=""` 重写 |
 | 重启后 `Rainmeter.ini` 只剩一百多字节、桌面皮肤全没了 | 文件头真 BOM 被写坏（残迹形如 `EF BF BD EF BF BD`），Rainmeter 按 CP936 读成空配置后写回默认值。该文件是 **UTF-16LE + 真 `FF FE` BOM**，只认这个 BOM；从备份恢复，别在缺 BOM 的文件上做字节级替换。行尾以现查为准（Rainmeter 自己写回时归一成 CRLF，但实测出现过纯 LF），补丁脚本按实际行尾处理，别假定 |
-| 开日志脚本报 `ABORT (no write): file has no CRLF line endings` | `%APPDATA%\Rainmeter\Rainmeter.ini` 当前是纯 LF，`_omni_set_logging2.py` 的行尾自检挡住了写入；改用 `_omni_logcheck.ps1` 字节级改值，或先把该文件行尾统一成 CRLF 再跑脚本 | |
+| 开日志脚本报 `ABORT (no write): file has no CRLF line endings` | `%APPDATA%\Rainmeter\Rainmeter.ini` 当前是纯 LF，带行尾自检的写法会挡住写入；改用 §3 那条字节级只改 `Logging=` 一个字符的做法，不做整文件重写 | |
 
 ## 11 维护
 
 - 本文件与触发它的代码改动进**同一个提交**，不攒批；发现本文件与代码不符时，先改本文件再继续改代码。改动以下内容必须同步本文件：验收命令、include 链、Checkbox 契约、凭据规则、分发 exe 清单与重编译命令、产品边界、§5 的在途状态。
-- 事实性数字（键数、目录数、文件大小、计数）引用前现查（编码表用 `D:\WorkSpace\WorkBench\_reo_enc_patterns.py` 重扫，语言包键集用 `_reo_lang.py` 重比对），不凭记忆。交付本文件的改动前跑 `python C:\Users\Administrator\.dsh\skills\agent-onboarding\scripts\check_agents_md.py --root D:\WorkSpace\Github\ReOmnimo`（error 必须为 0），并人工核对：链接目标说的是不是同一回事、每条规则的触发条件是否明确、有没有把「我们用了 X」写成规则。
+- 事实性数字（键数、目录数、文件大小、计数）引用前现查（编码表按 §3 规则逐个嗅探重扫，语言包键集按 §6 方法重比对），不凭记忆。交付本文件的改动前跑 `python C:\Users\Administrator\.dsh\skills\agent-onboarding\scripts\check_agents_md.py --root D:\WorkSpace\Github\ReOmnimo`（error 必须为 0），并人工核对：链接目标说的是不是同一回事、每条规则的触发条件是否明确、有没有把「我们用了 X」写成规则。
