@@ -590,9 +590,15 @@ namespace OmnimoTools.OmnimoApp
                     }
                 }
 
+                // %1 只能原样替换，不能再补引号：注册表模板里的引号本身就是命令行引号。
+                // Chromium 系的 --single-argument 把该开关之后的整段原样当 URL，补引号会让
+                // 引号进入地址栏（实测 https://github.com/… 变成 http://"https//github.com/…%22，
+                // 浏览器报 ERR_NAME_NOT_RESOLVED）；Firefox 系的 -url "%1" 自带引号，补一层同样会坏。
+                // 合法 URL 里的引号本就该是 %22，这里直接剔除，省掉命令行转义的平台差异。
+                string safeUrl = url.Replace("\"", string.Empty);
                 string arguments = rest.Contains("%1")
-                    ? rest.Replace("%1", "\"" + url + "\"")
-                    : (rest + " \"" + url + "\"").Trim();
+                    ? rest.Replace("%1", safeUrl)
+                    : (rest + " \"" + safeUrl + "\"").Trim();
 
                 Process.Start(new ProcessStartInfo { FileName = exe, Arguments = arguments, UseShellExecute = false });
                 return true;
