@@ -21,6 +21,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Gallery 设置页的四个主题快捷按钮补纯色占位块：此前无图无尺寸，在页面上不可见也不可点。
 - ActivePanels 的面板着色判断改用共享实现（行为不变）。
 
+### 修复
+
+- 画廊变量全盘失效导致磁贴与面板底板消失：`@Resources\Common\Gallery\Color\Modern\{Dark,Light}\tt.inc`、`@Resources\Common\Gallery\Color\TT\{AeroD,AeroL,Dark,Light}\tt.inc` 与 `TextItems\#TopBar\TopBarAddons.ini` 共七份文件的头部出现两个 UTF-16 BOM（`FF FE FF FE`），Rainmeter 只识别第一个，第二个把 `[Variables]` 段头吃掉，`#galleryW#`/`#galleryH#`/`#ttgallerystyle#` 等变量全部解析失败。去掉多余的 BOM 后磁贴恢复。
+
+- 默认浏览器启动后地址栏带引号、报 `ERR_NAME_NOT_RESOLVED`：0.7.0 重写 `OmnimoApp.exe` 的 `Browser` 命令时给 URL 补了外层引号，而 Chromium 的 `--single-argument` 把该开关之后的整段原样当 URL，引号因此进入地址。现按注册表模板原样替换 `%1`，并从 URL 中剔除裸双引号。
+
+- 多管理器载入存档时弹「Too few command line arguments specified」：载入按钮把 `[MeasureWindowsVersion]` 当第五个参数传给 `MultiManager.exe`，而该 measure 只在 `Noice.ini` 里定义、不在 `Item.ini` 的 include 链中，解析为空后只剩四个参数，撞上五参数下限。现按 AutoIt 的语义解析命令行，尾随反斜杠的 `#SETTINGSPATH#`/`#SKINSPATH#` 不再吞掉下一个参数，`MultiManager.exe` 与其余工具同步受益。
+
+- 随包布局存档 1 仍指向 0.6.0 之前的 `WP7\` 根，且含已移除面板的段，载入后所有皮肤配置名都不存在、桌面被清空。`Gallery\MultiManager\Saved\1\Rainmeter.ini` 21 处、`Gallery\MultiManager\Saved\1\Layouts\Omnimo\Rainmeter.ini` 29 处改指 `REO\`，并删除 Anniversary / Donate / DonatorPanels\GoldPrice / Gallery\Intro\QuickStart 四个残留段。
+
+- 天气面板的单位与代码写回落到无人读取的文件：`Panels\Weather\UserVariables.inc` 没有被任何皮肤 include，删掉对它的写回与文件本身；设置页的天气代码栏改读改写真身 `@Resources\Common\Weather\WeatherComVariables.inc` 的 `LocationCode`。
+
+- 面板状态开关（如「深色模式」）的 On/Off 两行同时出现：这对图标靠「另一半文件不存在」实现互斥，把拼接变量固定成数字后两张图都会命中。恢复按 `#OnOff#`/`#ttgallerystyle#` 拼接的写法。
+
+- `Gallery\main.ini` 与 `Gallery\Color\coloradvanced.ini` 里的 `!Move#Move#` 是无效 bang（`Move` 从未被设为 1），移除。
+
+- `Panels\Notes\Item{,2,3}.ini` 的刷新动作向不存在的 `Panels\Notes\scroll.inc` 写 `ScrollStart`，移除该死写。
+
 ### Removed
 
 - Removed the dead "Layout Themes" button in the Gallery settings page that pointed to the nonexistent `Gallery\themes` (green block and title included); the "Check for Updates" button is now absolutely positioned.
@@ -29,6 +47,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The four theme shortcut buttons in the Gallery settings page now show solid color placeholders: previously they had no image and no size, so they were invisible and unclickable.
 - The per-panel colorizable check in ActivePanels now uses the shared implementation (no behavior change).
+
+### Fixed
+
+- Gallery variables failed wholesale, blanking tiles and panel backdrops: seven files (`@Resources\Common\Gallery\Color\Modern\{Dark,Light}\tt.inc`, `@Resources\Common\Gallery\Color\TT\{AeroD,AeroL,Dark,Light}\tt.inc` and `TextItems\#TopBar\TopBarAddons.ini`) began with two UTF-16 BOMs (`FF FE FF FE`). Rainmeter reads only the first, so the second swallowed the `[Variables]` header and `#galleryW#`/`#galleryH#`/`#ttgallerystyle#` and friends all failed to resolve. Removing the extra BOM restored the tiles.
+
+- The default browser opened an address with a leading quote and reported `ERR_NAME_NOT_RESOLVED`: the 0.7.0 rewrite of the `Browser` command in `OmnimoApp.exe` wrapped the URL in quotes, but Chromium's `--single-argument` treats everything after that switch as the URL, so the quotes ended up in the address. `%1` is now replaced verbatim and bare double quotes are stripped from the URL.
+
+- Loading a saved layout in MultiManager raised "Too few command line arguments specified": the load button passes `[MeasureWindowsVersion]` as the fifth argument, but that measure is defined only in `Noice.ini` and not in `Item.ini`'s include chain, so it resolved to nothing and only four arguments arrived, tripping the five-argument minimum. The command line is now parsed the way AutoIt did, so trailing-backslash `#SETTINGSPATH#`/`#SKINSPATH#` no longer swallow the next argument; `MultiManager.exe` and the other tools benefit alike.
+
+- The bundled layout 1 still pointed at the pre-0.6.0 `WP7\` root and carried sections for removed panels, so loading it left every skin config name nonexistent and cleared the desktop. 21 references in `Gallery\MultiManager\Saved\1\Rainmeter.ini` and 29 in `Gallery\MultiManager\Saved\1\Layouts\Omnimo\Rainmeter.ini` now use `REO\`, and four stale sections (Anniversary / Donate / DonatorPanels\GoldPrice / Gallery\Intro\QuickStart) are gone.
+
+- The weather panel wrote its unit and code back to a file nobody read: `Panels\Weather\UserVariables.inc` was not included by any skin, so the writes and the file are gone; the weather-code field on the settings page now reads and writes `LocationCode` in the real file, `@Resources\Common\Weather\WeatherComVariables.inc`.
+
+- Both rows of a panel state toggle (e.g. "Dark Mode") appeared at once: the pair relies on the other half's image being absent, so pinning the concatenation variables to numbers made both images resolve. The `#OnOff#`/`#ttgallerystyle#` concatenation is restored.
+
+- Removed the invalid `!Move#Move#` bang from `Gallery\main.ini` and `Gallery\Color\coloradvanced.ini` (`Move` is never set to 1).
+
+- Removed the dead write of `ScrollStart` to the nonexistent `Panels\Notes\scroll.inc` from the refresh actions in `Panels\Notes\Item{,2,3}.ini`.
 
 ## [0.7.0] - 2026-10-19
 
