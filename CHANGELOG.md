@@ -39,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `Panels\Notes\Item{,2,3}.ini` 的刷新动作向不存在的 `Panels\Notes\scroll.inc` 写 `ScrollStart`，移除该死写。
 
+- Folders 面板点击选择文件夹后「隐藏图标」「隐藏占位符」不生效：两个 `!WriteKeyValue` 写的是 `Panels\Folders\FolderN\UserVariables.inc`，而面板 `@include3` 读的是 `@Resources\Config\Panels\Folders\FolderN\UserVariables.inc`，改名后的文件没有任何读取者。写回目标改为与 include 相同的文件，并删除五个只被写、从不被读的空壳。
+
 ### Removed
 
 - Removed the dead "Layout Themes" button in the Gallery settings page that pointed to the nonexistent `Gallery\themes` (green block and title included); the "Check for Updates" button is now absolutely positioned.
@@ -65,6 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed the invalid `!Move#Move#` bang from `Gallery\main.ini` and `Gallery\Color\coloradvanced.ini` (`Move` is never set to 1).
 
 - Removed the dead write of `ScrollStart` to the nonexistent `Panels\Notes\scroll.inc` from the refresh actions in `Panels\Notes\Item{,2,3}.ini`.
+- In the Folders panel, the "hide icon" and "hide placeholder" toggles did nothing after picking a folder: the two `!WriteKeyValue` calls wrote to `Panels\Folders\FolderN\UserVariables.inc`, while `@include3` read `@Resources\Config\Panels\Folders\FolderN\UserVariables.inc`, so nothing ever read the written file. The write targets now match the include, and the five write-only shells are gone.
 
 ## [0.7.0] - 2026-10-19
 
