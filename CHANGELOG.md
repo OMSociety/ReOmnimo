@@ -41,6 +41,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Folders 面板点击选择文件夹后「隐藏图标」「隐藏占位符」不生效：两个 `!WriteKeyValue` 写的是 `Panels\Folders\FolderN\UserVariables.inc`，而面板 `@include3` 读的是 `@Resources\Config\Panels\Folders\FolderN\UserVariables.inc`，改名后的文件没有任何读取者。写回目标改为与 include 相同的文件，并删除五个只被写、从不被读的空壳。
 
+- 日志里约 2800 条「图片打不开」噪声：主题配色为 `Overlay=none` 时，`#overlay##padding#` 拼出的 `none0.png` / `none3.png` / `none5.png` 等组合在 `@Resources\Common\OverlayBorder\` 里没有对应文件。补齐为全透明占位（160x160，与现有 21 张同尺寸），叠加结果不变、错误消失；另补五个主题各自的缺失组合（`green0` / `htc0` / `hud0` / `inner0` / `nostalgic0`）。
+- 音量面板首次刷新时报 `v0.png` / `0.png` 打不开：`Hidden` 由公式在 measure 就绪前求值，`[MeasureAudioDG]` 返回 0，拼出不存在的图名。补两张同尺寸透明占位（322x253）。
+- 面板状态开关（`Gallery\cat7.inc`、`Gallery\Intro\introLang.ini`、`Gallery\MultiManager\Item.ini` 共六处）对非当前侧报「图片打不开」：这对图标靠「另一半文件不存在」实现互斥，因此补六张同尺寸全透明占位，并给两行各加 `H=(<开关变量>=<当前值>?28*#ScaleDpi#:0)`——占位图高度为 0 时不占位，排版与补图前逐像素一致。
+- 多管理器的删除 / 导出 / 快捷方式按钮首次渲染时报 `delete0.png` / `export0.png` / `shortcut0.png` 打不开：`#ItemNHideSave#` 为 0 时拼出的文件名与仓库里的 `delete1.png` 一组相反。补三张同尺寸透明占位（60x60）。
+- Intro 页面在 0 到 3 点报 `GalleryImages\0.jpg` 打不开：`[MeasureTimeOfDay1]` 的凌晨分支落到 0，而目录里只有 1111–4444 四张。补 `0.jpg`（沿用 `4444.jpg` 的夜空）。
+- 网络面板每条日志都报 `[MeasureIP]: RegExp matching error (-1)`：`Url=http://checkip.dyndns.org/"` 行尾多一个裸双引号（同文件第 82 行注释掉的旧写法已带 `%22`），请求地址因此带引号、正则匹配不到。移除该引号。
+
 ### Removed
 
 - Removed the dead "Layout Themes" button in the Gallery settings page that pointed to the nonexistent `Gallery\themes` (green block and title included); the "Check for Updates" button is now absolutely positioned.
@@ -68,6 +75,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Removed the dead write of `ScrollStart` to the nonexistent `Panels\Notes\scroll.inc` from the refresh actions in `Panels\Notes\Item{,2,3}.ini`.
 - In the Folders panel, the "hide icon" and "hide placeholder" toggles did nothing after picking a folder: the two `!WriteKeyValue` calls wrote to `Panels\Folders\FolderN\UserVariables.inc`, while `@include3` read `@Resources\Config\Panels\Folders\FolderN\UserVariables.inc`, so nothing ever read the written file. The write targets now match the include, and the five write-only shells are gone.
+
+- Roughly 2800 "unable to open image" log lines: with the theme on `Overlay=none`, `#overlay##padding#` produced combinations such as `none0.png`, `none3.png` and `none5.png` that had no counterpart in `@Resources\Common\OverlayBorder\`. They are now fully transparent placeholders (160x160, matching the 21 existing files), so the overlay result is unchanged and the errors are gone. The five missing per-theme combinations (`green0`, `htc0`, `hud0`, `inner0`, `nostalgic0`) are filled the same way.
+- The volume panel logged `v0.png` / `0.png` as unopenable on its first refresh: `Hidden` is evaluated from a formula before the measure is ready, so `[MeasureAudioDG]` returned 0 and produced a filename that does not exist. Two transparent placeholders of the same size (322x253) are added.
+- The panel state toggles (`Gallery\cat7.inc`, `Gallery\Intro\introLang.ini`, `Gallery\MultiManager\Item.ini`; six sites) logged an unopenable image for the inactive half: the pair relies on the other half's file being absent, so six fully transparent placeholders are added and each row gains `H=(<toggle variable>=<active value>?28*#ScaleDpi#:0)` — a placeholder with zero height takes no space, and the layout is pixel-identical to before.
+- The MultiManager delete / export / shortcut buttons reported `delete0.png` / `export0.png` / `shortcut0.png` on first render: when `#ItemNHideSave#` is 0 the concatenation names the opposite half of the `delete1.png` group in the repository. Three transparent placeholders of the same size (60x60) are added.
+- The Intro page reported `GalleryImages\0.jpg` as unopenable between midnight and 3 am: the small-hours branch of `[MeasureTimeOfDay1]` yields 0 while the directory only holds 1111 to 4444. `0.jpg` is added (reusing the night sky from `4444.jpg`).
+- Every network panel log entry carried `[MeasureIP]: RegExp matching error (-1)`: the line `Url=http://checkip.dyndns.org/"` had a stray trailing double quote (the commented-out older form on line 82 already carries `%22`), so the request URL included the quote and the regex never matched. The quote is removed.
 
 ## [0.7.0] - 2026-10-19
 
