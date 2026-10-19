@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
+using OmnimoTools;
 
 namespace SettingsCenter;
 
@@ -18,6 +19,11 @@ static class Program
     [STAThread]
     static void Main(string[] args)
     {
+            // 参数取自原始命令行（CmdLine），不用 Main 的 args：
+            // Rainmeter 传进来的路径以反斜杠结尾，CRT 会把它与后一个参数的引号
+            // 解释成转义引号并合并两个参数（AutoIt 的 $CmdLine 无此行为）。
+            args = CmdLine.Get();
+
         // 皮肤右键菜单原样传入的位置参数（与老 AutoIt config.exe 一致）：
         //   config.exe <模式:text/huge/PanelType> <config:REO\Panels\X> [Item.ini] [SettingsPath] [SkinsPath] [ProgramPath]
         // 模式参数被忽略（老工具只拿它区分 bg 全局背景，已无调用点）。

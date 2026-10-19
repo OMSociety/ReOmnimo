@@ -27,6 +27,7 @@
   <ItemGroup>
     <!-- 共享源码按链接编进本 exe，不产出独立 DLL（与 ActivePanels / ColorChanger 同一形态） -->
     <Compile Include="..\Shared\OmnimoShared.cs" Link="OmnimoShared.cs" />
+    <Compile Include="..\Shared\CommandLine.cs" Link="CommandLine.cs" />
     <Compile Include="..\Shared\OmnimoShared.Tools.cs" Link="OmnimoShared.Tools.cs" />
     <Compile Include="..\Shared\AutoItValue.cs" Link="AutoItValue.cs" />
     <Compile Include="..\Shared\ColorSupport.cs" Link="ColorSupport.cs" />

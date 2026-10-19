@@ -18,6 +18,11 @@ namespace OmnimoTools.MultiManager
     {
         private static int Main(string[] args)
         {
+            // 参数取自原始命令行（CmdLine），不用 Main 的 args：
+            // Rainmeter 传进来的路径以反斜杠结尾，CRT 会把它与后一个参数的引号
+            // 解释成转义引号并合并两个参数（AutoIt 的 $CmdLine 无此行为）。
+            args = CmdLine.Get();
+
             if (args.Length < 5)
                 OmnimoDialogs.Error("Individual Panel Color", "Too few command line arguments specified.");
 

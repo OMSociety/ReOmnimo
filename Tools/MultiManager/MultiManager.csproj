@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <Compile Include="..\Shared\OmnimoShared.cs" Link="OmnimoShared.cs" />
+    <Compile Include="..\Shared\CommandLine.cs" Link="CommandLine.cs" />
   </ItemGroup>
 
 </Project>

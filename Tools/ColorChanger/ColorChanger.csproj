@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <Compile Include="..\Shared\OmnimoShared.cs" Link="OmnimoShared.cs" />
+    <Compile Include="..\Shared\CommandLine.cs" Link="CommandLine.cs" />
     <Compile Include="..\Shared\OmnimoShared.Tools.cs" Link="OmnimoShared.Tools.cs" />
     <Compile Include="..\Shared\ColorSupport.cs" Link="ColorSupport.cs" />
     <Compile Include="..\Shared\ColorPickerForm.cs" Link="ColorPickerForm.cs" />

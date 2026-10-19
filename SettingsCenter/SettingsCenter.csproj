@@ -35,4 +35,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\Tools\Shared\CommandLine.cs" Link="CommandLine.cs" />
+  </ItemGroup>
+
 </Project>

@@ -24,6 +24,11 @@ namespace OmnimoTools.ColorChanger
         [STAThread]
         private static void Main(string[] args)
         {
+            // 参数取自原始命令行（CmdLine），不用 Main 的 args：
+            // Rainmeter 传进来的路径以反斜杠结尾，CRT 会把它与后一个参数的引号
+            // 解释成转义引号并合并两个参数（AutoIt 的 $CmdLine 无此行为）。
+            args = CmdLine.Get();
+
             // DPI 感知由 Tools\Shared\app.manifest（PerMonitorV2）声明，删清单比删这行更致命
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

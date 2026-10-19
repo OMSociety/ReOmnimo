@@ -18,6 +18,11 @@ namespace OmnimoTools.ActivePanels
 
         private static int Main(string[] args)
         {
+            // 参数取自原始命令行（CmdLine），不用 Main 的 args：
+            // Rainmeter 传进来的路径以反斜杠结尾，CRT 会把它与后一个参数的引号
+            // 解释成转义引号并合并两个参数（AutoIt 的 $CmdLine 无此行为）。
+            args = CmdLine.Get();
+
             // 缺参或 skinPath 为空串都按缺参处理：skinPath 为空时 WriteVars 会把相对路径落进
             // 当前目录、IniDoc.Save 自建整棵目录树（au3 IniWrite 对缺失目录静默失败、不建树），
             // 故提前报错退出（OmnimoDialogs.Error 弹框后即结束进程）。

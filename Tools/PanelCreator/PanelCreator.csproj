@@ -36,6 +36,7 @@
     <Compile Include="..\Shared\IconExtractor.cs" Link="IconExtractor.cs" />
     <Compile Include="..\Shared\ModernUi.cs" Link="ModernUi.cs" />
     <Compile Include="..\Shared\OmnimoShared.cs" Link="OmnimoShared.cs" />
+    <Compile Include="..\Shared\CommandLine.cs" Link="CommandLine.cs" />
     <Compile Include="..\Shared\OmnimoShared.Tools.cs" Link="OmnimoShared.Tools.cs" />
     <Compile Include="..\Shared\ZipWriter.cs" Link="ZipWriter.cs" />
   </ItemGroup>
