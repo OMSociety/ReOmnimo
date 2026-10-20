@@ -51,14 +51,6 @@ Meter=Image
 MeterStyle=WebShortcut
 x=(360*#ScaleDpi#)
 y=R
-[Cat2Mask]
-Meter=Image
-ImageName=#@#\Graphics\Gallery\mask-shortcut.png
-Group=Cat2 | Bye
-Hidden=1
-x=(356*#ScaleDpi#)
-y=(0)r
-w=(496*#ScaleDpi#)
 
 [Paint]
 Meter=Image
@@ -80,7 +72,7 @@ Meter=String
 Text=" #MicrosoftApps#"
 Group=Cat2 | Bye
 MeterStyle=CatSubTitle
-Y=(79*#ScaleDpi#)r
+Y=(20*#ScaleDpi#)R
 [Edge]
 Meter=Image
 MeterStyle=WebShortcut
@@ -115,7 +107,7 @@ Meter=String
 Text=" #CommonAppsonlyifinstalled#"
 Group=Cat2 | Bye
 MeterStyle=CatSubTitle
-Y=(79*#ScaleDpi#)r
+Y=(20*#ScaleDpi#)R
 [Chrome]
 Meter=Image
 MeterStyle=WebShortcut
@@ -199,7 +191,7 @@ Meter=String
 Text=" #Folders#"
 Group=Cat2 | Bye
 MeterStyle=CatSubTitle
-Y=(79*#ScaleDpi#)r
+Y=(20*#ScaleDpi#)R
 [User]
 Meter=Image
 MeterStyle=WebShortcut
@@ -225,7 +217,7 @@ Meter=String
 Text=" #CommonWebsites#"
 Group=Cat2 | Bye
 MeterStyle=CatSubTitle
-Y=(79*#ScaleDpi#)r
+Y=(20*#ScaleDpi#)R
 [NetflixShortcut]
 Meter=Image
 MeterStyle=WebShortcut
@@ -330,7 +322,7 @@ Meter=String
 Text=" #AdminTools#"
 Group=Cat2 | Bye
 MeterStyle=CatSubTitle
-Y=(79*#ScaleDpi#)r
+Y=(20*#ScaleDpi#)R
 [GodFolder]
 Meter=Image
 MeterStyle=WebShortcut
@@ -354,7 +346,7 @@ Meter=String
 Text=" *#OnlyIfInstalled#"
 Group=Cat2 | Bye
 MeterStyle=CatSubTitle
-Y=(79*#ScaleDpi#)r
+Y=(20*#ScaleDpi#)R
 [AddCustom]
 Meter=Image
 MeterStyle=WebShortcut
@@ -367,7 +359,7 @@ Meter=String
 Text=" #HideLabels#"
 Group=Cat2 | Bye
 MeterStyle=CatSubTitle
-Y=(79*#ScaleDpi#)r
+Y=(20*#ScaleDpi#)R
 [Labels1]
 Meter=Image
 solidcolor=#colorskin#
@@ -395,3 +387,13 @@ y=R
 w=(85*#ScaleDpi#)
 LeftMouseUpAction=[!WriteKeyValue Variables PanelTitleOpacity "1" "#@#Common\Color\color.inc"][!WriteKeyValue Variables ItemShadowColor "0,0,0,1" "#@#Common\Color\color.inc"][!WriteKeyValue Variables yposition "5" "#@#Common\Color\color.inc"][!WriteKeyValue Variables PanelLabels 1 "#@#Common\Color\color.inc"][!Refresh *]
 MouseActionCursor=1
+
+[Cat2Mask]
+Meter=Image
+ImageName=#@#\Graphics\Gallery\mask-shortcut.png
+Group=Cat2 | Bye
+Hidden=1
+x=(356*#ScaleDpi#)
+y=(-866*#ScaleDpi#)R
+w=(496*#ScaleDpi#)
+DynamicVariables=1
