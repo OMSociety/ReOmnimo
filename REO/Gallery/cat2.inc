@@ -71,7 +71,7 @@ Meter=String
 Text=" #MicrosoftApps#"
 Group=Cat2 | Bye
 MeterStyle=CatSubTitle
-Y=(20*#ScaleDpi#)R
+Y=(79*#ScaleDpi#)r
 [Edge]
 Meter=Image
 MeterStyle=WebShortcut
@@ -106,7 +106,7 @@ Meter=String
 Text=" #CommonAppsonlyifinstalled#"
 Group=Cat2 | Bye
 MeterStyle=CatSubTitle
-Y=(20*#ScaleDpi#)R
+Y=(79*#ScaleDpi#)r
 [Chrome]
 Meter=Image
 MeterStyle=WebShortcut
@@ -190,7 +190,7 @@ Meter=String
 Text=" #Folders#"
 Group=Cat2 | Bye
 MeterStyle=CatSubTitle
-Y=(20*#ScaleDpi#)R
+Y=(79*#ScaleDpi#)r
 [User]
 Meter=Image
 MeterStyle=WebShortcut
@@ -216,7 +216,7 @@ Meter=String
 Text=" #CommonWebsites#"
 Group=Cat2 | Bye
 MeterStyle=CatSubTitle
-Y=(20*#ScaleDpi#)R
+Y=(79*#ScaleDpi#)r
 [NetflixShortcut]
 Meter=Image
 MeterStyle=WebShortcut
@@ -321,7 +321,7 @@ Meter=String
 Text=" #AdminTools#"
 Group=Cat2 | Bye
 MeterStyle=CatSubTitle
-Y=(20*#ScaleDpi#)R
+Y=(79*#ScaleDpi#)r
 [GodFolder]
 Meter=Image
 MeterStyle=WebShortcut
@@ -345,7 +345,7 @@ Meter=String
 Text=" *#OnlyIfInstalled#"
 Group=Cat2 | Bye
 MeterStyle=CatSubTitle
-Y=(20*#ScaleDpi#)R
+Y=(79*#ScaleDpi#)r
 [AddCustom]
 Meter=Image
 MeterStyle=WebShortcut
@@ -358,7 +358,7 @@ Meter=String
 Text=" #HideLabels#"
 Group=Cat2 | Bye
 MeterStyle=CatSubTitle
-Y=(20*#ScaleDpi#)R
+Y=(79*#ScaleDpi#)r
 [Labels1]
 Meter=Image
 solidcolor=#colorskin#
