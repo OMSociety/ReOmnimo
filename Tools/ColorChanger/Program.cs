@@ -249,8 +249,8 @@ namespace OmnimoTools.ColorChanger
                 IniDoc cfg = IniDoc.TryLoad(config);
                 if (cfg != null && cfg.Get("Options", "Colorizable", "1") == "0") continue;
 
+                if (_numPanels >= 100) break;   // 先断容量再进列表：列表与 _panels 数组必须同步（RO-29）
                 _panelList.Items.Add(Aligner.PanelDisplayName(section));
-                if (_numPanels >= 100) break;
                 _panels[_numPanels++] = section;
             }
             _emptyHint.Visible = _panelList.Items.Count == 0;

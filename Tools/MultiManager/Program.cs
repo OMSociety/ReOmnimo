@@ -24,6 +24,8 @@ namespace OmnimoTools.MultiManager
             args = CmdLine.Get();
 
             if (args.Length < 5)
+                // parity 声明：au3 原版错误标题为 "Omnimo MultiManager"，C# 移植统一用了
+                // "Individual Panel Color"（全 C# 工具一致）——保留现状，差异在此声明（RO-31）
                 OmnimoDialogs.Error("Individual Panel Color", "Too few command line arguments specified.");
 
             string settings = args[0];
@@ -31,6 +33,10 @@ namespace OmnimoTools.MultiManager
             string command = args[2];
             string index = args[3];
             string wallpaper = args[4];
+            // index 来自皮肤 ini（如 Noice.ini 的 #Item1Do##Extra#），拒绝 ".." 防止
+            // Paths.Combine 拼出逃出 Saved 目录的路径（对齐 OmnimoApp Delete 的先例，RO-30）
+            if (index.Contains(".."))
+                return 0;
             string saved = Paths.Combine(skins, @"REO\Gallery\MultiManager\Saved\");
 
             LanguagePack.Load(skins); // 与 AutoIt 版一致：仅校验语言文件可用

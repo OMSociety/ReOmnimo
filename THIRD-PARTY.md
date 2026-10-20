@@ -14,7 +14,7 @@ governs the software and components, exactly as upstream declares it in its `rea
 **Provenance.** The tree under ``REO/`` and ``Extra/``, plus ``Rainstaller.bmp`` and
 `Rainstaller.cfg`, comes from <https://github.com/fediaFedia/Omnimo>, default branch `master`, last
 commit `d6a69f1e` (2024-05-16). `upstream` is kept as a git remote so every file stays individually
-traceable to its upstream author, and so upstream changes can still be merged. The bundled AutoIt sources (`AutoIT/`) come from the same upstream; that tree is removed as of 0.7.0 and survives in git history.
+traceable to its upstream author, and so upstream changes can still be merged. The bundled AutoIt sources (`AutoIT/`) came from the same upstream and are not part of the tree; the 0.6.0-and-earlier copies remain traceable in git history.
 
 **What upstream declares.** The upstream repository has **no `LICENSE` file** — GitHub reports
 `license: null`. The only repository-level statement is a section of upstream's `readme.md`:
@@ -24,7 +24,7 @@ traceable to its upstream author, and so upstream changes can still be merged. T
 > Images and Media — [CC BY-NC-SA 3.0](https://creativecommons.org/licenses/by-nc-sa/3.0/)
 
 **What the files themselves declare.** Independently of that, most `.ini` files under `REO/` carry a
-`[Metadata] License=` line. Counted on this repository's tree (2026-10-19, after the 0.7.0 cleanup):
+`[Metadata] License=` line. Counted on this repository's tree (2026-10-20):
 
 | Declaration | Files |
 |---|---|
@@ -32,7 +32,7 @@ traceable to its upstream author, and so upstream changes can still be merged. T
 | `Creative Commons Attribution-Non-Commercial-Share Alike 3.0` (same licence, different spelling) | 2 |
 | `Creative Commons Attribution-NonCommercial-NoDerivs 3.0` | 3 |
 | `License=` present but empty | 2 |
-| **`.ini` carrying a declaration** | **591** |
+| **`.ini` carrying a declaration** | **589** |
 | `.ini` with no `License=` line at all | 22 |
 
 The two statements disagree in scope: `readme.md` puts "software and components" under GPL-2.0, while
@@ -55,18 +55,19 @@ carry a declaration or do not have one anywhere in the tree:
 
 | Group | Count | Note |
 |---|---|---|
-| `.inc` / `.lua` / `.cfg` / `.js` | 380 / 11 / 223 / 4 | No `[Metadata]` section exists in these formats |
-| `.png` / `.jpg` / `.gif` / `.ico` / `.bmp` / `.thm` | 1419 / 103 / 21 / 100 / 5 / 7 | No sidecar licence anywhere in the tree |
+| `.inc` / `.lua` / `.cfg` / `.js` | 347 / 11 / 223 / 4 | No `[Metadata]` section exists in these formats |
+| `.png` / `.jpg` / `.gif` / `.ico` / `.bmp` / `.thm` | 1369 / 96 / 21 / 100 / 5 / 7 | No sidecar licence anywhere in the tree |
 | `.txt` / `.html` / `.url` / `.lnk` / `.bat` / `.wav` / `.xml` | 60 / 4 / 2 / 12 / 2 / 1 / 1 | Various; no licence stated |
 | `.dll` / `.config` / `.json` | 4 / 1 / 1 | WebView2 SDK files and the settings UI language pack (section 3) |
 | `.exe` / `.ttf` | 7 / 1 | See sections 3 and 4 |
 
 ## 2. This fork's own changes
 
-Measured with `git diff --name-status upstream/master`: **16 files added, 450 modified, 17 deleted**
-as of release 0.4.0. The 0.5.0 rename of the whole skin tree (`WP7\` -> `REO\`) makes that same diff
-report 26 added / 16 modified / 31 deleted / 3314 renamed, 2700 of the renames byte-identical, which
-is why upstream stopped being this fork's general baseline at 0.5.0.
+Measured against `upstream/master` with the `WP7\` -> `REO\` prefix aligned per file (byte-level
+comparison of the two git trees): **84 files added, 704 modified, 425 deleted** as of the 0.8.0
+working tree. A plain `git diff --name-status` without the prefix alignment reports 3314 renames
+instead, which is why the alignment matters and why upstream stopped being this fork's general
+baseline at 0.5.0.
 
 Added:
 
@@ -83,7 +84,7 @@ Added:
 | `REO/Panels/Agenda/` (`Item.ini`, `Item2.ini`, `Item3.ini`, `agenda.lua`, `Agenda.png`) | The Agenda calendar panel: published ICS subscriptions, merged, deduplicated and sorted |
 | `REO/@Resources/Config/Panels/Agenda/` (`UserVariables.inc`, `RainConfigure.cfg`) | Its user parameters and settings schema |
 | `SettingsCenter/` | This fork's C# (net48 + WebView2) rewrite of `config.exe` |
-| `Tools/` | This fork's C# (net48) rewrites of `ActivePanels.exe` and `MultiManager.exe`, sharing `Tools/Shared/OmnimoShared.cs` |
+| `Tools/` | This fork's C# (net48) rewrites of all six bundled helper executables, sharing `Tools/Shared/OmnimoShared.cs` and `Tools/Shared/ModernUi.cs` |
 
 Modified: seven language packs (a `PanelAgenda` key each), the gallery registration
 (`REO/Gallery/cat1.inc`, `REO/Gallery/cat7.inc`, `REO/Gallery/Intro/intro.ini`), the shared
@@ -106,18 +107,16 @@ and `AutoIT/Config.au3`'s border-color branch read an undeclared variable instea
 picker's result, both fixed; a later hardening pass then touched every AutoIt source
 (argument-count guards, array-bounds checks, path-traversal rejection on panel delete, an
 `Execute()` restriction, a panel-layout counter fix, `@ScriptDir` path anchoring, and dropping
-the `wmic` dependency from the build script). The corrected AutoIt sources stayed in `AutoIT/` for
-reference until 0.7.0, when that tree was removed from the repository (it survives in git history);
-every executable shipped since 0.6.0 is a C# rewrite built from the same corrected
-logic (section 3), so the fixes and the hardening reach the binaries users run; `.gitignore`,
-which now excludes the Agenda panel's per-machine feed override so a private calendar URL can
+the `wmic` dependency from the build script). Every executable shipped is a C# rewrite built
+from that corrected logic (section 3), so the fixes and the hardening reach the binaries users
+run; `.gitignore` excludes the Agenda panel's per-machine feed override so a private calendar URL can
 never be committed.
 
 Deleted: the Corona panel — four files under `REO/Panels/Corona/` and six under
-`REO/@Resources/Config/Panels/Corona/`, removed at the user's request, with the gallery row
+`REO/@Resources/Config/Panels/Corona/`, with the gallery row
 and the icon layer reflowed to match; and the six Microsoft Segoe `.ttf` files under
-`REO/@Resources/Fonts/`, not licensed for redistribution and never loaded by the skin (see
-section 4); and upstream's `readme.md`, which this repository replaces with its own `README.md` (English) and `README.zh.md` (Chinese).
+`REO/@Resources/Fonts/`, not licensed for redistribution (see
+section 4); and upstream's `readme.md`, which this repository replaces with its own `README.md` (English) and `README.zh.md` (Chinese); and the AutoIt source tree `AutoIT/` (every executable ships as the C# rewrite, section 3); plus, in the 0.8.0 pass, dead tiers of the structure presets, redundant icon copies and other files with no remaining reference in the tree.
 
 Our changes inherit the terms of the file they touch: GPL-2.0 where upstream puts that file under
 GPL-2.0, CC BY-NC-SA 3.0 where the file self-declares it. No rights are claimed over upstream
@@ -125,10 +124,9 @@ material.
 
 ## 3. Bundled executables
 
-Seven executables ship inside the repository. As of release 0.6.0 all seven are this fork's own C#
+Seven executables ship inside the repository. All seven are this fork's own C#
 (.NET Framework 4.8) rewrites of upstream's AutoIt helper GUIs, built with `dotnet build -c Release`
-from `SettingsCenter/` and `Tools/`; the AutoIt sources they replaced were removed with the
-`AutoIT/` tree in 0.7.0 and no AutoIt binary is shipped any more. Upstream's binaries carried no source and no declared
+from `SettingsCenter/` and `Tools/`. Upstream's binaries carried no source and no declared
 licence; the C# rewrites contain no third-party source - they reimplement the UDFs credited in
 section 5.
 
@@ -136,76 +134,51 @@ Each executable embeds an application icon generated from [Microsoft's Fluent UI
 
 
 ```
-REO/@Resources/Common/ColorChanger.exe                          95232 bytes   C# net48          (Tools/ColorChanger/)
-REO/@Resources/Common/OmnimoApp.exe                             66560 bytes   C# net48          (Tools/OmnimoApp/)
-REO/@Resources/Common/Background/ConfigBackground.exe           97280 bytes   C# net48          (Tools/ConfigBackground/)
-REO/@Resources/Common/Config/ActivePanels.exe                   47616 bytes   C# net48          (Tools/ActivePanels/)
-REO/@Resources/Common/Config/config.exe                         85504 bytes   C# net48 + WebView2 (SettingsCenter/)
-REO/@Resources/Common/MultiManager/MultiManager.exe             38400 bytes   C# net48          (Tools/MultiManager/)
-REO/@Resources/Common/PanelCreator/PanelCreator.exe            111104 bytes   C# net48          (Tools/PanelCreator/)
+REO/@Resources/Common/ColorChanger.exe                          95744 bytes   C# net48          (Tools/ColorChanger/)
+REO/@Resources/Common/OmnimoApp.exe                             67584 bytes   C# net48          (Tools/OmnimoApp/)
+REO/@Resources/Common/Background/ConfigBackground.exe           97792 bytes   C# net48          (Tools/ConfigBackground/)
+REO/@Resources/Common/Config/ActivePanels.exe                   48128 bytes   C# net48          (Tools/ActivePanels/)
+REO/@Resources/Common/Config/config.exe                         87552 bytes   C# net48 + WebView2 (SettingsCenter/)
+REO/@Resources/Common/MultiManager/MultiManager.exe             38912 bytes   C# net48          (Tools/MultiManager/)
+REO/@Resources/Common/PanelCreator/PanelCreator.exe            112128 bytes   C# net48          (Tools/PanelCreator/)
 ```
 
-The sizes above are the 0.7.0.0 builds (`FileVersion` 0.7.0.0, 2026-10-19). `config.exe` also ships `config.exe.config`, the `lang/` JSON language pack, and four files taken
+The sizes above are the 0.8.0.0 builds (`FileVersion` 0.8.0.0, 2026-10-20). `config.exe` also ships `config.exe.config`, the `lang/` JSON language pack, and four files taken
 from Microsoft's WebView2 SDK - the managed `Microsoft.Web.WebView2.Core.dll`, `.WinForms.dll` and
 `.Wpf.dll` plus the native `WebView2Loader.dll` (NuGet `Microsoft.Web.WebView2` 1.0.2903.40, not
 written here); the WebView2 Runtime itself belongs to the user's system and is not bundled.
 
-Upstream let `config.exe` drift from its source: the binary was committed on 2020-05-18, while
-`AutoIT/Config.au3` was changed again on 2020-05-26 without a rebuild, and the released `.rmskin`
-ships a newer `Config.exe` that is not in upstream's git history at all. Upstream's own builds are
+Upstream's own builds are
 not uniform: `ColorChanger.exe` carries `FileVersion 6.0` and a description, so it went through
 `AutoIt3Wrapper` with the source's `Res_*` directives; `config.exe`, `ConfigBackground.exe`,
 `OmnimoApp.exe` and `PanelCreator.exe` embed the interpreter version `3.3.8.1`; `ActivePanels.exe`
 and `MultiManager.exe` carry no version resource at all. Those last two cannot have been built with
 3.3.8.1 — they include the split WinAPI UDFs (`WinAPIFiles.au3`, `GDIPlus.au3`,
 `ScreenCapture.au3`) whose ternary operators 3.3.8.1 rejects with `Unable to parse line` — so
-upstream compiled them against AutoIt 3.3.10 or newer. Release 0.3.0 rebuilt all seven from the
-corrected sources with AutoIt 3.3.18.0 (plain `Aut2Exe`, `/x86`, `/nopack`, each source's own icon),
-so the section 2 fixes and hardening reached the binaries users ran; because those rebuilds were
-unpacked (`/nopack`) they were far larger than upstream's UPX-packed originals, a gap that is the
-packing, not the version resource, which costs 1024 bytes. Those 0.5.0 AutoIt builds (1187328 to
-1604608 bytes) are no longer in the tree: as of 0.6.0 every one of the seven has been replaced by a
-C# rewrite of this fork's own code, which is why the sizes above are orders of magnitude smaller.
-
-Plain `Aut2Exe` writes no version resource, so each AutoIt rebuild of 0.3.0–0.5.0 was stamped
-afterwards with a
-`VS_VERSIONINFO` whose `FileVersion` and `ProductVersion` equal the fork release (`0.5.0.0`),
-keeping the reported version of each AutoIt executable in step with the release it ships in. The
-`FileDescription`, `LegalCopyright` and `OriginalFilename` strings reproduce the sources'
-`#AutoIt3Wrapper_Res_*` directives, except `ActivePanels.au3`, which declares none and is stamped
-with its own tool name; no `AutoIt3Wrapper` is installed, so those directives are not
-honoured at compile time and the stamping supplies them instead. The C# builds carry their own
+upstream compiled them against AutoIt 3.3.10 or newer. The C# builds carry their own
 `Version`, `FileVersion` and `ProductVersion` from the `.csproj`.
 
 ## 4. Bundled fonts
 
-Upstream shipped seven font files here: six Microsoft Segoe faces plus `OptimusPrinceps.ttf`. The six
-Segoe files were never licensed for redistribution, so this fork drops them and keeps only
-`OptimusPrinceps.ttf`, which is not a Microsoft face.
+The six Microsoft Segoe faces upstream carried are not licensed for redistribution, so the tree
+bundles one font:
 
 ```
-OptimusPrinceps.ttf       41416 bytes   not a Microsoft face
+REO/@Resources/Fonts/OptimusPrinceps.ttf   41416 bytes   not a Microsoft face
 ```
 
-Nothing in the skin loaded the Segoe files: Rainmeter resolves a meter's `FontFace` by system font
-name, and no `.ini`, script or installer in the tree referenced `Fonts/` or those filenames, so they
-were inert payload rather than a font the skin installed. Dropping them therefore does not change how
-the skin renders — the faces were always resolved from the system.
-
-One caveat is unchanged by the removal: Segoe WP is not a Windows default, so on a system without it
-the panels that name it (`FontFace=Segoe WP …`, reached through the `#FontTypeWP#` variable) fall back
-to whatever substitute the system provides. That was already the behaviour, since the bundled files
-were never installed. Listed in section 8.
+Segoe WP is not a Windows default, so on a system without it the panels that name it
+(`FontFace=Segoe WP …`, reached through the `#FontTypeWP#` variable) fall back
+to whatever substitute the system provides.
 
 ## 5. AutoIt user-defined functions
 
-Through release 0.6.0 `AutoIT/Includes/` bundled UDFs written by AutoIt community members,
-redistributed with the author attribution the files themselves carry; none of them states an
-explicit licence: `WinAPIEx.au3`, `APIConstants.au3` and `ColorChooser.au3` (Yashied), `_Zip.au3`
-(wraithdu), `IconImage.au3`, `Binary.au3`, `DragDropEvent.au3` (Ward), `MouseOnEvent.au3`
-(G.Sandler (MrCreatoR)), `_Startup.au3` (guinness), and `ColorGenerator.au3` / `Common.au3`
-(author not stated). The AutoIt source tree, these files included, is removed as of 0.7.0 and
-survives in git history.
+The C# tools reimplement UDFs written by AutoIt community members; none of those UDFs states an
+explicit licence: `ColorChooser.au3` (Yashied), `_Zip.au3`
+(wraithdu), `IconImage.au3` (Ward). The 0.6.0-and-earlier `AutoIT/Includes/` copies, which also
+bundled `WinAPIEx.au3`, `APIConstants.au3` (Yashied), `Binary.au3`, `DragDropEvent.au3` (Ward),
+`MouseOnEvent.au3` (G.Sandler (MrCreatoR)), `_Startup.au3` (guinness), and `ColorGenerator.au3` /
+`Common.au3` (author not stated), remain traceable in git history.
 
 Three of them are reimplemented in the C# tools, which remain in the tree: `Tools/Shared/ColorPickerForm.cs`
 follows `ColorChooser.au3` (Yashied), `Tools/Shared/IconExtractor.cs` follows `IconImage.au3` (Ward),
@@ -222,7 +195,7 @@ licensing is not determined by Rainmeter's.
 
 - **Omnimo / fediaFedia** — the design this fork is based on and the source of almost every file.
 - **Microsoft** — the Fluent UI System Icons the seven executables' application icons are drawn from (MIT; section 3).
-- **Yashied, Ward, wraithdu, guinness and MrCreatoR** — the AutoIt UDFs, bundled through 0.6.0 in `AutoIT/Includes/` and removed with that tree in 0.7.0 (derivative credits in section 5).
+- **Yashied, Ward, wraithdu, guinness and MrCreatoR** — the AutoIt UDFs the C# tools reimplement (section 5).
 - The upstream Omnimo translators, credited inside each language pack's `Translated=` key. The
   Chinese pack carries `Translated=fediaFedia`, as upstream wrote it.
 
@@ -231,10 +204,7 @@ licensing is not determined by Rainmeter's.
 | # | Item | Status |
 |---|---|---|
 | 1 | Upstream's GPL-2.0 vs CC BY-NC-SA 3.0 statement conflict | Recorded in section 1; per-file declarations treated as governing that file. |
-| 2 | 22 `.ini` plus 618 `.inc`/`.lua`/`.cfg`/`.js` and 1655 images with no declaration | Carried as-is with provenance traceable through the retained git history. No rights claimed. |
-| 3 | ~~7 upstream `.exe` with no source and no declared licence~~ | Resolved in 0.6.0: all seven executables are this fork's own C# rewrites (section 3); the upstream binaries are gone. |
-| 4 | ~~6 Microsoft Segoe `.ttf` in `REO/@Resources/Fonts/`~~ | Resolved: the six files are removed. The skin resolved those faces by system name and never loaded the files, so nothing renders differently; the Segoe WP fallback on systems without that face is unchanged. |
-| 5 | ~~The repository has no README of its own. Upstream's `readme.md` is brought forward but **not** left unchanged: a 25-line fork header was added to it~~ | Resolved: the repository now has its own `README.md` (English) and `README.zh.md` (Chinese) under the name ReOmnimo, and upstream's `readme.md` is deleted. |
+| 2 | As of 2026-10-20: 22 `.ini` plus 585 `.inc`/`.lua`/`.cfg`/`.js` and 1598 images with no declaration | Carried as-is with provenance traceable through the retained git history. No rights claimed. |
 
 ---
 

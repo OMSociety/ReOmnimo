@@ -52,16 +52,21 @@ static class Program
                 programPath = Path.Combine(a, "Rainmeter.exe");
         }
 
-        // 用法校验（RO-24）：皮肤侧契约是 6 参（模式/config/file/settings/skins/program），
-        // 位置参数不足 4 个（Background\SolidBG\bg.ini 与 AnotherBG\bg.ini 的 3 参旧调用点、裸双击启动）
-        // 不再静默降级——旧行为缺 config 默认 REO\Panels\Slideshow、缺 skinsRoot 兜底 Documents，
-        // 用户看到的是「看似相关的空窗口」，失败完全不可见。对齐旧版 OmnimoError 的大声失败。
+        // 用法校验（RO-24）：皮肤侧完整契约是 6 参（模式/config/file/settings/skins/program），
+        // 位置参数不足 3 个（裸双击启动、只传模式+config）不再静默降级——旧行为缺 config 默认
+        // REO\Panels\Slideshow、缺 skinsRoot 兜底 Documents，用户看到的是「看似相关的空窗口」，
+        // 失败完全不可见。对齐旧版 OmnimoError 的大声失败。
+        // 最少 3 参：模式/config/任一路径（REO\Background\ImageBG\bg.ini:4,:42 的
+        // text "#CURRENTCONFIG#" "#SETTINGSPATH#" 旧调用点）——skins 缺省由 MainForm 兜底
+        // Documents\Rainmeter\Skins，program 缺省不影响主流程（仅右键菜单用）。
+        // file/settings 两位按旧版 Config.au3 同样不参与解析，保留占位只为兼容 6 口契约。
         // 退出码语义：正常 0 / 用法错误 2 / 运行失败 1。
-        if (positional.Length < 4)
+        if (positional.Length < 3)
         {
             var usage = "ReOmnimo 设置中心\n\n" +
-                        "用法：config.exe <模式> <config> <file> <settings> [skins] [program]\n" +
-                        "示例：config.exe text \"REO\\Panels\\Slideshow\" Item.ini \"#SETTINGSPATH#\" \"#SKINSPATH#\" \"#PROGRAMPATH#\"";
+                        "用法：config.exe <模式> <config> [file] <settings> [skins] [program]\n" +
+                        "最少 3 参：config.exe text \"REO\\Panels\\Slideshow\" \"#SETTINGSPATH#\"\n" +
+                        "完整 6 参：config.exe text \"REO\\Panels\\Slideshow\" Item.ini \"#SETTINGSPATH#\" \"#SKINSPATH#\" \"#PROGRAMPATH#\"";
             Console.Error.WriteLine(usage);
             MessageBox.Show(usage, "ReOmnimo 设置", MessageBoxButtons.OK, MessageBoxIcon.Error);
             Environment.Exit(2);
@@ -158,9 +163,14 @@ public class MainForm : Form
             {
                 // WebView2 环境创建失败（常见：同面板双开，0x800700AA 用户数据目录被占用）
                 InitFailed = true;
+                // 常见场景给中文主文案（RO-26）：异常原文是英文 COM 码，对用户无意义但报障有用，
+                // 降级到末行「技术细节」保留
+                var isDoubleOpen = ex.Message.Contains("800700AA");
                 MessageBox.Show(this,
-                    "设置窗口初始化失败：\n" + ex.Message +
-                    "\n\n若刚打开过同一面板的设置窗口，请先关闭它再试。",
+                    isDoubleOpen
+                        ? "设置窗口初始化失败：同一面板的设置窗口已打开，或上次未正常退出。\n请先关闭它再试。\n\n技术细节：" + ex.Message
+                        : "设置窗口初始化失败：\n" + ex.Message +
+                          "\n\n若刚打开过同一面板的设置窗口，请先关闭它再试。",
                     "ReOmnimo 设置", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 Close();
             }
@@ -293,7 +303,8 @@ public class MainForm : Form
                 }
                 else
                 {
-                    // 裸键 + 说明文字（无控件行）→ 按 inc 值推断控件（标"推断"供排序沉底）
+                    // 裸键 + 说明文字（无控件行）→ 按 inc 值与说明文字推断控件
+                    // （"推断"后缀只是标记，加载后剥掉；不做沉底排序，渲染与正常条目无异）
                     var val = values.TryGetValue(key, out var v) ? v : "";
                     var title0 = candidate == "!" ? "" : candidate;
                     outSchema.Add(new SettingItem(key, title0, InferControl(key, val, title0) + "推断"));
@@ -481,37 +492,46 @@ public class MainForm : Form
             ShowStatus("设置未写入：找不到 " + Path.GetFileName(incPath));
             return;
         }
-        var raw = File.ReadAllBytes(incPath);
-        // 写回保原编码（RO-05）：与读侧同一套嗅探，BOM 原样重建；
-        // 旧行为只认 FF FE，cp936/cp1252 文件读改写即不可逆毁损
-        var (enc, bomLen) = SniffEncoding(raw);
-        var bom = bomLen > 0 ? raw.Take(bomLen).ToArray() : Array.Empty<byte>();
-        var text = enc.GetString(raw, bomLen, raw.Length - bomLen);
-        // 值压成单行（RO-21）：正常 UI 控件产生不了换行，畸形 webmessage 的多行值若原样落盘，
-        // 一行替换会变成多行注入 inc
-        value = value.Replace("\r\n", " ").Replace("\r", " ").Replace("\n", " ");
-        // Rainmeter 变量名大小写不敏感，文件里的键可能与 schema 键大小写不同
-        // 值必须走 MatchEvaluator：替换串里拼 "$1"+value 时，数字开头的值（复选框写 0/1、
-        // 滑杆与数字框写整数）会被当作组引用 "$10" 之类，.NET 找不到该组就把整个 "$10"
-        // 原样写进文件，行内容被毁。正则也只吃到行尾前，保留原行尾符。
-        // 同名键多次出现时对齐显示侧语义（LoadValues 顺序赋值 = 后行覆盖）：
-        // 更新最后一处、删除其余重复行——旧代码只改首行，后行旧值仍在，
-        // Rainmeter 后写者胜 → 「显示已改、实际未变」（RO-19）
-        var lineRe = new Regex(@"(?im)^[ \t]*" + Regex.Escape(key) + @"[ \t]*=[^\r\n]*(\r?\n|$)");
-        var ms = lineRe.Matches(text);
-        if (ms.Count > 0)
+        try
         {
-            var lastIdx = ms[ms.Count - 1].Index;
-            text = lineRe.Replace(text, m =>
+            var raw = File.ReadAllBytes(incPath);
+            // 写回保原编码（RO-05）：与读侧同一套嗅探，BOM 原样重建；
+            // 旧行为只认 FF FE，cp936/cp1252 文件读改写即不可逆毁损
+            var (enc, bomLen) = SniffEncoding(raw);
+            var bom = bomLen > 0 ? raw.Take(bomLen).ToArray() : Array.Empty<byte>();
+            var text = enc.GetString(raw, bomLen, raw.Length - bomLen);
+            // 值压成单行（RO-21）：正常 UI 控件产生不了换行，畸形 webmessage 的多行值若原样落盘，
+            // 一行替换会变成多行注入 inc
+            value = value.Replace("\r\n", " ").Replace("\r", " ").Replace("\n", " ");
+            // Rainmeter 变量名大小写不敏感，文件里的键可能与 schema 键大小写不同
+            // 值必须走 MatchEvaluator：替换串里拼 "$1"+value 时，数字开头的值（复选框写 0/1、
+            // 滑杆与数字框写整数）会被当作组引用 "$10" 之类，.NET 找不到该组就把整个 "$10"
+            // 原样写进文件，行内容被毁。正则也只吃到行尾前，保留原行尾符。
+            // 同名键多次出现时对齐显示侧语义（LoadValues 顺序赋值 = 后行覆盖）：
+            // 更新最后一处、删除其余重复行——旧代码只改首行，后行旧值仍在，
+            // Rainmeter 后写者胜 → 「显示已改、实际未变」（RO-19）
+            var lineRe = new Regex(@"(?im)^[ \t]*" + Regex.Escape(key) + @"[ \t]*=[^\r\n]*(\r?\n|$)");
+            var ms = lineRe.Matches(text);
+            if (ms.Count > 0)
             {
-                if (m.Index != lastIdx) return "";   // 重复键的其余行整行删除（含行尾）
-                var nl = m.Groups[1].Value;
-                // 保留原「键=」前缀（键名大小写与空白原样），只换值，行尾符不变
-                return m.Value.Substring(0, m.Value.IndexOf('=') + 1) + value + nl;
-            });
+                var lastIdx = ms[ms.Count - 1].Index;
+                text = lineRe.Replace(text, m =>
+                {
+                    if (m.Index != lastIdx) return "";   // 重复键的其余行整行删除（含行尾）
+                    var nl = m.Groups[1].Value;
+                    // 保留原「键=」前缀（键名大小写与空白原样），只换值，行尾符不变
+                    return m.Value.Substring(0, m.Value.IndexOf('=') + 1) + value + nl;
+                });
+            }
+            else text = text.TrimEnd() + "\r\n" + key + "=" + value + "\r\n";
+            File.WriteAllBytes(incPath, bom.Concat(enc.GetBytes(text)).ToArray());
         }
-        else text = text.TrimEnd() + "\r\n" + key + "=" + value + "\r\n";
-        File.WriteAllBytes(incPath, bom.Concat(enc.GetBytes(text)).ToArray());
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Security.SecurityException)
+        {
+            // 写入失败必须有界面回执（RO-22）：文件只读/被锁/目录失效时旧代码异常冒泡，
+            // 只落 %TEMP%\sc_crash.txt，界面无任何反馈，用户以为改成功了
+            ShowStatus("设置未写入：" + Path.GetFileName(incPath) + "（" + ex.Message + "）");
+        }
     }
 
     private void DebounceRefresh()
@@ -657,8 +677,11 @@ public class MainForm : Form
                     }
                 case "Checkbox":
                     bool on = cur == parts[2];
-                    rows.AppendFormat("<label class=\"switch\"><input type=\"checkbox\" data-key=\"{0}\" data-on=\"{1}\" data-off=\"{2}\" {3} onchange=\"send(this)\"><span class=\"track\"></span></label>",
-                        H(item.Key), H(parts[2]), H(parts[1]), on ? "checked" : "");
+                    // 第 4 段是开关旁的状态词（cfg 里 63 处 "Checkbox:off:on:标签"），旧版渲染整体丢失
+                    var cbTag = parts.Length > 3 && parts[3].Trim().Length > 0
+                        ? "<span class=\"cbtag\">" + H(parts[3].Trim()) + "</span>" : "";
+                    rows.AppendFormat("<label class=\"switch\"><input type=\"checkbox\" data-key=\"{0}\" data-on=\"{1}\" data-off=\"{2}\" {3} onchange=\"send(this)\"><span class=\"track\"></span></label>{4}",
+                        H(item.Key), H(parts[2]), H(parts[1]), on ? "checked" : "", cbTag);
                     break;
                 case "Color":
                     {
@@ -772,6 +795,7 @@ input[type=range] { flex: 1; accent-color: {{accent}}; }
                 border-radius: 50%; background: #fff; transition: left .15s; box-shadow: 0 1px 3px #0006; }
 .switch input:checked + .track { background: {{accent}}; }
 .switch input:checked + .track::after { left: 21px; }
+.cbtag { margin-left: 8px; font-size: 12px; color: {{sub}}; user-select: none; }
 .swatch { width: 34px; height: 24px; border-radius: 6px; border: 1px solid {{border}};
           cursor: pointer; flex: 0 0 34px; }
 .chex { font-family: "Cascadia Code", Consolas, monospace; font-size: 12.5px; color: {{sub}};
@@ -840,7 +864,8 @@ function rgb2hsv(r, g, b) {
 }
 function openPicker(key) {
   closePicker();
-  const cur = (document.getElementById("cv-" + key)?.textContent || "128,128,128").split(",");
+  // 原始 "r,g,b[,a]" 串在 cv- 元素的 title（textContent 是展示用 #hex，parseInt 会 NaN 恒黑且无 alpha）
+  const cur = (document.getElementById("cv-" + key)?.title || "128,128,128").split(",");
   const hsv = rgb2hsv(parseInt(cur[0]) || 0, parseInt(cur[1]) || 0, parseInt(cur[2]) || 0);
   const alpha = cur[3] ? cur[3].trim() : "";
   const sw = document.getElementById("sw-" + key);

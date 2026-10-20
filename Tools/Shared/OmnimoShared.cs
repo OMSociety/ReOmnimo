@@ -514,11 +514,12 @@ namespace OmnimoTools
             return doc.Section("Variables");
         }
 
-        /// <summary>取语言键；缺失返回空串（AutoIt 的 Dictionary.Item 会抛错，这里退化为空串更稳）。</summary>
+        /// <summary>取语言键；缺失回退键名（对齐 AGENTS.md「缺键显示英文键名」）。
+        /// 全部调用点为显示面（弹窗/按钮/标题/占位符），键名可诊断、空白不可诊断。</summary>
         public static string Text(Dictionary<string, string> language, string key)
         {
             string value;
-            return language.TryGetValue(key, out value) ? value : string.Empty;
+            return language.TryGetValue(key, out value) ? value : key;
         }
     }
 

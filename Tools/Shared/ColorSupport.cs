@@ -36,7 +36,9 @@ namespace OmnimoTools
         /// <summary>
         /// 等价于 HexToRGB($iColor)：0xRRGGBB 整数 → "R,G,B"。
         /// AutoIt 版无负值特判，直接按位取字节（-1 经位运算恰好产出 "255,255,255"）；
-        /// 本实现的 color &lt; 0 特判是防御分支——现调用图所有实参均经 &amp; 0xFFFFFF（0..0xFFFFFF），该分支不可达。
+        /// 本实现的 color &lt; 0 特判是防御分支——主流调用经 &amp; 0xFFFFFF（0..0xFFFFFF）不可达，
+        /// 但 ConfigBackground.ChooseColor（Program.cs:386-408）取消时不经此掩码直接 Apply（写 255,255,255，
+        /// 系继承 au3 怪癖）、AutoItValue.ToRgbText 亦未掩码（int 溢出为负即命中）——两处可达路径在此声明（RO-32）。
         /// </summary>
         public static string HexToRGB(int color)
         {

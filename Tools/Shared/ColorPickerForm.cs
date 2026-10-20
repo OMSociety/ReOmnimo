@@ -43,7 +43,7 @@ namespace OmnimoTools
         private int _initialRgb;        // 双击 [6] 复位用
         private readonly int[] _hsl = new int[3];   // 0..240 量程
         private readonly int[] _hsb = new int[3];   // H 0..359, S/B 0..100
-        private readonly int[] _colors = new int[17];  // 内置色板 [0]=count（不使用），[1..16] 用
+        private readonly int[] _colors = new int[17];  // [0]=活动色数 count（ApplyColorsToAll 用），[1..16] 色值
         private bool _return = false;
         private readonly ModernUi.Theme _t;             // 深色主题（调用方传入，见 Show）
         private readonly System.Collections.Generic.Dictionary<string, string> _lang;   // 语言包（同上）
@@ -317,7 +317,10 @@ namespace OmnimoTools
                     catch { continue; }
 
                     int active = (int)AutoIt.ToNumber(live.Get(section, "Active", "0"));
-                    if (inis.Length == 0 || active > inis.Length) continue;
+                    // active<1（含 "00" 之类畸形写法：上一行 Ordinal 比较漏过、ToNumber 归 0）
+                    // → inis[active-1] 是负索引，ArgumentOutOfRangeException 冒泡出 foreach
+                    //   被 :329 catch 吞掉，一个坏段毁掉整个着色批次（RO-28）
+                    if (active < 1 || active > inis.Length) continue;
 
                     int pick = _colors[SharedRandom.Next(1, count)];
                     IniDoc target = IniDoc.LoadOrCreate(inis[active - 1]);

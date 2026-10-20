@@ -42,6 +42,8 @@ namespace OmnimoTools.ConfigBackground
             bool forceLight, forceDark;
             args = ModernUi.ParseThemeFlags(args, out forceLight, out forceDark);
             if (args.Length < 2)
+                // parity 声明：au3 原版错误标题为 "Error"，C# 移植用了 "Omnimo Background Settings"
+                // ——保留现状，差异在此声明（RO-31）
                 OmnimoDialogs.Error("Omnimo Background Settings", "Too few command line arguments specified.");
 
             var theme = ModernUi.Theme.Detect(forceLight, forceDark);

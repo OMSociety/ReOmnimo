@@ -40,7 +40,7 @@ solidcolor=40,40,40
 MouseOverAction=[!SetOption #CURRENTSECTION# solidcolor 100,100,100][!Update]
 MouseLeaveAction=[!SetOption #CURRENTSECTION# solidcolor "40,40,40"][!Update]
 LeftMouseUpAction=!ToggleConfig "REO\textitems\worldclock" "Item.ini"
-[todolist]
+[System]
 Meter=Image
 MeterStyle=LargeTextItem
 solidcolor=40,40,40
@@ -54,14 +54,14 @@ solidcolor=35,35,35
 MouseOverAction=[!SetOption #CURRENTSECTION# solidcolor 100,100,100][!Update]
 MouseLeaveAction=[!SetOption #CURRENTSECTION# solidcolor "35,35,35"][!Update]
 LeftMouseUpAction=!ToggleConfig "REO\textitems\Reader" "Item.ini"
-[nowplaying]
+[Weather]
 Meter=Image
 MeterStyle=LargeTextItem
 solidcolor=70,70,70
 MouseOverAction=[!SetOption #CURRENTSECTION# solidcolor 100,100,100][!Update]
 MouseLeaveAction=[!SetOption #CURRENTSECTION# solidcolor "70,70,70"][!Update]
 LeftMouseUpAction=!ToggleConfig "REO\textitems\Weather" "Item.ini"
-[doublereader]
+[Calendar]
 Meter=Image
 MeterStyle=LargeTextItem
 Y=(1*#ScaleDpi#)R
@@ -70,7 +70,7 @@ solidcolor=55,55,55
 MouseOverAction=[!SetOption #CURRENTSECTION# solidcolor 100,100,100][!Update]
 MouseLeaveAction=[!SetOption #CURRENTSECTION# solidcolor "55,55,55"][!Update]
 LeftMouseUpAction=!ToggleConfig "REO\textitems\Calendar" "Item.ini"
-[resourcemonitor]
+[NowPlaying]
 Meter=Image
 MeterStyle=LargeTextItem
 solidcolor=50,50,50

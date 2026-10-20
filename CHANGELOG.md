@@ -10,7 +10,7 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.8.0] - 2026-10-21
 
 ### 移除
 
@@ -29,15 +29,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - 多管理器载入存档时弹「Too few command line arguments specified」：载入按钮把 `[MeasureWindowsVersion]` 当第五个参数传给 `MultiManager.exe`，而该 measure 只在 `Noice.ini` 里定义、不在 `Item.ini` 的 include 链中，解析为空后只剩四个参数，撞上五参数下限。现按 AutoIt 的语义解析命令行，尾随反斜杠的 `#SETTINGSPATH#`/`#SKINSPATH#` 不再吞掉下一个参数，`MultiManager.exe` 与其余工具同步受益。
 
-- 随包布局存档 1 仍指向 0.6.0 之前的 `WP7\` 根，且含已移除面板的段，载入后所有皮肤配置名都不存在、桌面被清空。`Gallery\MultiManager\Saved\1\Rainmeter.ini` 21 处、`Gallery\MultiManager\Saved\1\Layouts\Omnimo\Rainmeter.ini` 29 处改指 `REO\`，并删除 Anniversary / Donate / DonatorPanels\GoldPrice / Gallery\Intro\QuickStart 四个残留段。
+- 随包布局存档 1 仍指向 0.6.0 之前的 `WP7\` 根，且含已移除面板的段，载入后所有皮肤配置名都不存在、桌面被清空。`Gallery\MultiManager\Saved\1\Rainmeter.ini` 19 处、`Gallery\MultiManager\Saved\1\Layouts\Omnimo\Rainmeter.ini` 24 处改指 `REO\`，并删除 Anniversary / Donate / DonatorPanels\GoldPrice / Gallery\Intro\QuickStart 四个残留段。
 
 - 天气面板的单位与代码写回落到无人读取的文件：`Panels\Weather\UserVariables.inc` 没有被任何皮肤 include，删掉对它的写回与文件本身；设置页的天气代码栏改读改写真身 `@Resources\Common\Weather\WeatherComVariables.inc` 的 `LocationCode`。
 
 - 面板状态开关（如「深色模式」）的 On/Off 两行同时出现：这对图标靠「另一半文件不存在」实现互斥，把拼接变量固定成数字后两张图都会命中。恢复按 `#OnOff#`/`#ttgallerystyle#` 拼接的写法。
 
 - `Gallery\main.ini` 与 `Gallery\Color\coloradvanced.ini` 里的 `!Move#Move#` 是无效 bang（`Move` 从未被设为 1），移除。
-
-- `Panels\Notes\Item{,2,3}.ini` 的刷新动作向不存在的 `Panels\Notes\scroll.inc` 写 `ScrollStart`，移除该死写。
 
 - Folders 面板点击选择文件夹后「隐藏图标」「隐藏占位符」不生效：两个 `!WriteKeyValue` 写的是 `Panels\Folders\FolderN\UserVariables.inc`，而面板 `@include3` 读的是 `@Resources\Config\Panels\Folders\FolderN\UserVariables.inc`，改名后的文件没有任何读取者。写回目标改为与 include 相同的文件，并删除五个只被写、从不被读的空壳。
 
@@ -46,7 +44,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 面板状态开关（`Gallery\cat7.inc`、`Gallery\Intro\introLang.ini`、`Gallery\MultiManager\Item.ini` 共六处）对非当前侧报「图片打不开」：这对图标靠「另一半文件不存在」实现互斥，因此补六张同尺寸全透明占位，并给两行各加 `H=(<开关变量>=<当前值>?28*#ScaleDpi#:0)`——占位图高度为 0 时不占位，排版与补图前逐像素一致。
 - 多管理器的删除 / 导出 / 快捷方式按钮首次渲染时报 `delete0.png` / `export0.png` / `shortcut0.png` 打不开：`#ItemNHideSave#` 为 0 时拼出的文件名与仓库里的 `delete1.png` 一组相反。补三张同尺寸透明占位（60x60）。
 - Intro 页面在 0 到 3 点报 `GalleryImages\0.jpg` 打不开：`[MeasureTimeOfDay1]` 的凌晨分支落到 0，而目录里只有 1111–4444 四张。补 `0.jpg`（沿用 `4444.jpg` 的夜空）。
-- 网络面板每条日志都报 `[MeasureIP]: RegExp matching error (-1)`：`Url=http://checkip.dyndns.org/"` 行尾多一个裸双引号（同文件第 82 行注释掉的旧写法已带 `%22`），请求地址因此带引号、正则匹配不到。移除该引号。
+- 网络面板每条日志都报 `[MeasureIP]: RegExp matching error (-1)`：`Url=http://checkip.dyndns.org/"` 行尾多一个裸双引号（同文件第 82 行注释掉的旧写法已带 `%22`），请求地址因此带引号、正则匹配不到。移除该引号；同目录 `Item2.ini` 与 `Network3.ini` 的同款引号一并移除，`Item.ini` 的 `Substitute` 表达式补上缺失的尾引号（日志的 `Invalid Substitute` 一并消除）。
+
+**设置中心（config.exe）**
+
+- 设置面板的取色器打开时恒为黑色、且无法带透明度保存：取色器从错误的 DOM 源读初始颜色（读到恒为空的文本节点）。改为读颜色样张的 `title` 属性，RGB 与 alpha 正确带入；`Background`、`GroupTitles`、`TrajanQuote` 等 15 个带透明度的 Color 键恢复正常取色与保存。
+- 面板设置里「浏览文件」类参数全部弹文件夹选择框：设置中心只实现了文件夹分发。schema 与实现统一为文件夹选择，185 处 `Browse:File` 参数随本版改为 `Browse:Folder`。
+- 背景设置页（ImageBG 三参调用）打开即弹用法说明窗：参数个数校验把三参形式的合法调用判为错误。校验下限调整，用法文案同步更正。
+- 设置写回失败（文件被占用、无权限）时无任何界面回执：写回操作包上异常处理，失败原因以状态栏提示。
+- 简体中文语言包清理 9 个死键、补 6 处缺译；界面语言包新增 `refresh_failed` 中文文案。
+- 嵌套 JSON 解析加 64 层深度上限，畸形 schema 不再可能拖垮进程。
+- 设置窗口重复打开（0x800700AA）时的错误文案改为明确的中文说明。
+- Checkbox 控件支持第四段状态词（63 处 cfg 的 `Checkbox:off:on:标签` 形式标签恢复显示）。
+- exe 与清单的版本资源更新为 0.8.0.0。
+
+**面板工具（Tools 六个 exe）**
+
+- 高 DPI 屏上三个 GUI 工具的自绘控件不随 DPI 缩放：P/Invoke 声明的函数名有笔误（`GetDpiForWindowX`），调用恒失败且异常被吞、缩放因子恒为 1。改为正确的 `GetDpiForWindow`。
+- 工具在语言包缺键时按钮/标题显示为空白：缺键回退显示键名本身，便于发现语言包缺口。
+- ColorChanger 批量上色遇到 `Active="00"` 的磁贴时中断其后整批：补 active 计数护栏。
+- MultiManager 的 index 参数拒绝 `..` 路径穿越。
+- MultiManager 保存布局时目标目录不存在即失败：保存前创建目录并返回明确错误码，调用方按错误码提示。
+- ActivePanels 对契约外变体（`[close]`/`[Hint]`）显式 no-op，不再落网格读取路径。
+- ColorChanger 的容量检查提前到写列表前，超限面板不再进入列表。
+- 工具间的注释、头编号与 `.gitignore` 描述按实况勘正。
+
+**皮肤与资源**
+
+- TextItems 开关面板的七个开关全部失效：开关变量按实际面板目录与入口文件成对重写（`ToggleN`/`ToggleNFile`），50 处引用同步。
+- SolidBG 背景的模糊设置失效：`Blur` 键与上一行粘连被吞，拆为独立行。
+- `Launcher.ini` 与 `LauncherDark.ini` 的图库快捷按钮动作引号未闭合：补右引号。
+- cat3 四个磁贴名与动作目标错位：磁贴段名改为与动作一致（System / Weather / Calendar / NowPlaying）。
+- cat1 的 Anniversary 死磁贴删除（对应面板目录不存在）。
+- uTorrent 面板设置全部失效：配置文件首行是空行，缺 `[Variables]` 段头，删除前导空行。
+- 12 处 `config.exe` 调用缺第 6 参数（`#PROGRAMPATH#`）：全部补齐，安装路径解析不再依赖回落探测。
+- Weather 面板的设置开关默认值改为关闭。
+- Slideshow 与 HDD 面板的尺寸档间 1px 高度差对齐。
+- RAM 面板配置清理 18 个失效的电台键，保留有效键。
+- Reader 与 RSSBurst 的点击变量段补 `DynamicVariables=1`，点击跳转恢复。
+- Search 面板的搜索引擎域改从语言包读（`Languages\#MainLanguage#.inc`），中英文包补 `languagedomain` 键。
+- Visualizer 频段数三处不一致（Bands/BandIdx/条形数）对齐为 47，补 `MeterBand46`。
+- 补 6 处缺失图片占位（`b.png`、`close1.png`、`file.png`、`folder.png` 等）。
+- 10 处 `#FontFaceWP#` 引用改为实际存在的 `#FontTypeWP#`。
+- WeatherWeek 补 `HighlightCurrentDay=0` 默认值（该变量引用原先无定义源）。
+- 面板用户参数清理 79 个死键（34 份文件）。
+- Folders 与 dialogHibernate 的引号勘误。
+- 三处背景配置引用的 `curl.png` 补图；六份语言包 OnOff 备用态引用的 `onalt0light.png`/`onalt0dark.png` 补图。
+- 资源清理 106 个文件：Structure 的 win10/win7 容器与 Circle/HugeV/miniCircle 死档、`Panels\Clock\normal.inc`、Hubs 两张死图、`Common\Overlay\` 冗余副本 67 张、`Graphics\Panels\Notes++\` 11 张；Hubs 三份配置同步删除指向已清理文件的死键。
+
+**文档**
+
+- `AGENTS.md`、`THIRD-PARTY.md` 的计数、清单与表述按当前树实测刷新（编码分布、License 计数、Structure 档位、调用点参数、字体一节重写）。
 
 ### Removed
 
@@ -73,7 +121,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Removed the invalid `!Move#Move#` bang from `Gallery\main.ini` and `Gallery\Color\coloradvanced.ini` (`Move` is never set to 1).
 
-- Removed the dead write of `ScrollStart` to the nonexistent `Panels\Notes\scroll.inc` from the refresh actions in `Panels\Notes\Item{,2,3}.ini`.
 - In the Folders panel, the "hide icon" and "hide placeholder" toggles did nothing after picking a folder: the two `!WriteKeyValue` calls wrote to `Panels\Folders\FolderN\UserVariables.inc`, while `@include3` read `@Resources\Config\Panels\Folders\FolderN\UserVariables.inc`, so nothing ever read the written file. The write targets now match the include, and the five write-only shells are gone.
 
 - Roughly 2800 "unable to open image" log lines: with the theme on `Overlay=none`, `#overlay##padding#` produced combinations such as `none0.png`, `none3.png` and `none5.png` that had no counterpart in `@Resources\Common\OverlayBorder\`. They are now fully transparent placeholders (160x160, matching the 21 existing files), so the overlay result is unchanged and the errors are gone. The five missing per-theme combinations (`green0`, `htc0`, `hud0`, `inner0`, `nostalgic0`) are filled the same way.
@@ -81,7 +128,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The panel state toggles (`Gallery\cat7.inc`, `Gallery\Intro\introLang.ini`, `Gallery\MultiManager\Item.ini`; six sites) logged an unopenable image for the inactive half: the pair relies on the other half's file being absent, so six fully transparent placeholders are added and each row gains `H=(<toggle variable>=<active value>?28*#ScaleDpi#:0)` — a placeholder with zero height takes no space, and the layout is pixel-identical to before.
 - The MultiManager delete / export / shortcut buttons reported `delete0.png` / `export0.png` / `shortcut0.png` on first render: when `#ItemNHideSave#` is 0 the concatenation names the opposite half of the `delete1.png` group in the repository. Three transparent placeholders of the same size (60x60) are added.
 - The Intro page reported `GalleryImages\0.jpg` as unopenable between midnight and 3 am: the small-hours branch of `[MeasureTimeOfDay1]` yields 0 while the directory only holds 1111 to 4444. `0.jpg` is added (reusing the night sky from `4444.jpg`).
-- Every network panel log entry carried `[MeasureIP]: RegExp matching error (-1)`: the line `Url=http://checkip.dyndns.org/"` had a stray trailing double quote (the commented-out older form on line 82 already carries `%22`), so the request URL included the quote and the regex never matched. The quote is removed.
+- Every network panel log entry carried `[MeasureIP]: RegExp matching error (-1)`: the line `Url=http://checkip.dyndns.org/"` had a stray trailing double quote (the commented-out older form on line 82 already carries `%22`), so the request URL included the quote and the regex never matched. The quote is removed; the same stray quote in `Item2.ini` and `Network3.ini` goes with it, and the `Substitute` expression in `Item.ini` gains its missing closing quote (clearing the log's `Invalid Substitute` as well).
+
+**Settings center (config.exe)**
+
+- The settings-panel color picker opened fully black and could not save with alpha: it read the initial color from the wrong DOM source (an always-empty text node). It now reads the swatch's `title` attribute, carrying both RGB and alpha; the 15 alpha-bearing Color keys (`Background`, `GroupTitles`, `TrajanQuote` and friends) pick and save colors correctly again.
+- Every "browse file" parameter in panel settings opened a folder picker: the settings center only implemented the folder branch. Schema and implementation are unified on folder picking; 185 `Browse:File` parameters become `Browse:Folder` in this release.
+- The background settings page (3-argument ImageBG calls) opened straight into the usage dialog: the argument-count check treated the legitimate 3-argument form as an error. The floor is adjusted and the usage text corrected.
+- Settings write-back failures (locked file, missing permissions) gave no interface feedback: writes are wrapped with exception handling and report failures in the status bar.
+- The Simplified Chinese UI pack drops 9 dead keys and gains 6 missing translations; a Chinese `refresh_failed` string is added.
+- Nested JSON parsing gains a 64-level depth cap, so a malformed schema can no longer grind the process down.
+- The error message for a second concurrent settings window (0x800700AA) is now an explicit Chinese explanation.
+- Checkbox controls support the fourth status-word segment (labels in the `Checkbox:off:on:label` form across 63 cfg files render again).
+- The exe and manifest version resources move to 0.8.0.0.
+
+**Panel tools (the six Tools executables)**
+
+- On high-DPI screens the self-drawn controls of the three GUI tools did not scale: a typo in the P/Invoke name (`GetDpiForWindowX`) made the call fail permanently, the exception was swallowed and the scale factor stayed at 1. It now calls the correct `GetDpiForWindow` export.
+- Tools showed blank buttons/titles when a language-pack key was missing: a missing key now falls back to the key name itself, exposing pack gaps.
+- ColorChanger batch coloring stopped at a tile with `Active="00"` and lost the rest of the batch: an active-count guard is added.
+- MultiManager's index parameter rejects `..` path traversal.
+- Saving a layout into a missing directory now creates it and returns explicit error codes; callers surface them.
+- ActivePanels treats out-of-contract variants (`[close]`/`[Hint]`) as explicit no-ops instead of falling into the grid-read path.
+- ColorChanger's capacity check moves ahead of list building, so over-limit panels never enter the list.
+- Comments, shared-header numbering and `.gitignore` descriptions are corrected to match reality.
+
+**Skins and resources**
+
+- All seven toggles in the TextItems toggle panel were dead: the toggle variables are rewritten as directory/entry pairs (`ToggleN`/`ToggleNFile`) against the real panel directories, with 50 references updated.
+- SolidBG's blur setting was dead: the `Blur` key was glued onto the previous line and swallowed; it is split onto its own line.
+- The gallery shortcut button actions in `Launcher.ini` and `LauncherDark.ini` had an unclosed quote: fixed.
+- Four cat3 tiles mismatched their names and actions: the section names now match the actions (System / Weather / Calendar / NowPlaying).
+- The dead Anniversary tile is dropped from cat1 (its panel directory does not exist).
+- Every uTorrent panel setting was dead: the config file began with a blank line, missing the `[Variables]` header; the leading blank line is removed.
+- 12 `config.exe` calls missed the 6th argument (`#PROGRAMPATH#`): all filled in, so installation-path resolution no longer depends on the fallback probe.
+- The Weather panel's settings toggle defaults to off.
+- 1px height differences across the Slideshow and HDD size tiers are aligned.
+- The RAM panel config drops 18 dead radio-station keys and keeps the live ones.
+- Reader and RSSBurst click-variable sections gain `DynamicVariables=1`; click-through navigation works again.
+- The Search panel's engine domain now comes from the language pack (`Languages\#MainLanguage#.inc`); the Chinese and English packs gain the `languagedomain` key.
+- The Visualizer's three inconsistent band counts (Bands/BandIdx/bar count) align on 47, and `MeterBand46` is added.
+- 6 missing image placeholders are filled (`b.png`, `close1.png`, `file.png`, `folder.png` and others).
+- 10 `#FontFaceWP#` references change to the existing `#FontTypeWP#`.
+- WeatherWeek gains `HighlightCurrentDay=0` (the variable reference previously had no defining source).
+- 79 dead keys are cleared from panel user variables (34 files).
+- Quote corrections in Folders and dialogHibernate.
+- `curl.png` referenced by three background configs is added; the `onalt0light.png`/`onalt0dark.png` alternates referenced by six language packs' OnOff rows are added.
+- 106 files of resource cleanup: the Structure win10/win7 containers and the Circle/HugeV/miniCircle dead tiers, `Panels\Clock\normal.inc`, two dead Hubs images, the 67 redundant copies under `Common\Overlay\`, 11 under `Graphics\Panels\Notes++\`; the three Hubs configs drop their dead keys in step.
+
+**Documentation**
+
+- Counts, listings and wording in `AGENTS.md` and `THIRD-PARTY.md` refreshed against the measured tree (encoding distribution, License counts, Structure tiers, call-site arguments, and a rewritten fonts section).
 
 ## [0.7.0] - 2026-10-19
 
@@ -180,7 +277,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ActivePanels 3x3 布局在启用面板达到 31 个时崩溃（AutoIt 报 `Variable used without being declared`）：`ActivePanels.au3:278` 使用了从未声明的 `$row9`（只声明了 `$row1..$row8`），第 31 个面板起排布中断；C# 版按源码本来的行表补全声明，可正常排到 row9 并放完剩余面板。
 - SettingsCenter `x86` 位数锁定：WebView2 NuGet 对 net48 只带 x86 原生 `WebView2Loader.dll`，SDK 风格工程默认 AnyCPU（x64 进程）加载即 `BadImageFormatException (0x8007000B)` 崩溃；`PlatformTarget=x86` 修正（csproj 注释留档）。
 - SettingsCenter 用户数据目录按面板哈希分目录（`%LOCALAPPDATA%\ReOmnimo\SettingsCenter\<hash>`）：不同面板的设置窗口可并行；同面板双开不再以崩溃弹窗告终，改为提示后正常关闭。
-- 全库 973 处小写 `wp7\` 死引用改为 `REO\`（433 个皮肤文件）：0.5.0 的改名提交只处理了大写 `WP7\`，磁贴、右键菜单、启动器里的 `!ToggleConfig "wp7\…"` 一直指向不存在的 config，动作全部失效（日志报 `!ToggleConfig: "wp7\…" does not exist`）。逐文件按嗅探到的编码解码再原编码写回（UTF-8 / UTF-16LE+BOM / cp1252 混杂），BOM 与行尾不变；`git grep -In "wp7"` 现查 0 命中，实机确认 `REO\` 形可正常切换面板。`DragGroup=WP7Panel` 是拖拽分组名而非路径，未改；`Gallery\MultiManager\Saved\` 下的用户布局快照未动。
+- 全库 880 处小写 `wp7\` 死引用改为 `REO\`（411 个皮肤文件）：0.5.0 的改名提交只处理了大写 `WP7\`，磁贴、右键菜单、启动器里的 `!ToggleConfig "wp7\…"` 一直指向不存在的 config，动作全部失效（日志报 `!ToggleConfig: "wp7\…" does not exist`）。逐文件按嗅探到的编码解码再原编码写回（UTF-8 / UTF-16LE+BOM / cp1252 混杂），BOM 与行尾不变；`git grep -In "wp7"` 现查 0 命中，实机确认 `REO\` 形可正常切换面板。`DragGroup=WP7Panel` 是拖拽分组名而非路径，未改；`Gallery\MultiManager\Saved\` 下的用户布局快照未动。
 - 工具窗口的关闭键「看不见」与任务栏缩略图没有名字：标题标签宽度固定 400px、横跨到右上角按钮并压在其上层，标签背景不透明，X 被整块盖住；`layoutCaption` 现把标题收窄到按钮左侧并 `BringToFront`，X 的描边从次要色改为前景色。`ModernForm` 此前从未给 `Form.Text` 赋值，任务栏缩略图因此没有标题，现已写入窗口名。
 - PanelCreator 两个输入框没有提示文字：`TextBox` 是原生 EDIT、自己处理 WM_PAINT，重写 `OnPaint` 里画的占位文本根本不会执行（试过放开「仅失焦时绘制」的条件也不显示）；改用 EDIT 自带 cue banner（`EM_SETCUEBANNER`，wParam=1 让聚焦时也显示）。
 - 跨屏拖动后排版错位：DPI 系数原先只在创建句柄时算一次，窗口从 125% 屏拖到 150% 屏时系统只改窗口尺寸、控件树不重排，自绘内容按新 DPI 落在旧矩形里，右侧残留一块黑矩形。`ModernForm` 现接管 `WM_DPICHANGED`，按新旧 DPI 比值缩放子控件与字体、重跑标题栏布局、复位被系统改高的原生 TrackBar，再采用系统建议矩形；125%↔150% 往返实测窗口与各子控件矩形逐项一致。
@@ -250,7 +347,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The ActivePanels 3x3 layout crashed when enabled panels reached 31 (AutoIt reported `Variable used without being declared`): `ActivePanels.au3:278` used a never-declared `$row9` (only `$row1..$row8` were declared), so the arrangement broke from the 31st panel on; the C# version completes the declarations per the row table the source itself already implied, and can arrange through row9, placing all remaining panels.
 - SettingsCenter locked to `x86`: the WebView2 NuGet ships only the x86 native `WebView2Loader.dll` for net48, so an SDK-style project's default AnyCPU (x64 process) crashed on load with `BadImageFormatException (0x8007000B)`; fixed with `PlatformTarget=x86` (documented in a csproj comment).
 - SettingsCenter user-data directory partitioned per panel hash (`%LOCALAPPDATA%\ReOmnimo\SettingsCenter\<hash>`): the settings windows of different panels can run in parallel; opening the same panel twice no longer ends in a crash dialog — it now closes normally after a notice.
-- All 973 lowercase `wp7\` dead references across the tree changed to `REO\` (433 skin files): 0.5.0's rename commit only handled the uppercase `WP7\`, so the `!ToggleConfig "wp7\…"` calls in tiles, context menus and the launcher kept pointing at nonexistent configs and every action was dead (the log reported `!ToggleConfig: "wp7\…" does not exist`). Each file was decoded with its sniffed encoding and written back in the same encoding (a mix of UTF-8 / UTF-16LE+BOM / cp1252), with BOM and line endings unchanged; `git grep -In "wp7"` now finds 0 hits, and switching panels with the `REO\` form was confirmed working on the real machine. `DragGroup=WP7Panel` is a drag group name, not a path — left unchanged; the user layout snapshots under `Gallery\MultiManager\Saved\` were untouched.
+- All 880 lowercase `wp7\` dead references across the tree changed to `REO\` (411 skin files): 0.5.0's rename commit only handled the uppercase `WP7\`, so the `!ToggleConfig "wp7\…"` calls in tiles, context menus and the launcher kept pointing at nonexistent configs and every action was dead (the log reported `!ToggleConfig: "wp7\…" does not exist`). Each file was decoded with its sniffed encoding and written back in the same encoding (a mix of UTF-8 / UTF-16LE+BOM / cp1252), with BOM and line endings unchanged; `git grep -In "wp7"` now finds 0 hits, and switching panels with the `REO\` form was confirmed working on the real machine. `DragGroup=WP7Panel` is a drag group name, not a path — left unchanged; the user layout snapshots under `Gallery\MultiManager\Saved\` were untouched.
 - The invisible close button on the tool windows and the nameless taskbar thumbnails: the title label had a fixed 400 px width, ran across to the top-right buttons and sat on a layer above them, and with an opaque label background the X was completely covered; `layoutCaption` now narrows the title to the left of the buttons and calls `BringToFront` on it, and the X's outline changed from the secondary color to the foreground color. `ModernForm` had never assigned `Form.Text`, so taskbar thumbnails had no title — the window name is now set.
 - Two `PanelCreator` input boxes had no hint text: a `TextBox` is a native EDIT that handles WM_PAINT itself, so placeholder text drawn in an overridden `OnPaint` never executes (relaxing the "only draw when unfocused" condition did not show it either); switched to the EDIT's built-in cue banner (`EM_SETCUEBANNER`, wParam=1 so it also shows while focused).
 - Layout misplaced after dragging across screens: the DPI factor was computed only once at handle creation, so when a window moved from a 125% screen to a 150% one the system resized the window without re-laying out the control tree, and self-drawn content landed in old rectangles under the new DPI, leaving a black rectangle on the right. `ModernForm` now handles `WM_DPICHANGED`: it scales the child controls and fonts by the new/old DPI ratio, re-runs the title bar layout, resets the native TrackBars the system had resized, and then adopts the system-suggested rectangle; a 125%↔150% round trip measured the window and every child-control rectangle identical item by item.

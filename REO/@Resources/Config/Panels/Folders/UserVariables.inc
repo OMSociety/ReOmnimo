@@ -1,11 +1,11 @@
 [Variables]
 IconTypeFolders3=3
-HideFolderIcon1=1
-HideFolderIcon2=1
-HideFolderIcon3=1
-HidePlaceHolder1=0
-HidePlaceHolder2=0
-HidePlaceHolder3=0
+
+
+
+
+
+
 Path1=
 Path2=
 Path3=

@@ -1,7 +1,7 @@
 # SettingsCenter — ReOmnimo 设置中心（.NET Framework 4.8 零依赖版）
 
 > 替代原 AutoIt `config.exe` 的现代设置面板。右键皮肤 →「设置」即弹出。
-> 目标框架 **net48**（Windows 10 1607+ 内置），分发体积 ≈ 934 KiB（部署 7 文件 927174 B + `lang\` 28994 B，2026-10-19 实查），无需安装运行时。
+> 目标框架 **net48**（Windows 10 1607+ 内置），分发体积 ≈ 0.9 MiB（`config.exe` + `config.exe.config` + WebView2 DLL ×4 + `lang\`），无需安装运行时。
 
 ## 架构
 
@@ -16,8 +16,8 @@ config.exe                ← 本程序（net48，WinForms 无边框窗体）
 
 1. **解析**：读 `RainConfigure.cfg`（settings 段 schema）+ `UserVariables.inc`（当前值）+ `UserVariables.local.inc`（覆盖链，存在则胜出）
 2. **展示**：WebView2 渲染无边框窗体（自绘标题栏/导航/控件，暗色/亮色跟随系统）
-3. **写回**：300ms 防抖 → 编码感知写回 inc → `!Refresh` 面板
-4. **兼容性**：位置参数与老 config.exe 完全一致（`<模式> <config> [file] [settings] [skins] [program]`），皮肤零改动
+3. **写回**：停止输入 300ms 后按编码感知写回 inc，并 `!Refresh` 刷新面板
+4. **兼容性**：位置参数 `<模式> <config> [file] [settings] [skins] [program]` 与老 config.exe 一致（`settings` 起可省略），皮肤零改动
 
 ## 构建
 
@@ -35,7 +35,7 @@ dotnet build -c Release
 ## 依赖
 
 - .NET Framework 4.8（Win10 1607+ 预装）
-- WebView2 Runtime（Win10 1803+ 预装 / Win11 内置；缺失时引导用户到 https://go.microsoft.com/fwlink/p/?LinkId=2124703）
+- WebView2 Runtime（Win10 1803+ 预装 / Win11 内置）
 
 ## 文件清单
 

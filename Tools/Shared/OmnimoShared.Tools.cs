@@ -263,7 +263,9 @@ namespace OmnimoTools
     }
 
     /// <summary>
-    /// 多布局存档（MultiManager 与 OmnimoApp.Layouts 共用同一套流程，只是 bang 通道不同）。
+    /// 多布局存档流程（OmnimoApp.Layouts 的 Save0/Save1/Load0/Load1 走这里）。
+    /// MultiManager 工具有自己的同名流程副本（Program.cs:34-89，直接 SendBang、不经 Result 返回码）——
+    /// 两份实现并存，改这里不会影响 MultiManager，反之亦然。
     /// </summary>
     internal static class LayoutManager
     {
@@ -352,15 +354,19 @@ namespace OmnimoTools
             string saved = SavedRoot(skins);
             string savedIni = Paths.Combine(saved, index + "\\Rainmeter.ini");
 
-            OmnimoDialogs.EnsureDirectory(Paths.Combine(saved, index));
+            if (!OmnimoDialogs.EnsureDirectory(Paths.Combine(saved, index)))
+                return Result.CreatingDirectoryFailed;   // 枚举本为此设，旧代码丢弃返回值致死值（RO-27）
             SaveScreenshot(Paths.Combine(saved, index + "\\screenshot.png"));
 
             if (!OmnimoDialogs.CopyFile(Paths.Combine(settings, "Rainmeter.ini"), savedIni))
                 return Result.CopyRainmeterIniFailed;
             if (string.Equals(command, "Save1", StringComparison.OrdinalIgnoreCase))
-                OmnimoDialogs.CopyFile(wallpaper, Paths.Combine(saved, index + "\\Wallpaper.bmp"));
-            OmnimoDialogs.CopyFile(Paths.Combine(skins, @"REO\@Resources\Common\Color\color.inc"),
-                Paths.Combine(saved, index + "\\color.inc"));
+                // 壁纸是存档辅助件：失败不中断（与 SaveScreenshot 同策略，缺壁纸的存档仍可载入），但不静默
+                if (!OmnimoDialogs.CopyFile(wallpaper, Paths.Combine(saved, index + "\\Wallpaper.bmp")))
+                    OmnimoDialogs.Message("Debug", "Copying wallpaper file failed");
+            if (!OmnimoDialogs.CopyFile(Paths.Combine(skins, @"REO\@Resources\Common\Color\color.inc"),
+                Paths.Combine(saved, index + "\\color.inc")))
+                return Result.CopyColorIncFailed;        // 同上（RO-27）
 
             IniDoc doc = IniDoc.LoadOrCreate(savedIni);
             doc.Set(@"REO\TextItems\Extra\Missing", "Active", "1");

@@ -1,17 +1,17 @@
 [Variables]
 App1=notepad.exe
 App2=mspaint.exe
-App2Path=mspaint.exe
-App2Label=Paint
+
+
 App3=iexplore.exe
-App3Path=iexplore.exe
-App3Label=Internet
+
+
 App4="%ProgramFiles%\Windows Defender\MSASCui.exe"
-App4Path="%ProgramFiles%\Windows Defender\MSASCui.exe"
-App4Label=Defender
+
+
 App5=%windir%\ehome\ehshell.exe
-App5Path=%windir%\ehome\ehshell.exe
-App5Label=Media
+
+
 Appname1=Notepad
 Appname2=Paint
 Appname3=Internet

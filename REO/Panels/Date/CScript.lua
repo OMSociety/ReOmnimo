@@ -169,6 +169,9 @@ function LoadEvents(FileTable)
 				elseif input:match(',') then
 					local hex = {}
 					for rgb in input:gmatch('%d+') do table.insert(hex, ('%02X'):format(tonumber(rgb))) end
+					-- Upstream latent bug (review 2026-10-20, not fixed here): `for i = #hex, 4` inserts
+					-- two 'FF' on 3-channel input, producing a 10-char invalid color; the intended form
+					-- is `for i = #hex + 1, 4`. Fixing changes visible colors and needs runtime verification.
 					for i = #hex, 4 do table.insert(hex, 'FF') end
 					return table.concat(hex)
 				else
@@ -287,6 +290,10 @@ function Events() -- Parse Events table.
 				end
 			elseif nrepeat == 'month' then
 				if eMonth and event.year then
+					-- Upstream latent bug (review 2026-10-20, not fixed here): bare `Year` is undefined
+					-- (nil); `nil >= number` raises as soon as a monthly repeat carries a year. The
+					-- intended operand is `Time.show.year`. Fixing changes behavior and needs runtime
+					-- verification first.
 					if Year >= event.year then
 						local ydiff = Time.show.year - event.year - 1
 						local mdiff = ydiff == -1 and (Time.show.month - eMonth) or ((12 - eMonth) + Time.show.month + (ydiff * 12))

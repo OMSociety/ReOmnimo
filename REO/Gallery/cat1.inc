@@ -329,9 +329,6 @@ Meter=String
 MeterStyle=EssentialPanel
 
 
-[Anniversary]
-Meter=String
-MeterStyle=EssentialPanel
 
 [Cat1Mask]
 Meter=Image

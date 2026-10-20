@@ -12,9 +12,9 @@
     <AssemblyName>ConfigBackground</AssemblyName>
     <RootNamespace>OmnimoTools.ConfigBackground</RootNamespace>
 
-    <Version>0.7.0.0</Version>
-    <FileVersion>0.7.0.0</FileVersion>
-    <ProductVersion>0.7.0.0</ProductVersion>
+    <Version>0.8.0.0</Version>
+    <FileVersion>0.8.0.0</FileVersion>
+    <ProductVersion>0.8.0.0</ProductVersion>
     <AssemblyTitle>ConfigBackground</AssemblyTitle>
     <Company>Omnimo</Company>
     <Product>ReOmnimo</Product>

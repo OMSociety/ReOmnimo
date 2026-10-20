@@ -1,8 +1,15 @@
 [Variables]
-Toggle1=WeirdReader
+Toggle1=Reader
+Toggle1File=Item.ini
 Toggle2=WorldClock
+Toggle2File=Item.ini
 Toggle3=Notes
+Toggle3File=Item.ini
 Toggle4=Calendar
+Toggle4File=Item.ini
 Toggle5=Weather
+Toggle5File=Item.ini
 Toggle6=System
-Toggle7=Bing
+Toggle6File=Item.ini
+Toggle7=Search
+Toggle7File=Item.ini

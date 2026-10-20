@@ -2,17 +2,17 @@
 hidelabels=1
 App1=vlc.exe
 App2=Chrome.exe
-App2Path=Chrome.exe
-App2Label=Chrome
+
+
 App3=%PROGRAMFILES(x86)%\Microsoft\Skype for Desktop\Skype.exe
-App3Path=%PROGRAMFILES(x86)%\Microsoft\Skype for Desktop\Skype.exe
-App3Label=Skype
+
+
 App4=Daemontools.exe
-App4Path=Daemontools.exe
-App4Label=Daemon
+
+
 App5=notepad.exe
-App5Path=notepad.exe
-App5Label=Notepad
+
+
 Appname1=VLC Player
 Appname2=Chrome
 Appname3=Skype

@@ -3,8 +3,9 @@
 // 调用契约（皮肤侧 4 处，见 REO\Gallery\Alignment\Item.ini 与 REO\Gallery\Intro\introLang.ini）：
 //   ActivePanels.exe "#SKINSPATH#" "#CURRENTCONFIGY#" "#CURRENTCONFIGX#" "#SETTINGSPATH#" <变体>
 // 变体：3x3 4x4 5x5 6x6 7x7 8x8 9x9（按网格重排面板）| lock | unlock | missing
-//       （dark darkwithpanels light lightwithpanels 四个分支保留但皮肤侧无调用点，
-//         对应功能由 OmnimoApp.exe 的 Dark()/DarkWithPanels()/Light()/LightWithPanels() 承担）
+//       （dark darkwithpanels light lightwithpanels 四个分支保留但两侧皆无调用点：
+//         本工具的这四个分支是死路径，OmnimoApp.exe 的 Dark()/DarkWithPanels()/Light()/LightWithPanels()
+//         在全皮肤树同样零调用——对应功能当前无入口，见评审 DR-T-014）
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -27,6 +28,8 @@ namespace OmnimoTools.ActivePanels
             // 当前目录、IniDoc.Save 自建整棵目录树（au3 IniWrite 对缺失目录静默失败、不建树），
             // 故提前报错退出（OmnimoDialogs.Error 弹框后即结束进程）。
             if (args.Length < 5 || args[0].Length == 0)
+                // parity 声明：au3 原版错误标题为 "Omnimo Panel Config"，C# 移植统一用了
+                // "Individual Panel Color"（全 C# 工具一致）——保留现状，差异在此声明（RO-31）
                 OmnimoDialogs.Error("Individual Panel Color", "Too few command line arguments specified.");
 
             string skinPath = args[0];
@@ -84,9 +87,15 @@ namespace OmnimoTools.ActivePanels
             {
                 WriteVars(userVars, "MissingComponents", "!DeactivateConfig");
             }
-            else
+            else if (Regex.IsMatch(variant, @"^\d+x\d+$", RegexOptions.IgnoreCase))
             {
                 ReadActiveSkins(skinPath, settingsPath, variant, sX, sY, scriptDir);
+            }
+            else
+            {
+                // 契约外变体（生产真实存在 [close]/[Hint]，经 #currentsection# 传入）显式 no-op：
+                // 回归 au3 的 Case Else 语义与 AGENTS §6 声明，不再落网格路径误读 ini/重写 hue.ini
+                // （RO-33，裁决 2026-10-20）
             }
 
             return 0;

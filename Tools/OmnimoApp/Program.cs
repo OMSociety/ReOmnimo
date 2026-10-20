@@ -167,9 +167,19 @@ namespace OmnimoTools.OmnimoApp
             if (Same(command, "Save0") || Same(command, "Save1"))
             {
                 LayoutManager.Result result = LayoutManager.Save(settings, skins, command, index, wallpaper);
+                if (result == LayoutManager.Result.CreatingDirectoryFailed)
+                {
+                    OmnimoDialogs.Message("Debug", "Creating directory failed");
+                    return;
+                }
                 if (result == LayoutManager.Result.CopyRainmeterIniFailed)
                 {
                     OmnimoDialogs.Message("Debug", "Copying Rainmeter.ini file failed");
+                    return;
+                }
+                if (result == LayoutManager.Result.CopyColorIncFailed)
+                {
+                    OmnimoDialogs.Message("Debug", "Copying color.inc file failed");
                     return;
                 }
                 Bang(programPath, @"!Refresh REO\Gallery\MultiManager");

@@ -1,4 +1,4 @@
-// ReOmnimo 工具共享层（第三部分）：IconImage.au3（Ward 的 IconImage UDF）的等价物。
+// ReOmnimo 工具共享层（第六部分）：IconImage.au3（Ward 的 IconImage UDF）的等价物。
 // 按源码链接进各工具 exe，不产出独立 DLL。
 //
 // 与原 UDF 的对应关系：

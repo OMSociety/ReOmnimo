@@ -143,7 +143,7 @@ internal static class ModernUi
     }
 
     [DllImport("user32.dll")]
-    private static extern int GetDpiForWindowX(IntPtr hwnd);
+    private static extern int GetDpiForWindow(IntPtr hwnd);
 
     /// <summary>控件所在窗口的 DPI 单位系数（96 DPI = 1）。Bounds/Font 已由 ModernForm.OnHandleCreated
     /// 的 Scale 统一缩放，自绘控件内部写死的设计像素常量（勾形、箭头、圆角半径、内边距）要乘它才同步。</summary>
@@ -152,7 +152,7 @@ internal static class ModernUi
         try
         {
             IntPtr h = (c.TopLevelControl != null && c.TopLevelControl.IsHandleCreated) ? c.TopLevelControl.Handle : c.Handle;
-            int d = GetDpiForWindowX(h);
+            int d = GetDpiForWindow(h);
             if (d > 0) return d / 96f;
         }
         catch { }
@@ -625,7 +625,7 @@ internal static class ModernUi
         }
     }
 
-    /// <summary>复选框：16×16 圆角 4，勾选=强调色+白勾。文案 Fg。基类用 Control 而不是 CheckBox——
+    /// <summary>复选框：PxU(14) 见方圆角 PxU(3)，勾选=强调色+白勾。文案 Fg。基类用 Control 而不是 CheckBox——
     /// 继承 CheckBox 时即使 UserPaint，主题引擎仍会在非 96 DPI 下把原生勾选字形画进客户区
     /// （2026-10-17 实测 150% 屏：勾选状态的框右侧冒出彩色碎片字形），换成无原生部分的
     /// Control 后主题完全不参与绘制。自带 Checked 与点击翻转（等价 CheckBox 的 AutoCheck）。</summary>
@@ -924,7 +924,7 @@ internal static class ModernUi
 
     /// <summary>
     /// 工具窗 i18n：读 REO\@Resources\Common\Background\Varrar.inc 指定的语言文件，
-    /// 键缺失时回退 English（皮肤语言包共 8 种，工具共用同一目录）。
+    /// 所选语言整份文件读不到时回退 English.cfg（键缺失不在此处理，见 Lang.T）。
     /// </summary>
     public static class Lang
     {
@@ -951,12 +951,12 @@ internal static class ModernUi
             return doc.Section("Variables");
         }
 
-        /// <summary>取语言键；缺失返回空串（与 OmnimoShared.LanguagePack.Text 语义一致——两处统一为空串，
-        /// 不再回退键名：键名会原样进入界面/写回目标，不可控）。</summary>
+        /// <summary>取语言键；缺失回退键名（与 OmnimoShared.LanguagePack.Text 一致，对齐 AGENTS.md）。
+        /// 调用点全部为显示面，无写回路径，键名比空白可诊断。</summary>
         public static string T(Dictionary<string, string> lang, string key)
         {
             string v;
-            return lang.TryGetValue(key, out v) ? v : string.Empty;
+            return lang.TryGetValue(key, out v) ? v : key;
         }
     }
 

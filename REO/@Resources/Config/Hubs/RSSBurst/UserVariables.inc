@@ -24,7 +24,7 @@ ItemSize=570
 
 iworkareaheight=#workareaheight#
 iworkareawidth=#workareawidth#
-imagePath=#@#Graphics\Hubs\RSSBurst\default.jpg
 CoverTaskbar=#workareaheight#
 RssMainName=BBC
 BackgroundColor=#@#Graphics\Hubs\RSSBurst\default.jpg
+

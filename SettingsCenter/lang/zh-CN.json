@@ -3,7 +3,8 @@
     "settings": "设置",
     "panels": "面板",
     "items": "项设置",
-    "browse": "浏览…"
+    "browse": "浏览…",
+    "refresh_failed": "已写入，但找不到 Rainmeter.exe，面板未实时刷新"
   },
   "labels": {
     "PanelName": "面板名称",
@@ -42,7 +43,6 @@
     "Spacing": "间距",
     "Padding": "内边距",
     "PaddingTop": "顶部间距",
-    "Subtitle": "副标题",
     "HideBackground": "隐藏背景",
     "ShowTitle": "显示标题",
     "ShowSeconds": "显示秒",
@@ -128,10 +128,6 @@
     "ImagePath": "背景图片",
     "BackgroundColor": "背景颜色",
     "CoverTaskbar": "覆盖任务栏",
-    "Feed1": "日历订阅地址 1",
-    "Feed2": "日历订阅地址 2",
-    "Feed3": "日历订阅地址 3",
-    "RangeDays": "显示天数",
     "SlideshowSpeed": "切换间隔（秒）",
     "PicturesFolder": "图片文件夹",
     "Subfolders": "包含子文件夹",
@@ -376,7 +372,6 @@
     "Primary - type just the letter (for example, C)": "主盘符——只输字母（如 C）",
     "Secondary - type just the letter (for example, C)": "副盘符——只输字母（如 C）",
     "Which player to use this with?": "与哪个播放器配合使用？",
-    "Name of the font": "字体名称",
     "Show or hide the grid": "显示或隐藏网格",
     "External IP": "外网 IP",
     "In seconds": "单位：秒",
@@ -432,7 +427,6 @@
     "Makes the panel double or triple wide": "让面板变成两倍或三倍宽",
     "If you have several audio devices, specify which index to switch": "有多个音频设备时指定要切换的序号",
     "Use the iPod-style appearance": "使用 iPod 风格外观",
-    "%H for 24 hour, %i for 12 hour": "%H 为 24 小时制，%i 为 12 小时制",
     "1 for yes, 0 for no": "1 为是，0 为否",
     "1 to enable, 0 to disable": "1 启用，0 禁用",
     "Action": "动作",
@@ -451,10 +445,6 @@
     "Text color in RGB for 2nd variant": "第二种变体的文字颜色（RGB）",
     "Visibility of settings/resize icons (10 - minimum, 255 - max)": "设置/缩放图标可见度（10 最小，255 最大）",
     "Width of the background": "背景宽度",
-    "日历订阅地址 1（可粘贴 webcal:// 链接）": "粘贴 RSS 或 webcal 订阅链接",
-    "日历订阅地址 2": "粘贴 RSS 或 webcal 订阅链接",
-    "日历订阅地址 3": "粘贴 RSS 或 webcal 订阅链接",
-    "显示天数（今天起）": "显示今天起的第几天",
     "-": "-",
     "[Options]": "选项"
   }

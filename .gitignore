@@ -32,6 +32,10 @@ REO/@Resources/Config/Panels/Agenda/UserVariables.local.inc
 *.exe.WebView2/
 
 # Panel-tool scratch file (REO\@Resources\Common\Config\hue.ini)
-# ActivePanels/MultiManager delete and rewrite it on every run; nothing in the
-# repository ever reads it, so it is per-machine state, not source.
+# ActivePanels deletes it on every run and rewrites it only when panels are
+# active; OmnimoApp's Align also writes it. Nothing in the repository ever
+# reads it, so it is per-machine state, not source.
 REO/@Resources/Common/Config/hue.ini
+
+# Icon generator's downloaded fonts & codepoint tables (Tools\Icons\make_icons.py)
+Tools/Icons/.cache/

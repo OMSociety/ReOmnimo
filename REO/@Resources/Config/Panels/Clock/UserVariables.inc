@@ -5,6 +5,6 @@ DayLightSavings=0
 24Hour=%H:%M
 12Hour=%I:%M %p
 updatespeed=1
-hidesecondhand=0
+
 ShowSeconds=60
 ShowSecondsDot=1

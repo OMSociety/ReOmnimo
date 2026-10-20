@@ -1,4 +1,3 @@
-
 [Variables]
 Path=
 Username=user

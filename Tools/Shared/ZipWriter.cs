@@ -1,4 +1,4 @@
-// ReOmnimo 工具共享层（第四部分）：_Zip.au3 的等价物。
+// ReOmnimo 工具共享层（第七部分）：_Zip.au3 的等价物。
 // 按源码链接进各工具 exe，不产出独立 DLL。
 //
 // 只实现 PanelCreator 真正用到的两个调用点，其余 _Zip_* 不搬：

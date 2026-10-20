@@ -16,10 +16,15 @@ public sealed class MiniJsonException : Exception
 
 public static class MiniJson
 {
+    // 嵌套深度上限（RO-25）：ReadValue↔ReadObject/ReadArray 互递归无界，畸形深嵌套输入
+    // （恶意 webmessage / 坏语言包）会 StackOverflowException——.NET 上 SO 无法捕获、进程即死。
+    // 本项目真实输入最深 3 层（zh-CN.json），64 上限富余一个数量级以上。
+    private const int MaxDepth = 64;
+
     public static object? Parse(string text)
     {
         int i = 0;
-        var v = ReadValue(text, ref i);
+        var v = ReadValue(text, ref i, 0);
         Ws(text, ref i);
         if (i < text.Length)
             throw new MiniJsonException($"尾随内容：位置 {i} 附近「{Snippet(text, i)}」");
@@ -41,14 +46,16 @@ public static class MiniJson
         i += word.Length;
     }
 
-    private static object? ReadValue(string s, ref int i)
+    private static object? ReadValue(string s, ref int i, int depth)
     {
+        if (depth > MaxDepth)
+            throw new MiniJsonException($"嵌套深度超过上限 {MaxDepth}");
         Ws(s, ref i);
         if (i >= s.Length) throw new MiniJsonException("内容意外结束（应为值）");
         switch (s[i])
         {
-            case '{': return ReadObject(s, ref i);
-            case '[': return ReadArray(s, ref i);
+            case '{': return ReadObject(s, ref i, depth);
+            case '[': return ReadArray(s, ref i, depth);
             case '"': return ReadString(s, ref i);
             case 't': Expect(s, ref i, "true"); return true;
             case 'f': Expect(s, ref i, "false"); return false;
@@ -57,7 +64,7 @@ public static class MiniJson
         }
     }
 
-    private static Dictionary<string, object?> ReadObject(string s, ref int i)
+    private static Dictionary<string, object?> ReadObject(string s, ref int i, int depth)
     {
         var d = new Dictionary<string, object?>(StringComparer.Ordinal);
         i++; // {
@@ -74,7 +81,7 @@ public static class MiniJson
             if (i >= s.Length || s[i] != ':')
                 throw new MiniJsonException($"应为冒号：位置 {i} 附近「{Snippet(s, i)}」");
             i++; // :
-            d[key] = ReadValue(s, ref i);
+            d[key] = ReadValue(s, ref i, depth + 1);
             Ws(s, ref i);
             if (i >= s.Length) throw new MiniJsonException("对象未闭合（缺 }）");
             if (s[i] == ',') { i++; continue; }
@@ -84,7 +91,7 @@ public static class MiniJson
         return d;
     }
 
-    private static List<object?> ReadArray(string s, ref int i)
+    private static List<object?> ReadArray(string s, ref int i, int depth)
     {
         var list = new List<object?>();
         i++; // [
@@ -92,7 +99,7 @@ public static class MiniJson
         if (i < s.Length && s[i] == ']') { i++; return list; }
         while (true)
         {
-            list.Add(ReadValue(s, ref i));
+            list.Add(ReadValue(s, ref i, depth + 1));
             Ws(s, ref i);
             if (i >= s.Length) throw new MiniJsonException("数组未闭合（缺 ]）");
             if (s[i] == ',') { i++; continue; }
