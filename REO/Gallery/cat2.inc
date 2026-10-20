@@ -372,6 +372,8 @@ Group=cat2 | Bye
 Meter=Image
 ImageName=#@#\Graphics\Gallery\on#OnOff##PanelLabels##ttgallerystyle#.png
 Group=cat2 | Bye
+H=(#PanelLabels#=1?28*#ScaleDpi#:0)
+DynamicVariables=1
 x=(360*#ScaleDpi#)
 y=(-25*#ScaleDpi#)R
 w=(85*#ScaleDpi#)
@@ -382,6 +384,8 @@ MouseActionCursor=1
 Meter=Image
 ImageName=#@#\Graphics\Gallery\off#OnOff##PanelLabels##ttgallerystyle#.png
 Group=cat2 | Bye
+H=(#PanelLabels#=0?28*#ScaleDpi#:0)
+DynamicVariables=1
 x=(360*#ScaleDpi#)
 y=R
 w=(85*#ScaleDpi#)
