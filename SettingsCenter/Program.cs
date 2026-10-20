@@ -677,11 +677,11 @@ public class MainForm : Form
                     }
                 case "Checkbox":
                     bool on = cur == parts[2];
-                    // 第 4 段是开关旁的状态词（cfg 里 63 处 "Checkbox:off:on:标签"），旧版渲染整体丢失
-                    var cbTag = parts.Length > 3 && parts[3].Trim().Length > 0
-                        ? "<span class=\"cbtag\">" + H(parts[3].Trim()) + "</span>" : "";
-                    rows.AppendFormat("<label class=\"switch\"><input type=\"checkbox\" data-key=\"{0}\" data-on=\"{1}\" data-off=\"{2}\" {3} onchange=\"send(this)\"><span class=\"track\"></span></label>{4}",
-                        H(item.Key), H(parts[2]), H(parts[1]), on ? "checked" : "", cbTag);
+                    // 第 4 段（cfg "Checkbox:off:on:标签"）au3 原版显示在开关右侧，与标题
+                    // （zh 映射）语义重复——按用户裁决（2026-10-21）不渲染，cfg 里的
+                    // 第 4 段仅作含义说明保留
+                    rows.AppendFormat("<label class=\"switch\"><input type=\"checkbox\" data-key=\"{0}\" data-on=\"{1}\" data-off=\"{2}\" {3} onchange=\"send(this)\"><span class=\"track\"></span></label>",
+                        H(item.Key), H(parts[2]), H(parts[1]), on ? "checked" : "");
                     break;
                 case "Color":
                     {
@@ -795,7 +795,6 @@ input[type=range] { flex: 1; accent-color: {{accent}}; }
                 border-radius: 50%; background: #fff; transition: left .15s; box-shadow: 0 1px 3px #0006; }
 .switch input:checked + .track { background: {{accent}}; }
 .switch input:checked + .track::after { left: 21px; }
-.cbtag { margin-left: 8px; font-size: 12px; color: {{sub}}; user-select: none; }
 .swatch { width: 34px; height: 24px; border-radius: 6px; border: 1px solid {{border}};
           cursor: pointer; flex: 0 0 34px; }
 .chex { font-family: "Cascadia Code", Consolas, monospace; font-size: 12.5px; color: {{sub}};
