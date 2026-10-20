@@ -51,6 +51,15 @@ Meter=Image
 MeterStyle=WebShortcut
 x=(360*#ScaleDpi#)
 y=R
+[Cat2Mask]
+Meter=Image
+ImageName=#@#\Graphics\Gallery\mask-shortcut.png
+Group=Cat2 | Bye
+Hidden=1
+x=(356*#ScaleDpi#)
+y=(0)r
+w=(496*#ScaleDpi#)
+
 [Paint]
 Meter=Image
 MeterStyle=WebShortcut
@@ -386,11 +395,3 @@ y=R
 w=(85*#ScaleDpi#)
 LeftMouseUpAction=[!WriteKeyValue Variables PanelTitleOpacity "1" "#@#Common\Color\color.inc"][!WriteKeyValue Variables ItemShadowColor "0,0,0,1" "#@#Common\Color\color.inc"][!WriteKeyValue Variables yposition "5" "#@#Common\Color\color.inc"][!WriteKeyValue Variables PanelLabels 1 "#@#Common\Color\color.inc"][!Refresh *]
 MouseActionCursor=1
-[Cat2Mask]
-Meter=Image
-ImageName=#@#\Graphics\Gallery\mask-shortcut.png
-Group=Cat2 | Bye
-Hidden=1
-x=(356*#ScaleDpi#)
-y=(-866*#ScaleDpi#)R
-w=(496*#ScaleDpi#)
