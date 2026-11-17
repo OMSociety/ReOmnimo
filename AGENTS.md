@@ -14,7 +14,7 @@ Rainmeter 皮肤套件：WP7/Metro 磁贴布局，接手 fediaFedia/Omnimo 后�
 | 项 | 要求 |
 |---|---|
 | Rainmeter | 最低版本以 `Rainstaller.cfg` 的 `MinRainmeterVer` 为准；安装目录不在 PATH，命令里用 `"$env:ProgramFiles\Rainmeter\Rainmeter.exe"` |
-| .NET | SDK 3.1–11；两个 C# 工程目标 `net48`，只用 `dotnet build -c Release` |
+| .NET | SDK 3.1–11；七个 C# 工程（`SettingsCenter` + `Tools` 六个）目标 `net48`，只用 `dotnet build -c Release` |
 | CI / 测试 | 无 CI、无测试框架，验收标准即 §8 |
 
 ## 2 常用命令
