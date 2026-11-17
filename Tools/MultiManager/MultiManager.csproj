@@ -10,9 +10,10 @@
     <LangVersion>latest</LangVersion>
     <AssemblyName>MultiManager</AssemblyName>
     <RootNamespace>OmnimoTools.MultiManager</RootNamespace>
-    <Version>0.8.0.0</Version>
-    <FileVersion>0.8.0.0</FileVersion>
-    <ProductVersion>0.8.0.0</ProductVersion>
+    <Version>1.0.0.0</Version>
+    <FileVersion>1.0.0.0</FileVersion>
+    <ProductVersion>1.0.0.0</ProductVersion>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <AssemblyTitle>MultiManager</AssemblyTitle>
     <Company>Omnimo</Company>
     <Product>ReOmnimo</Product>
