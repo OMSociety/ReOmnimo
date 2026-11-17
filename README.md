@@ -32,6 +32,10 @@ ReOmnimo ships as a Rainmeter skin suite. Install [Rainmeter](https://www.rainme
 
 > **Note**: The desktop mapping expects the suite under `Documents\Rainmeter\Skins\REO`. See `AGENTS.md` for the working setup.
 
+## Display settings
+
+Rainmeter positions skins in logical coordinates, so changing the Windows scaling or screen resolution does not reflow the layout: physical positions follow the DPI conversion, skins that fall outside the screen are clamped back into the work area, and the layout therefore often ends up on one side. To rearrange it, drag the panels (their positions are written back to `Rainmeter.ini`), or use the 3x3–9x9 grid in `REO\Gallery\Alignment`.
+
 ## Agenda panel
 
 The Agenda panel subscribes to published ICS calendars and renders the coming days as a scrolling list.

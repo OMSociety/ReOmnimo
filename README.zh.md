@@ -32,6 +32,10 @@ ReOmnimo 以 Rainmeter 皮肤套件分发。先安装 [Rainmeter](https://www.ra
 
 > **注意**: 桌面映射要求套件位于 `Documents\Rainmeter\Skins\REO`,工作配置见 `AGENTS.md`。
 
+## 显示设置
+
+Rainmeter 以逻辑坐标定位皮肤，更改 Windows 的缩放或分辨率不会重排面板：物理位置随 DPI 换算，越出屏幕的皮肤被夹回工作区内，布局因此常常偏向一侧。需要调整时直接拖动面板（位置会写回 `Rainmeter.ini`），或在 `REO\Gallery\Alignment` 中用 3x3–9x9 网格重排。
+
 ## 日程面板
 
 日程面板订阅公开的 ICS 日历,把未来几天渲染成可滚动的列表。
