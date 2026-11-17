@@ -28,7 +28,7 @@ ReOmnimo takes over development of [Omnimo](https://github.com/fediaFedia/Omnimo
 
 ## Install
 
-ReOmnimo ships as a Rainmeter skin suite. Install [Rainmeter](https://www.rainmeter.net/) 5.0 or later — the 5.0 line is currently distributed through its [pre-release thread](https://forum.rainmeter.net/viewtopic.php?t=45991) — then load the suite through Rainmeter's skin management. The `Rainstaller.cfg` at the repository root describes the package (`MinRainmeterVer=5.0`).
+ReOmnimo ships as a Rainmeter skin suite. Install [Rainmeter](https://www.rainmeter.net/) 5.0.0.5363 (Release Candidate 2) or later — the 5.0 line is currently distributed through its [pre-release thread](https://forum.rainmeter.net/viewtopic.php?t=45991) — then load the suite through Rainmeter's skin management. The `Rainstaller.cfg` at the repository root describes the package (`MinRainmeterVer=5.0.0.5363`).
 
 > **Note**: The desktop mapping expects the suite under `Documents\Rainmeter\Skins\REO`. See `AGENTS.md` for the working setup.
 

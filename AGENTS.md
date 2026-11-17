@@ -19,7 +19,7 @@
 | 项 | 实况 |
 |---|---|
 | 宿主 | Windows + `pwsh`；仓库根 `D:\WorkSpace\Github\ReOmnimo`，`git` 命令一律在此执行 |
-| Rainmeter | 5.0，`C:\Program Files\Rainmeter\Rainmeter.exe`（**不在 PATH**，调用一律用完整路径）。5.0 测试版会自己跟进官方新 build，**版本号现查**：`(Get-Item 'C:\Program Files\Rainmeter\Rainmeter.dll').VersionInfo.FileVersion`（2026-10-16 现查 `5.0.0.5293`） |
+| Rainmeter | `C:\Program Files\Rainmeter\Rainmeter.exe`（**不在 PATH**，调用一律用完整路径）。5.0 测试版会自己跟进官方新 build，**版本号现查**：`(Get-Item 'C:\Program Files\Rainmeter\Rainmeter.dll').VersionInfo.FileVersion`（2026-11-17 现查 `5.0.0.5363`，即当前 RC2；安装器要求 `MinRainmeterVer=5.0.0.5363`） |
 | .NET | `dotnet` SDK 3.1–11 已装；两个 C# 工程目标 `net48`，只用 `dotnet build -c Release` |
 | CI / 测试 | **无 CI、无测试框架**，验收标准即 §8 |
 | 暂存区 | 过程产物与助手脚本放 `D:\WorkSpace\WorkBench`，**不进仓库**。现存 ReOmnimo 相关：`port_spec_4tools.md`（4 个工具的移植口径）、`omniapp_callsites.txt`、`cb_probe\` / `rt_cb\` / `rt_cb_new\` / `orig_tools\`（ConfigBackground 与 PanelCreator 的原版对照夹具、golden 截图与控件转储）、`_tool_shot.ps1` / `_win_probe.ps1` / `_dump_diff.ps1` / `_measure_window.au3` / `_frame_probe.au3` / `_updown_probe.au3` / `_font_probe.au3` / `_exe_loadcheck.ps1`（窗口截图与控件转储、外框/样式/字体/updown 探针、exe 可加载性自检）、`Rainmeter.ini.bak`（§10 BOM 事故的恢复资产）、`ColorChooser.utf8.au3` / `IconImage.au3.utf8.au3` / `_Zip.au3.utf8.au3` / `ColorGenerator.au3.utf8.au3`（UDF 原文，`THIRD-PARTY.md` §5 署名的溯源件）。编码表重扫、语言包键集比对、日志开关三类脚本**不常驻**，按 §3 / §6 / §10 描述的方法现写，别跳过自检 |

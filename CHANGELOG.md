@@ -10,6 +10,16 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### 变更
+
+- 安装器最低 Rainmeter 版本提至 `5.0.0.5363`（Release Candidate 2）：`Rainstaller.cfg` 的 `MinRainmeterVer`、两份 README 的安装要求，以及 `Extra\` 下两个附加包的 `Rainstaller.cfg` 同步。
+
+### Changed
+
+- The installer requires Rainmeter `5.0.0.5363` (Release Candidate 2) or later: `MinRainmeterVer` in `Rainstaller.cfg`, the install requirements in both READMEs, and the `Rainstaller.cfg` in the two `Extra\` add-on packages.
+
 ## [0.8.0] - 2026-10-21
 
 ### 移除
