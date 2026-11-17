@@ -3,167 +3,149 @@
 适用范围：本仓库全部目录（单文件，无子目录级 AGENTS.md）。
 最后更新：2026-11-17。
 
-一句话定位：Rainmeter 皮肤套装 ReOmnimo，起于接手 fediaFedia/Omnimo，现已脱离上游独立演进，持续做现代化。
+Rainmeter 皮肤套件：WP7/Metro 磁贴布局，接手 fediaFedia/Omnimo 后独立演进。文档索引：`README.md`（英文）、`README.zh.md`（中文）、`CHANGELOG.md`、`THIRD-PARTY.md`（含差异集逐文件清单）。改用户可见行为时同步两份 README。
 
-## 1 产品边界
+## 1 环境与工具
 
-- **乐见对旧代码的大幅度现代化改动。** 把 2013 年的旧工具迁到 C#、把插件改成 Rainmeter 5.0 原生 measure、换用 SMTC 这类改造即此方向，属本职范围内的工作；不要为了「与上游保持一致」而保留过时实现，也不要以「上游就是这么写的」为由拒绝重构。判断标准是当前代码的正确性与可维护性，不是与 upstream 的差异大小。
-- 设计层是**用户的既定设计理念，不是待还的技术债**：不重画视觉、不复刻面板、不改设计语言、不换字体。磁贴表面（面板内容）保持英文并按英文宽度排版；磁贴名走语言包（`Gallery\cat*.inc` 的 `Text="#键#"`）。不要以「现代化」为由改这四样。
-- 发版：**tag 名不带 `v` 前缀**，已发布的 tag 不移动；发布号只活在 tag + `CHANGELOG.md` 标题 + GitHub Release 三处（外加 exe 版本资源）。仓库内 `Version=` 字段（`Rainstaller.cfg` 的 10.0.4、`OmnimoVersion` 10.0、`Settings` 6.0.1、`RMSKIN.inc` 1.0）属上游自有体系，不要动。动手前先向用户确认号码。
-- 文档索引：`README.md`（英文）与 `README.zh.md`（中文）、`CHANGELOG.md`、`LICENSE`、`THIRD-PARTY.md`（含差异集逐文件清单）。改用户可见行为时同步两份 README。
-- 仓库 `OMSociety/ReOmnimo`（2026-10-02 由 `OMSociety/Omnimo` 改名）。双 remote：`origin` = 本 fork，`upstream` = `fediaFedia/Omnimo`；`gh` 命令必须显式带 `-R OMSociety/ReOmnimo`，否则默认解析到 upstream。旧全名与 `raw.githubusercontent.com` 旧路径仍重定向（`gh api repos/OMSociety/Omnimo` 现查解析为 `OMSociety/ReOmnimo`），历史链接无需批量改写。`upstream` 仅作历史来源保留、**不作对照基准**——皮肤根 `WP7\` 改名 `REO\` 后全树分叉，与上游的 diff 计数、与上游的实现方式都不构成理由。
-- 桌面映射：`%USERPROFILE%\Documents\Rainmeter\Skins\REO` 是指向本仓库 `REO\` 的 junction（现查已确认）。改仓库即改用户的桌面皮肤。
+- 现代化方向：把旧实现迁到 C#、把插件改成原生 measure 是本职范围内的改造；不要以「与上游一致」为由保留过时实现，也不要以上游写法为由拒绝重构。
+- 设计层不做现代化：不重画视觉、不复刻面板、不改设计语言、不换字体。磁贴表面文案保持英文并按英文宽度排版，磁贴名走语言包（`Gallery\cat*.inc` 的 `Text="#键#"`）。
+- 双 remote：`origin` 是 `OMSociety/ReOmnimo`（本仓库），`upstream` 是 `fediaFedia/Omnimo`。`gh` 必须显式带 `-R OMSociety/ReOmnimo`，否则默认解析到 upstream。`upstream` 只作历史来源，不作对照基准——皮肤根 `WP7\` 改名 `REO\` 后全树分叉。
 
-## 2 环境实况（本机）
-
-| 项 | 实况 |
+| 项 | 要求 |
 |---|---|
-| 宿主 | Windows + `pwsh`；仓库根 `D:\WorkSpace\Github\ReOmnimo`，`git` 命令一律在此执行 |
-| Rainmeter | `C:\Program Files\Rainmeter\Rainmeter.exe`（**不在 PATH**，调用一律用完整路径）。5.0 测试版会自己跟进官方新 build，**版本号现查**：`(Get-Item 'C:\Program Files\Rainmeter\Rainmeter.dll').VersionInfo.FileVersion`（2026-11-17 现查 `5.0.0.5363`，即当前 RC2；安装器要求 `MinRainmeterVer=5.0.0.5363`） |
-| .NET | `dotnet` SDK 3.1–11 已装；两个 C# 工程目标 `net48`，只用 `dotnet build -c Release` |
-| CI / 测试 | **无 CI、无测试框架**，验收标准即 §8 |
-| 暂存区 | 过程产物与助手脚本放 `D:\WorkSpace\WorkBench`，**不进仓库**，用完即删；编码表重扫、语言包键集比对、日志开关三类方法见 §3 / §6 / §10，现写脚本时别跳过自检 |
-| 本机 git 附加物 | `.git/info/exclude`（本机忽略清单，未跟踪）、`.git/hooks/post-commit` 与 `post-checkout`（Qoder AI tracker，非仓库源码） |
+| Rainmeter | 最低版本以 `Rainstaller.cfg` 的 `MinRainmeterVer` 为准；安装目录不在 PATH，命令里用 `"$env:ProgramFiles\Rainmeter\Rainmeter.exe"` |
+| .NET | SDK 3.1–11；两个 C# 工程目标 `net48`，只用 `dotnet build -c Release` |
+| CI / 测试 | 无 CI、无测试框架，验收标准即 §8 |
 
-## 3 常用命令
+## 2 常用命令
 
 | 目的 | 命令 |
 |---|---|
-| 核对改动面（提交前必跑） | `git status --porcelain` 逐条确认与意图一致 |
-| 枚举被 exclude 命中的已跟踪文件 | `git ls-files -ci --exclude-standard`（2026-10-19 现查 243 条） |
-| 查 skip-worktree 标记 | `git ls-files -v` 行首 `S`（现查 5 条：`Config\Panels\Slideshow\UserVariables.inc`、`Config\Panels\WorldClock\UserVariables.inc`、`Config\TextItems\MultiManager\UserVariables.inc`、`Gallery\MultiManager\Saved\2\screenshot.png`、`Gallery\MultiManager\TimeSettings.inc`） |
+| 核对改动面（提交前必跑） | `git status --porcelain`，逐条确认与意图一致 |
+| 查 skip-worktree 标记 | `git ls-files -v`，行首 `S` 为已标记（现查 5 个：`Config\Panels\Slideshow\UserVariables.inc`、`Config\Panels\WorldClock\UserVariables.inc`、`Config\TextItems\MultiManager\UserVariables.inc`、`Gallery\MultiManager\Saved\2\screenshot.png`、`Gallery\MultiManager\TimeSettings.inc`） |
 | 找残留旧路径 | `git grep -In "wp7" -- 'REO/*'` |
-| 刷新全部并重扫描 config | `& 'C:\Program Files\Rainmeter\Rainmeter.exe' !RefreshApp`（**等约 9 秒**再继续，重扫描未完成就 Activate 会找不到 config） |
-| 激活单个面板 | `cmd /c '"C:\Program Files\Rainmeter\Rainmeter.exe" !ActivateConfig "REO\Panels\Agenda" "Item.ini"'`——pwsh 的 `&` 调用会吃掉带引号 bang 的内层引号（静默失效，2026-10-17 实测）；带引号参数的 bang 一律 `cmd /c` 包装，无参 bang（`!RefreshApp` / `!Quit`）`&` 直传即可 |
-| 开日志 | 该 ini 是 UTF-16LE+BOM、行尾实测出现过纯 LF，**必须字节级只改一个字符**：`!Quit` → 备份 `%APPDATA%\Rainmeter\Rainmeter.ini` → 按 UTF-16LE 解出全文，把 `(?m)^Logging=\d` 的单个数字改成 `1`，按原 BOM 与行尾写回 → 手动启动 Rainmeter → 复现 → 读日志抓 `ERRO`（日志是 **UTF-8 带 BOM**，用 `utf-8-sig` 解码）→ `!Quit` → 同样改回 `0` → 重启。**改完要手动重启 Rainmeter 才生效**，`!SetLogging` bang 实测无效；**关闭 Logging 时 Rainmeter 会删除日志文件**，要留证据必须在关之前先把日志另存 |
+| 刷新全部并重扫描 | `& "$env:ProgramFiles\Rainmeter\Rainmeter.exe" !RefreshApp`，等约 9 秒再 Activate（未扫描完会找不到 config） |
+| 激活单个面板 | `cmd /c '"%ProgramFiles%\Rainmeter\Rainmeter.exe" !ActivateConfig "REO\Panels\Agenda" "Item.ini"'`——pwsh 的 `&` 会吃掉带引号 bang 的内层引号；带引号参数的 bang 一律 `cmd /c` 包装，无参 bang（`!RefreshApp`/`!Quit`）`&` 直传 |
 | 构建设置中心 | `dotnet build SettingsCenter\SettingsCenter.csproj -c Release` |
-| 构建面板工具 | `dotnet build Tools\ActivePanels\ActivePanels.csproj -c Release`（MultiManager、ColorChanger、ConfigBackground、PanelCreator、OmnimoApp 同理） |
-| 还原被运行时写脏的文件 | `git checkout -- REO\Gallery\main.ini REO\Gallery\scroll.inc` |
+| 构建面板工具 | `dotnet build Tools\ActivePanels\ActivePanels.csproj -c Release`（其余五个工程同理） |
+| 还原运行时写脏文件 | `git checkout -- REO\Gallery\main.ini REO\Gallery\scroll.inc` |
 
-改皮肤文件（`ini` / `inc` / `cfg` / `lua`）必须用编码感知的补丁脚本：二进制读入 → 按嗅探到的编码解码 → 替换 → 按**同一编码**写回且 `newline=""`。直接用文本工具写会把 `\r\n` 写成 `\r\r\n`（实测过）。嗅探顺序：UTF-16LE+BOM → UTF-8+BOM → **会抛异常的**严格 UTF-8 → cp936 → cp1252；纯 ASCII 文件会同时通过多种编码，另看是否含 `>= 0x80` 字节。控制台是 GBK，`print` 中文会抛 `UnicodeEncodeError`，结果写 UTF-8 文件再看。
+开日志：`%APPDATA%\Rainmeter\Rainmeter.ini` 是 UTF-16LE+BOM 且行尾可能为 LF，必须字节级只改 `(?m)^Logging=\d` 的单个数字。流程：`!Quit` → 备份 ini → 改 `Logging=1` → 手动启动 Rainmeter → 复现 → 读 `Rainmeter.log`（UTF-8+BOM，按 `utf-8-sig` 解码）抓 `ERRO` → `!Quit` → 改回 `0` → 重启。改完必须重启才生效，`!SetLogging` 实测无效；关闭 Logging 时 Rainmeter 删除日志文件，要留证据先另存。
 
-**编码不能按目录或扩展名假定，逐个嗅探。** 2026-10-20 复扫（REO 树 `ini`/`inc`/`cfg`/`lua` 共 1194 个）：1092 个 UTF-8 无 BOM（含纯 ASCII 1083）、75 个 UTF-16LE+BOM、18 个 cp1252、5 个 cp936、4 个 UTF-8+BOM。按模式看主流与例外：
-
-| 模式（文件数） | 现查编码分布 |
-|---|---|
-| `Common\Variables\Languages\*.inc`（10） | UTF-16LE+BOM 9（八个语言包 + `lang.inc`）——中文包在此；`Auto.inc` 是 UTF-8 无 BOM |
-| `Panels\*\Item*.ini`（108） | UTF-8 无 BOM 93、cp1252 8（Weather 7 / Speedfan 1）、UTF-16LE+BOM 6（Network / CoreTemp 等） |
-| `Config\Panels\*\UserVariables.inc`（含子目录 140） | UTF-8 无 BOM 139、UTF-8+BOM 1（`Launcher\Launcher2`） |
-| `RainConfigure.cfg`（仓库级 203：`Config\` 子树 202 + `TextItems\#Win8Sidebar\Addons\Config\` 1；`Config\Panels` 子树 135） | UTF-8 无 BOM 202、UTF-16LE+BOM 1（Agenda）——**不是「cfg 一律 UTF-16」** |
-| `Structure\*\Main.inc`（8）、`*.lua`（11） | 全部 UTF-8 无 BOM |
-| `Gallery\cat*.inc`（6） | UTF-8 无 BOM 5；`cat7.inc` 是 UTF-16LE+BOM |
-
-`Common\Variables\UserVariables.inc` 是 **UTF-8+BOM**：它是语言检测器 `!WriteKeyValue` 的写回目标，无 BOM 的 cp1252 会被 Rainmeter 按系统 ANSI 读写、高位字节变 `?` 且可能吞行尾引号——**会被运行时写回的 inc 一律带 BOM**。现存 cp1252 18 个：`Panels\` 侧 8（Weather 7 个 `Item*.ini` + `Speedfan\SpeedFanMulti.ini`）、`TextItems\` 侧 4（含 `#TopBar\Addons` 2）、`Common\Settings\Language\` 4、`Common\Weather\WeatherComRegExp.inc` 1、`Panels\Speedfan\Item.ini` 1，改动前现扫（按本节规则逐个嗅探）。`Common\Background\Language\` 下 6 个 `.cfg`（含 `Chinese.cfg`）是 UTF-16LE+BOM，而 `English.cfg` / `Dutch.cfg` 是 UTF-8 无 BOM。cp936 与 cp1252 会互相误判（cp936 常把 cp1252 的高位字节读成合法双字节）。判不准时改用 **latin-1** 读写：256 个字节与码点一一对应，字节级无损，只替换其中的 ASCII 片段即可。另注意 **`git grep` 会把 UTF-16 文件当二进制跳过（加 `-I` 更彻底）**——在那 75 个 UTF-16 文件里 grep 不到东西，不等于内容不存在，先解码再查。
-
-## 4 架构
+## 3 架构
 
 ```text
-REO\                              皮肤根（桌面 junction 指到这里）
+REO\                              皮肤根（Rainmeter 加载此目录后即桌面布局）
 ├─ Launcher.ini / LauncherDark.ini
-├─ Panels\【名】\Item*.ini          60 个目录，59 个有 Item.ini（仅 SkinsTest 没有）
+├─ Panels\【名】\Item*.ini          60 个面板目录
 ├─ TextItems\【名】\*.ini           17 个
 ├─ Hubs\【名】\                     3 个（Alarm / RSSBurst / Time）
 ├─ Background\  Gallery\          背景与磁贴库
 └─ @Resources\
-   ├─ Common\                     共用资源 + 4 个分发 exe（ColorChanger / OmnimoApp / Background\ / PanelCreator\，全为 C#）+ Config\ 与 MultiManager\ 下的 C# 工具
-   ├─ Config\Panels\【名】\         各面板的 UserVariables.inc 与 RainConfigure.cfg（cfg 仓库级 203，其中 `Config\Panels` 子树 135）
-   └─ Structure\【PanelType】\      8 档底板（Single / Double / DoubleV / HalfDouble / HalfSingle / Huge / Mini / Square），全部含 Main.inc
+   ├─ Common\                     共用资源 + 分发 exe + Config\ 与 MultiManager\ 下的 C# 工具
+   ├─ Config\Panels\【名】\         面板 UserVariables.inc 与 RainConfigure.cfg
+   └─ Structure\【PanelType】\      8 档底板，各含 Main.inc
 ```
 
-面板 ini 的 include 链（**编号升序生效，变量后写者胜**）：
+面板 ini 的 include 链，编号升序生效、后写者胜：
 
 ```text
-@include   Common\Variables\UserVariables.inc                 全局变量（MainLanguage 与 LangAuto 在此；`MainLanguage=Auto` 表示跟随系统语言，由 AutoLang.lua 落笔具体语种——见 §6）
-@include1  Common\Variables\Languages\#MainLanguage#.inc      界面语言包
-@include2  Common\color\color.inc                             主题（Padding / Opacity 唯一定义处）
-@include3  Config\Panels\【名】\UserVariables.inc               面板用户参数
-@include4  Structure\#PanelType#\Main.inc                     档位底板
-@include5  Config\Panels\Agenda\UserVariables.local.inc       Agenda 专属，未跟踪；@include5 槽位本身被 70 份 ini 使用、目标各异，local.inc 仅 Agenda 的 3 份 Item 引用
+@include   Common\Variables\UserVariables.inc               全局变量（MainLanguage / LangAuto）
+@include1  Common\Variables\Languages\#MainLanguage#.inc    界面语言包
+@include2  Common\color\color.inc                           主题（Padding / Opacity 唯一定义处）
+@include3  Config\Panels\【名】\UserVariables.inc             面板参数
+@include4  Structure\#PanelType#\Main.inc                   档位底板
+@include5  Config\Panels\Agenda\UserVariables.local.inc     Agenda 专属，未跟踪
 ```
 
-- 界面文案只走 `Variables\Languages\*.inc`；分发工具的文案只走 `Common\Background\Language\*.cfg`。
-- `Padding` / `Opacity` / `Opacity2` / `Globalblurenable` / `Xposition` 主要由 `Common\Color\*.inc` 定义（另有 6 个范围外文件也定义这些键：`Config\TextItems\Extra\{Menu,AnotherMenu,AndAnother}\UserVariables.inc`、`#Win8Sidebar\Addons\Config` 与 `G'DayMate` 系、`Hubs\RSSBurst\Hub.ini`——查键定义时别只看 Color 目录）。面板库换主题会用主题文件**整体覆盖** `color.inc`，仓库里提交的默认值会被改回主题自带值——有意保留的边界。
-- 磁贴表在 `REO\Gallery\cat1/2/3/4/6/7.inc`（6 个分类；`cat7.inc` 是 UTF-16LE+BOM）。每格 = 面板目录名 + `Text="#语言键#"`，动作是 `!ToggleConfig "REO\Panels\#CURRENTSECTION#" "Item.ini"`。
-- 磁贴图标层是 `@Resources\Graphics\Gallery\mask-<类>.png`（3 个：essential / shortcut / textitems），由 `cat1` / `cat2` / `cat3` 引用（如 `cat1.inc:338` 引 `mask-essential.png`）。**增删或移动磁贴必须同步改对应图标层**（复制相邻字形，不要自画）。跨行回流靠行锚点交接：`Y=(1*#ScaleDpi#)R` + `x=(360*#ScaleDpi#)`（`cat1.inc:93-94`）。
-- 工具取语言：读 `Common\Background\Varrar.inc` 的 `Language` → `Common\Background\Language\【Language】.cfg`（`Language` 由 AutoLang.lua 与 `MainLanguage` 一并写回；手动指定要在 `LangAuto=0` 时做，见 §6）。
+- 全局键只在 include 链的上游定义；面板 ini 不重定义 `Padding`/`Opacity` 一类主题键（另有 6 个范围外文件也定义它们，见 §9）。
+- 磁贴表在 `Gallery\cat1/2/3/4/6/7.inc`：每格 = 面板目录名 + `Text="#语言键#"`，动作 `!ToggleConfig "REO\Panels\#CURRENTSECTION#" "Item.ini"`。增删或移动磁贴必须同步改图标层 `@Resources\Graphics\Gallery\mask-<类>.png`（复制相邻字形，不要自画）；跨行回流靠行锚点 `Y=(1*#ScaleDpi#)R` + `x=(360*#ScaleDpi#)`（`cat1.inc:93-94`）。
+- 工具改皮肤只经 `Tools\Shared\OmnimoShared.cs`（WM_COPYDATA 发 bang、`IniDoc` 读写），不直接改动皮肤加载中的文件。
 
-## 5 当前状态：在途工作与待办
+## 4 改动落在哪
 
-> **接手先读本节。** 当前无在途工作：最近一轮大改是 2026-10-21 的深度审查五批修复，七份分发 exe 已重编译部署为 0.8.0.0。`Tools\` 31 文件、`SettingsCenter\` 7 文件均已跟踪。`git status --porcelain` 若只剩 `REO/Gallery/scroll.inc` 一条脏，是运行时波动（Rainmeter 会写它，§7 清单成员），`git checkout --` 还原即可。
+| 我要改… | 改这里 |
+|---|---|
+| 面板参数 | `REO\@Resources\Config\Panels\【名】\UserVariables.inc`（首行必须是 `[Variables]`） |
+| 界面语言 | `REO\@Resources\Common\Variables\Languages\Chinese.inc` 与 `English.inc`（UTF-16LE+BOM，按 §5 流程） |
+| 工具的按钮文案 | `REO\@Resources\Common\Background\Language\*.cfg`（八份键集必须一致） |
+| 面板设置界面 | `REO\@Resources\Config\Panels\【名】\RainConfigure.cfg`（4 行一组：参数名 / 标题 / 控件类型 / 空行） |
+| 分发 exe | `Tools\` 六个工程或 `SettingsCenter\`，按 §6 构建并部署 |
+| Agenda 的私人订阅 | `Config\Panels\Agenda\UserVariables.local.inc`（未跟踪，见 §6） |
 
-待办：无（有新工作时在此登记）。
+## 5 编码契约
+
+改皮肤文件（`ini`/`inc`/`cfg`/`lua`）必须用编码感知的补丁：二进制读入 → 按嗅探到的编码解码 → 替换 → 按同一编码写回且 `newline=""`。直接用文本工具写会把 `\r\n` 写成 `\r\r\n`。嗅探顺序：UTF-16LE+BOM → UTF-8+BOM → 会抛异常的严格 UTF-8 → cp936 → cp1252；纯 ASCII 会同时通过多种编码，另看是否含 `>= 0x80` 字节。
+
+- 已知非 UTF-8：`Common\Variables\Languages\*.inc` 中除 `Auto.inc` 外均为 UTF-16LE+BOM（含中英两包）；`Gallery\cat7.inc`、`Config\Panels\Agenda\RainConfigure.cfg`、`Common\Background\Language\` 的六份 `.cfg` 同样是 UTF-16LE+BOM；Weather 面板 ini 与 `Common\Settings\Language\` 等为 cp1252/cp936。
+- `Common\Variables\UserVariables.inc` 必须是 **UTF-8+BOM**：它是语言检测器 `!WriteKeyValue` 的写回目标，无 BOM 会被按系统 ANSI 读写、高位字节变 `?` 并可能吞行尾引号。会被运行时写回的 inc 一律带 BOM。
+- `git grep` 把 UTF-16 文件当二进制跳过（`-I` 更彻底），grep 不到不等于不存在，先解码再查。
+- cp936 与 cp1252 会互相误判；判不准时用 latin-1 读写（字节与码点一一对应），只替换其中的 ASCII 片段。
 
 ## 6 修改契约（按改动类型）
 
-- **改 SettingsCenter（`config.exe` 的来源）**：`dotnet build SettingsCenter\SettingsCenter.csproj -c Release`，然后把 `bin\Release\net48\` 的 `config.exe`、`config.exe.config`、`Microsoft.Web.WebView2.{Core,WinForms,Wpf}.dll`、`WebView2Loader.dll`、`lang\` **全量**拷到 `REO\@Resources\Common\Config\`（部署产物入仓库，与其余分发 exe 同一形态）。
-  - csproj 锁死 `PlatformTarget=x86`：WebView2 NuGet 给 net48 只带 x86 原生 loader，AnyCPU（x64 进程）加载即 `BadImageFormatException (0x8007000B)`——改前先想清楚。
-  - 皮肤调用参数契约不变：`【模式】 【config】 【file】 【settings】 【skins】 【program】`——**新增调用点必须传第 6 个参数 `#PROGRAMPATH#`**（现查 443 处调用点全带第 6 参；`ImageBG\bg.ini` 的 2 处 3 参形式是裁决保留的合法用法，勿「顺手补齐」）。`config.exe` 解析 Rainmeter 安装路径的顺序：第 6 参数 → `ProgramW6432` / `ProgramFilesDir` / `ProgramFiles(x86)` 下的 `Rainmeter\Rainmeter.exe` → PATH（`_RainmeterExe()`）。WebView2 用户数据目录按面板哈希分目录（`%LOCALAPPDATA%\ReOmnimo\SettingsCenter\【hash】`），不同面板可并行；未处理异常落盘 `%TEMP%\sc_crash.txt`（UI 线程与非 UI 线程双通道），诊断崩溃先看它。
-- **改 Tools（六个分发 exe 的来源：`ActivePanels.exe`、`MultiManager.exe`、`ColorChanger.exe`、`Background\ConfigBackground.exe`、`PanelCreator\PanelCreator.exe`、`OmnimoApp.exe`）**：`dotnet build Tools\【名】\【名】.csproj -c Release`，然后把 `bin\Release\net48\【名】.exe` **单文件**拷到下表对应位置（无附属 DLL；`bin` 里的 `【名】.exe.config` **不部署**，只有 `SettingsCenter` 的 `config.exe.config` 有此要求）。工程用 `<Compile Include="..\Shared\【文件】.cs" Link="【文件】.cs" />` 共享源码，不产出独立 DLL。
-  - 部署位一览：`ActivePanels.exe` → `Common\Config\ActivePanels.exe`；`MultiManager.exe` → `Common\MultiManager\MultiManager.exe`；`ColorChanger.exe` → `Common\ColorChanger.exe`；`ConfigBackground.exe` → `Common\Background\ConfigBackground.exe`；`PanelCreator.exe` → `Common\PanelCreator\PanelCreator.exe`；`OmnimoApp.exe` → `Common\OmnimoApp.exe`。
-  - `Tools\Shared\OmnimoShared.cs` 里三条硬约定：**①** bang 走 WM_COPYDATA 发给 `FindWindow("RainmeterMeterWindow")`，`dwData=1`、载荷 UTF-16 + 结尾 NUL、`cbData=(字符数+1)*2`；**②** `IniDoc` 的 UTF-8 解码必须用会抛异常的严格实例，否则 cp1252 老文件里的非法字节会被静默换成 U+FFFD 写坏文件；**③** 写键值时只替换 `=` 之后的值、保留原有键名大小写（`color.inc` 的 `ColorSkin` 不能被改写成 `colorskin`）。
-  - 皮肤调用契约与命令字不变（`missing` / `lock` / `unlock` / `grid*` / `Save0` / `Save1` / `Load0` / `Load1` / `Delete`，其余模式静默 no-op）。
-  - 构建产物 `bin/`、`obj/`、`*.pdb`、`*.exe.WebView2/` 在 `.gitignore` 内，不要 `git add -f`。`ActivePanels` 每次运行先删 exe 同级的 `hue.ini`、**有活动面板时**才重写；`OmnimoApp` 的 Align 是合并写（0 moves 也会建 0 字节文件）；其余工具不碰。`hue.ini` 只写不读（遗留产物），不跟踪、不读取。
-- **改面板用户参数**：`Config\Panels\【名】\UserVariables.inc` 第一行必须是 `[Variables]`——缺段头整文件键被静默忽略，日志里只有下游异常。这些文件被跟踪，改完会显示脏，提交前逐个确认。
-- **改私人订阅**：只写 `Config\Panels\Agenda\UserVariables.local.inc`（未跟踪，`.gitignore` 已覆盖）。它经 `@include5` 与 `UserVariables.inc` 合并，同名键以后者为准；面板缺的键回落到 `UserVariables.inc`。`config.exe` 会**自动跟随**：同目录存在该文件时读写都指向它（0.7.0 起该逻辑在 `SettingsCenter\Program.cs`），界面另显示一行本地覆盖提示——**在设置界面改的值会写进这个未跟踪文件**，这是有意行为，不要当成「设置不生效」的缺陷去修。
-- **改语言文案**：`Chinese.inc` 与 `English.inc` 键集逐键对照——现查各 **280** 行定义、280 个唯一键（区分大小写口径）、双向零差——`Chinese.inc` 里 144 个键含中文。两个文件都是 **UTF-16LE+BOM**（§3），`git grep -I` 会把它们当二进制跳过，**必须先解码再查**。**全库唯一的占位符约定是 `AgendaNoEvents` 的 `%1`**（`agenda.lua` 用 `gsub('%%1', …)` 替换），不要发明第二种写法。7 个键在中文包里**故意保持英文**：`Folders` / `weather` / `Humidity` / `Pressure` / `Wind` / `brightness` / `start`——不要翻译。磁贴名的本地化在 `Gallery\cat*.inc` 覆盖 `Text="#键#"`，不要在磁贴里写死中文。其余六份语言包（Dutch / French / German / Portuguese / Russian / Spanish）是**遗留漂移态**：相对 English 各缺 6-8 个现役键、另含 109-166 个上游遗留键，且存在大小写变体重复键（后写者胜）——**冻结不修复，界面文案的完整性以中英两包为准**；要动这六包（补键或清理）先单独向用户提案，不要顺手补齐。
-- **改工具语言包**（`Common\Background\Language\*.cfg`）：**八语键集必须一致**——新增键要同时补全 8 份（现查 8 份各 54 键两两全等；缺键时按钮显示英文键名）；六份 UTF-16LE+BOM、English / Dutch 为 UTF-8 无 BOM，改动走 §3 编码感知流程。键集重比对：解码 8 份后逐键取 `=` 前段做集合比较，两两差集必须为空。
-- **改语言跟随机制**（`Common\Variables\AutoLang.lua` + `Languages\Auto.inc`）：宿主是 `REO\Background\bg.ini` 与 `REO\Gallery\main.ini` 末尾的 measure 对（Registry 读 `LocaleName` + Script，`UpdateDivider=-1` 每次宿主加载跑一次）。语言→包映射表在 lua 顶部，**改语言包集合必须同步 lua、README 与 `Languages\Auto.inc`**。`Auto.inc` 必须保持为指向 `English.inc` 的一行 shim（嵌套 include）。`UserVariables.inc` 是 UTF-8+BOM（§3，勿转回无 BOM）。两个宿主 ini 编码不同：`bg.ini` 单字节、`main.ini` UTF-16LE+BOM——追加内容按各自编码写（2026-10-17 在 main.ini 上踩过 ASCII 直拼变乱码）。检测器写回只认 `LangAuto`（`0` = 手动锁定）与 `MainLanguage` 的比较结果。
-- **改面板设置 schema**：`RainConfigure.cfg` 4 行一组（参数名 / 标题 / 控件类型 / 空行）。**编码不统一**（现查 203 个：UTF-8 无 BOM 202、Agenda 是 UTF-16LE+BOM），改前按 §3 逐个嗅探。`Checkbox:a:b` 的契约是**未勾选写 a、勾选写 b**（0.7.0 起由 `SettingsCenter\Program.cs` 实现）——把 `Checkbox:1:0` 读成「勾选=1」会把 `Hidden=#X#` 判反。
-- **加 Agenda 渲染样式**：0.4.0 起只有一套排布，`AgendaStyle` 变量不存在（现查命中 0）。不要按「未接线分支」去改 ini 或 `RainConfigure.cfg`；要加样式请单独提案。
-- **改 `agenda.lua`**：Rainmeter 公式里 `**` 是幂运算符（如 `7**#TypeH#`），不是畸形表达式。Lua 的 `0` 是真值，判断开关要用显式比较。含 `"` 的值必须走**三引号** bang 形式 `!SetOption 【meter】 【opt】 """值"""`，写成 `""` 会报 `Skin "X" does not exist` 且值不变。Rainmeter 按 ANSI（本机 CP936）读 `.lua` 源，字符串字面量必须纯 ASCII（中文注释无害），要显示中文只能从变量/ini 取。
+- **改 SettingsCenter（`config.exe` 来源）**：`dotnet build SettingsCenter\SettingsCenter.csproj -c Release`，把 `bin\Release\net48\` 的 `config.exe`、`config.exe.config`、`Microsoft.Web.WebView2.{Core,WinForms,Wpf}.dll`、`WebView2Loader.dll`、`lang\` 全量拷到 `REO\@Resources\Common\Config\`。csproj 锁死 `PlatformTarget=x86`——WebView2 的 net48 包只带 x86 loader，AnyCPU 会 `BadImageFormatException (0x8007000B)`。
+  - 皮肤调用参数契约：`【模式】 【config】 【file】 【settings】 【skins】 【program】`；新增调用点必须传第 6 参 `#PROGRAMPATH#`（`ImageBG\bg.ini` 的 2 处 3 参形式是裁决保留的合法用法）。`config.exe` 解析 Rainmeter 路径的顺序：第 6 参 → `ProgramW6432`/`ProgramFilesDir`/`ProgramFiles(x86)` 下的 `Rainmeter\Rainmeter.exe` → PATH（`_RainmeterExe()`）。未处理异常落盘 `%TEMP%\sc_crash.txt`，诊断崩溃先看它；WebView2 用户数据目录按面板哈希分（`%LOCALAPPDATA%\ReOmnimo\SettingsCenter\【hash】`），不同面板可并行。
+- **改 Tools（六个分发 exe）**：`dotnet build Tools\【名】\【名】.csproj -c Release`，把 `bin\Release\net48\【名】.exe` 单文件拷到部署位；`bin` 里的 `【名】.exe.config` 不部署。部署位：`ActivePanels.exe`→`Common\Config\`；`MultiManager.exe`→`Common\MultiManager\`；`ColorChanger.exe`→`Common\`；`ConfigBackground.exe`→`Common\Background\`；`PanelCreator.exe`→`Common\PanelCreator\`；`OmnimoApp.exe`→`Common\`。工程用 `<Compile Include="..\Shared\【文件】.cs" Link="…" />` 共享源码。
+  - `OmnimoShared.cs` 三条硬约定：① bang 走 WM_COPYDATA 发给 `FindWindow("RainmeterMeterWindow")`，`dwData=1`、载荷 UTF-16 + 结尾 NUL、`cbData=(字符数+1)*2`；② `IniDoc` 的 UTF-8 解码必须用会抛异常的严格实例，否则 cp1252 的非法字节被静默换成 U+FFFD 写坏文件；③ 写键值时只替换 `=` 之后的值、保留键名大小写（`ColorSkin` 不能变 `colorskin`）。
+  - 皮肤调用契约与命令字：`missing` / `lock` / `unlock` / `grid*` / `Save0` / `Save1` / `Load0` / `Load1` / `Delete`，其余模式静默 no-op。`ActivePanels` 每次运行先删 `hue.ini`、有活动面板时才重写；`OmnimoApp` 的 Align 是合并写；其余工具不碰。`hue.ini` 只写不读，不跟踪。`bin/`、`obj/`、`*.pdb`、`*.exe.WebView2/` 在 `.gitignore` 内，不要 `git add -f`。
+- **改面板参数**：`UserVariables.inc` 首行必须是 `[Variables]`——缺段头整文件键被静默忽略，日志里只有下游异常。这些文件被跟踪，改完会脏，提交前逐个确认。
+- **改私人订阅**：只写 `Config\Panels\Agenda\UserVariables.local.inc`（未跟踪，`.gitignore` 已覆盖），经 `@include5` 与 `UserVariables.inc` 合并，同名键以后者为准。`config.exe` 会自动跟随它读写，界面另显示本地覆盖提示——在设置界面改的值写进这个未跟踪文件，属有意行为。
+- **改语言文案**：`Chinese.inc` 与 `English.inc` 的键集逐键对照（现查各 280 键、双向零差）。全库唯一的占位符约定是 `AgendaNoEvents` 的 `%1`（`agenda.lua` 用 `gsub('%%1', …)`），不要发明第二种写法。7 个键在中文包里故意保持英文：`Folders`/`weather`/`Humidity`/`Pressure`/`Wind`/`brightness`/`start`。磁贴名本地化在 `Gallery\cat*.inc` 覆盖 `Text="#键#"`，不要在磁贴里写死中文。其余六份语言包是遗留漂移态（缺 6–8 个现役键、含 109–166 个上游遗留键、存在大小写变体重复键），冻结不修复，完整性以中英两包为准；要动它们先单独提案。
+- **改工具语言包**：八语键集必须一致，新增键同时补全 8 份（现查各 54 键、两两全等；缺键时按钮显示英文键名）。改动按 §5 流程，六份 UTF-16LE+BOM、`English`/`Dutch` 为 UTF-8 无 BOM。
+- **改语言跟随**：机制在 `Common\Variables\AutoLang.lua` + `Languages\Auto.inc`，宿主是 `Background\bg.ini` 与 `Gallery\main.ini` 末尾的 measure 对（Registry 读 `LocaleName`，`UpdateDivider=-1`）。语言→包映射在 lua 顶部，改语言包集合必须同步 lua、README 与 `Auto.inc`；`Auto.inc` 保持为指向 `English.inc` 的一行 shim。两个宿主 ini 编码不同（`bg.ini` 单字节、`main.ini` UTF-16LE+BOM），追加内容按各自编码写。检测器只在 `LangAuto=1` 且系统语言与 `MainLanguage` 不同时写回；换 Windows 语言后 `Common\Variables\UserVariables.inc` 与 `Common\Background\Varrar.inc` 各脏一次，属预期。
+- **改面板设置 schema**：`RainConfigure.cfg` 4 行一组，第 4 行非空且不是 `[Options]` 会弹读取失败。`Checkbox:a:b` 的契约是未勾选写 a、勾选写 b——把 `Checkbox:1:0` 读成「勾选=1」会把 `Hidden=#X#` 判反。
+- **加 Agenda 渲染样式**：现只有一套排布，`AgendaStyle` 变量不存在（现查命中 0）；要加样式先单独提案。
+- **改 `agenda.lua`**：Rainmeter 公式里 `**` 是幂运算符（`7**#TypeH#`）；Lua 的 `0` 是真值，判断开关要显式比较。含 `"` 的值走三引号 bang `!SetOption 【meter】 【opt】 """值"""`，写成 `""` 会报 `Skin "X" does not exist` 且值不变。Rainmeter 按系统 ANSI 读 `.lua`（中文 Windows 为 CP936），源里字符串字面量必须纯 ASCII。
 
 ## 7 禁止操作
 
-- **禁止把私人日历订阅 URL 写进任何被跟踪文件、脚本或文档**——公开订阅链接本身就是凭据。自检：对 `git rev-list --all -- REO/@Resources/Config/Panels/Agenda/UserVariables.inc` 的每个 blob，比对 Feed 行的「长度 + sha256 前 16 位」。**不要**用 `git log -S'【关键词】'` 做这条自检——关键词随文档入库后必然自匹配，永远失败。
-- **禁止提交会被运行时改写的文件**：`REO\Gallery\main.ini`、`REO\Gallery\scroll.inc`、`REO\Gallery\Intro\save.inc`、`REO\Gallery\MultiManager\TimeSettings.inc`、`REO\Gallery\MultiManager\Saved\*\`；另有 4 个写回目标不在此列但同样会被运行时动：`Gallery\Settings\font.ini`（字号设置写回）、`Gallery\Color\save.inc` 与 `Gallery\Color\color.ini`（主题保存/运行时创建）、`Gallery\MultiManager\Item.ini` 的 `Labels2/3` 键（标签保存）。误改用 `git checkout --` 还原。语言检测器（`AutoLang.lua`，§6）在 `LangAuto=1` 且系统语言与 `MainLanguage` 不同时还会写回 `Common\Variables\UserVariables.inc` 与 `Common\Background\Varrar.inc`（值一致时不写）——换 Windows 语言后这两个文件各脏一次，属预期。注意 `.git/info/exclude` 只对**未跟踪**文件生效：`git ls-files -ci --exclude-standard` 现查仍列出 243 个已跟踪文件，它们被写脏后会直接出现在 status 里，其中 5 个带 skip-worktree 标记（见 §3），`git add -A` 会把它们一并暂存。
-- **禁止手改分发 exe，或只改源码不重编译就发版**。原因：用户运行的是二进制，源码修复不重编译等于没修；上游的 `config.exe` 曾与源码漂移两年，本就是本仓库要纠正的问题。前置动作：改 `Tools\` / `SettingsCenter\` 的 C# 源后按 §6 对应条目重新构建、把单文件 exe 部署到表内位置；
-- **禁止为「修语义反转」改 `Hidden=#ShowSeconds#` / `Hidden=#ShowExternalIP#` 一类写法**：前者配 `Checkbox:1:0`（勾选写 0，启用即显示，正确）；后者是外网/内网 IP 同位互换设计（靠 `Formula=-1*#ShowExternalIP#+1` 反转配合）。改前先读该面板 `RainConfigure.cfg` 的 Checkbox 规约与相邻 Calc 公式。
-- **禁止「顺手修复」上游遗留死文件**：`Languages\Backup\`、`Languages\lang.inc`、`Common\Settings\UserVariables.inc`（只有写入者无读取者——`Gallery\cat7.inc` 与 `Gallery\Intro\intro.ini` 里共 16 处 `!WriteKeyValue`）。属上游历史形态，清理需单独提案，混进功能改动会污染 diff。
+- 禁止把私人日历订阅 URL 写进任何被跟踪文件、脚本或文档——公开订阅链接本身就是凭据。自检：对 `git rev-list --all -- REO/@Resources/Config/Panels/Agenda/UserVariables.inc` 的每个 blob 比对 Feed 行的长度 + sha256 前 16 位；不要用 `git log -S`（关键词入库后必自匹配）。
+- 禁止提交会被运行时改写的文件：`Gallery\main.ini`、`Gallery\scroll.inc`、`Gallery\Intro\save.inc`、`Gallery\MultiManager\TimeSettings.inc`、`Gallery\MultiManager\Saved\*\`；`Gallery\Settings\font.ini`、`Gallery\Color\save.inc`、`Gallery\Color\color.ini`、`Gallery\MultiManager\Item.ini` 的 `Labels2/3` 也会被写。误改用 `git checkout --` 还原。
+- 禁止手改分发 exe，或只改源码不重编译就发版。原因：用户运行的是二进制，源码修复不重编译等于没修。要改 exe 必须先按 §6 构建 C# 源并部署单文件产物。
+- 禁止为「修语义反转」改 `Hidden=#ShowSeconds#` / `Hidden=#ShowExternalIP#` 一类写法：前者配 `Checkbox:1:0`（勾选写 0，启用即显示，正确）；后者是外网/内网 IP 同位互换设计（靠 `Formula=-1*#ShowExternalIP#+1` 反转配合）。改前先读该面板 `RainConfigure.cfg` 的 Checkbox 规约。
+- 禁止「顺手修复」上游遗留死文件：`Languages\Backup\`、`Languages\lang.inc`、`Common\Settings\UserVariables.inc`（只有写入者无读取者）。清理需单独提案，混进功能改动会污染 diff。
 - 禁止在文档与提交里放凭据、真实邮箱；对外文档零 emoji，提示块写 `> **注意**:`；commit message 用英文说清 Why，一个提交只做一件事。
 - 面板 ini 的 `License=` 统一写 `Creative Commons Attribution-Noncommercial-Share Alike 3.0 License`；不许改动 `TextItems\Search\` 三份 NoDerivs 文件的许可声明。
 
 ## 8 验收标准
 
-改动完成 = 下列全部通过（无 CI，以本清单为准）：
+改动完成 = 下列全部通过：
 
-1. `git status --porcelain` 改动面与意图一致，不含运行时文件与 exclude 列出的已跟踪文件。用 `git ls-files -ci --exclude-standard` 全量枚举、逐个确认。
-2. 改过 C# 工程（`Tools\` 六个工具 / `SettingsCenter\`）：`dotnet build -c Release` 零 error，按 §6 部署到对应位置，再实机验证——PowerShell 读 `VersionInfo.FileVersion` 等于本次发布号；`CreateProcess` 带 `CREATE_SUSPENDED` 映射镜像后立刻 `TerminateProcess` 过可加载性自检（与真实启动同一套校验、零副作用）；`Tools\` 里的命令行工具实机跑 `missing` 与一条未知命令（退出码 0、日志无新增 `ERRO`），GUI 工具用真实皮肤参数启动确认界面与控件齐全。`SettingsCenter\` 另需右键皮肤实机验证（设置窗口打开、改值写回、面板刷新）。
-3. 动过皮肤行为：开日志（§3）实机验证，无新增 `ERRO`；**验完把 `Rainmeter.ini` 的 `Logging` 关回**。日志验收判据（2026-10-20 实测全量刷新 `ERRO=0`）：出现任何 `ERRO` 行都按新缺陷处理；已知残留噪声仅「变量为空时的 `ImageName: Unable to open: …\OverlayBorder\`」一条。视觉对比用差异像素占比给阈值，不要要求逐字节相同（半透明面板会透出动态壁纸与亚像素抖动；截图前关掉动态壁纸、把光标移离面板、等 WebParser 完成）。历史参考阈值：滚动生效 14.2%、静置回顶 0.04%（0.4.0 时期实测，未复测）。
-4. 发版一次闭口：改动全提交 → `git tag -a X.Y.Z -m "…"`（不带 `v` 前缀）→ `git push origin main X.Y.Z` → `gh release create X.Y.Z -R OMSociety/ReOmnimo --title X.Y.Z -F 【正文文件】`（双 remote 下必须显式 `-R`；正文走 `-F` 文件传，避免命令行对中文的引号与编码损耗）。正文 = 一句中文摘要 + `CHANGELOG.md` 对应小节原文。
+1. `git status --porcelain` 改动面与意图一致，不含运行时文件与 skip-worktree 文件（`git ls-files -v` 逐条核对）。
+2. 改过 C# 工程：`dotnet build -c Release` 零 error，按 §6 部署后实机验证——`VersionInfo.FileVersion` 等于本次发布号；`CreateProcess` 带 `CREATE_SUSPENDED` 映射镜像后立刻 `TerminateProcess` 过可加载性自检；命令行工具实机跑 `missing` 与一条未知命令（退出码 0、日志无新增 `ERRO`），GUI 工具用真实皮肤参数启动确认界面与控件齐全；`SettingsCenter` 另需右键皮肤实机验证设置窗口与写回。
+3. 动过皮肤行为：开日志（§2）实机验证无新增 `ERRO`，验完把 `Logging` 关回。日志验收判据：出现任何 `ERRO` 都按新缺陷处理；已知噪声仅变量为空时的 `ImageName: Unable to open: …\OverlayBorder\` 一条。视觉对比用差异像素占比给阈值，不要求逐字节相同（截图前关动态壁纸、移开光标、等 WebParser 完成）。
+4. 发版一次闭口：改动全提交 → `git tag -a X.Y.Z -m "…"`（不带 `v` 前缀）→ `git push origin main X.Y.Z` → `gh release create X.Y.Z -R OMSociety/ReOmnimo --title X.Y.Z -F 【正文文件】`（双 remote 下必须显式 `-R`；正文 = 一句中文摘要 + `CHANGELOG.md` 对应小节）。发布号只活在 tag + `CHANGELOG.md` 标题 + GitHub Release 三处；仓库内 `Version=` 字段（`Rainstaller.cfg` 10.0.4、`OmnimoVersion` 10.0、`Settings` 6.0.1、`RMSKIN.inc` 1.0）属上游自有体系，不要动；号码动手前先向用户确认。
 
 ## 9 已知风险区
 
-> 本节的坑来自既往实测记录，未在 2026-10-16 全部复测；引用前先按当前代码现查。
-
 | 位置 | 风险 | 前置动作 |
 |---|---|---|
-| `agenda.lua` 数据通路 | WebParser `Download=1` 时字符串的值是下载文件路径而不是正文（实测 58–64 字符） | 必须 `RegExp=(?s)^(.*)$` + `StringIndex=1` 整页捕获 |
-| `agenda.lua` 窗口计算 | 窗口 = 恰好 `RangeDays` 个日历日（闭区间），今天与第 `RangeDays` 天都显示 | 改窗口逻辑以闭区间为唯一定义，`RangeDays` 直接决定天数 |
-| `agenda.lua` 时区偏移表 | 表内是**标准时**偏移，夏令时期间会偏 1 小时；未知 TZID 按本机墙上时间显示并只记一次 Notice | 不要引入完整 IANA 库 |
-| `agenda.lua` 每秒门控 | `Update()` 里的两级缓存不能拆（旧代码每 tick 推约 120 条 bang） | 用仓库外探针皮肤验证，读数只能取 `SKIN:GetMeter('Row1'):GetOption('Text')` |
-| `[Clip]` 裁剪 | 被指定为 Container 的表自身不绘制，拿 `[bg]` 当遮罩会让磁贴背景消失 | 另建不透明独立遮罩表（Agenda 的 `[Clip]` 即此法） |
-| `RainConfigure.cfg` | 第 4 行非空且不是 `[Options]` 会弹 `Unable to read RainConfigure.cfg` | 每组后必须留空行；改 schema 前按 4 行一组逐行核对 |
+| `agenda.lua` 数据通路 | WebParser `Download=1` 时字符串值是下载文件路径而非正文（58–64 字符） | 必须 `RegExp=(?s)^(.*)$` + `StringIndex=1` 整页捕获 |
+| `agenda.lua` 窗口计算 | 窗口 = 恰好 `RangeDays` 个日历日（闭区间），今天与第 `RangeDays` 天都显示 | 以闭区间为唯一定义，`RangeDays` 直接决定天数（面板参数见 `Config\Panels\Agenda\UserVariables.inc`） |
+| `agenda.lua` 时区表 | 表内是标准时偏移，夏令时期间偏 1 小时；未知 TZID 按本机墙上时间并只记一次 Notice | 不要引入完整 IANA 库 |
+| `agenda.lua` 每秒门控 | `Update()` 的两级缓存不能拆（旧实现每 tick 推约 120 条 bang） | 用仓库外探针皮肤验证，读数取 `SKIN:GetMeter('Row1'):GetOption('Text')` |
+| `[Clip]` 裁剪 | 被指定为 Container 的表自身不绘制，拿 `[bg]` 当遮罩会让磁贴背景消失 | 另建不透明独立遮罩表 |
+| `RainConfigure.cfg` | 第 4 行非空且不是 `[Options]` 会弹读取失败 | 每组后留空行；改 schema 前按 4 行一组核对 |
 | 新建皮肤目录 | 不 `!RefreshApp` 直接 `!ActivateConfig` 找不到 config | 先 RefreshApp 再 Activate |
-| `git add -A` | 5 个带 skip-worktree 标记的已跟踪文件不受 exclude 保护，运行时写脏后会被暂存 | 见 §7 第二条；提交前逐文件确认 |
-| 大网格自动排布 | 3x3 分支在启用面板 ≥31 时生效，行表必须含 `$row9`（`Tools\ActivePanels\Program.cs` 已补齐） | 改排布逻辑以 `Tools\Shared\OmnimoShared.Tools.cs` 的 `Aligner.GridPosition` 为准（`Tools\ActivePanels\Program.cs:180` 调用之） |
-| `Tools\` 的 GUI 工具 | 三个工具已换 ModernForm 无边框壳：圆角由 DWM 偏好裁剪——**禁止再叠 WinForms `Region`**（双重圆角半径不一致会在角上反白，2026-10-17 修过）；`ConfigBackground` 宽 / 高滑杆上限 = 进程视角的桌面宽 / 高（超出夹断、Apply 会写回夹断值）；PanelCreator 的 `OnSaveClick` 先 `ChangeToScriptDirectory` 切到 exe 目录再走全部相对路径（`Resources\Colors.inc` 等，读不到则退化为空表、颜色按 0 处理）；`ConfigBackground` 的主题判定走注册表 `Theme.Detect`（`Tools\Shared\ModernUi.cs`），不读 `Colors.inc`；`ModernUi.UiFont()` 返回共享缓存字体——**禁止 `using`/`Dispose`**，否则后续绘制抛 `ArgumentException` 参数无效；DPI：三个 exe 靠 `Tools\Shared\app.manifest`（PerMonitorV2）感知，`ModernForm.OnHandleCreated` 手动 `Scale`，**别用 `AutoScaleMode.Dpi`**（net48 实测因子算成 1、只放大字不缩放坐标），自绘控件内写死的设计像素常量一律乘 `ModernUi.PxU/DpiU`；`ModernCheckBox` 基类是 `Control` 不是 `CheckBox`（继承 CheckBox 时主题引擎仍会在非 96 DPI 下把原生勾选字形画进客户区，呈彩色碎片） | 截图核对用 PrintWindow（`flags=2`）或同 DPI 上下文 `CopyFromScreen`，截图前把光标钉在主屏（PerMonitorV2 窗口创建在光标所在屏），必要时出控件转储 |
-| `!WriteKeyValue` 写回 | Rainmeter 对无 BOM 的非 UTF-8 文件按系统 ANSI（本机 CP936）读写：高位字节变 `?`、可能吞行尾引号（2026-10-17 实测损伤 `UserVariables.inc` 一行后修复） | 会被运行时写回的 inc 一律 UTF-8+BOM / UTF-16LE+BOM（§3）；给皮肤加新的写回目标前先想编码 |
+| 大网格自动排布 | 3x3 分支在启用面板 ≥31 时生效，行表必须含 `$row9` | 改排布以 `Tools\Shared\OmnimoShared.Tools.cs` 的 `Aligner.GridPosition` 为准（`Tools\ActivePanels\Program.cs:180` 调用） |
+| `Tools\` 的 GUI 工具 | ModernForm 无边框壳：圆角由 DWM 裁剪，禁止再叠 WinForms `Region`（双重圆角会在角上反白）；`ConfigBackground` 滑杆上限 = 进程视角桌面尺寸，超出夹断、Apply 写回夹断值；PanelCreator 的 `OnSaveClick` 先切到 exe 目录再走相对路径；`ModernUi.UiFont()` 返回共享缓存字体，禁止 `using`/`Dispose`；DPI 靠 `app.manifest`（PerMonitorV2）+ `ModernForm.OnHandleCreated` 手动 `Scale`，别用 `AutoScaleMode.Dpi`（因子算成 1），自绘常量乘 `ModernUi.PxU/DpiU`；`ModernCheckBox` 基类是 `Control` 不是 `CheckBox` | 截图用 PrintWindow（`flags=2`）或同 DPI 下的 `CopyFromScreen`，光标钉主屏，必要时出控件转储 |
+| 主题键定义 | `Padding`/`Opacity`/`Opacity2`/`Globalblurenable`/`Xposition` 除 `Common\Color\*.inc` 外，还有 6 个范围外文件定义（`Config\TextItems\Extra\{Menu,AnotherMenu,AndAnother}\UserVariables.inc`、`#Win8Sidebar\Addons\Config` 与 `G'DayMate` 系、`Hubs\RSSBurst\Hub.ini`） | 查键定义别只看 Color 目录；换主题会整体覆盖 `color.inc`，提交的默认值会被改回主题自带值，属有意边界 |
+| `!WriteKeyValue` 写回 | Rainmeter 对无 BOM 的非 UTF-8 文件按系统 ANSI 读写，高位字节变 `?`、可能吞行尾引号 | 会被写回的 inc 一律带 BOM（§5） |
 
 ## 10 出错怎么办
-
-> 症状行的可检索片段来自既往实测记录；先按 §3 开日志抓 `ERRO` 再定位。
 
 | 症状（可检索片段） | 处理 |
 |---|---|
 | `12006` / `未使用可识别的协议` | 面板配置 inc 缺 `[Variables]` 段头，或 `Url` 变量未定义；查 include 顺序与变量拼写（变量名不区分大小写） |
-| `Unable to read RainConfigure.cfg` | schema 格式坏，见 §9 |
+| `Unable to read RainConfigure.cfg` | schema 坏，见 §9 |
 | `tag exists locally but has not been pushed` | `gh` 解析到了 upstream；命令补 `-R OMSociety/ReOmnimo` |
-| 截图每张都不同 | 半透明面板透出动态壁纸与亚像素抖动；先关动态壁纸，改用差异像素占比判据，不要要求逐字节相同 |
-| Python 写回后文件行尾全乱 | `\r\n` 被写成 `\r\r\n`；补丁脚本补 `newline=""` 重写 |
-| 重启后 `Rainmeter.ini` 只剩一百多字节、桌面皮肤全没了 | 文件头真 BOM 被写坏（残迹形如 `EF BF BD EF BF BD`），Rainmeter 按 CP936 读成空配置后写回默认值。该文件是 **UTF-16LE + 真 `FF FE` BOM**，只认这个 BOM；从备份恢复，别在缺 BOM 的文件上做字节级替换。行尾以现查为准（Rainmeter 自己写回时归一成 CRLF，但实测出现过纯 LF），补丁脚本按实际行尾处理，别假定 |
-| 开日志脚本报 `ABORT (no write): file has no CRLF line endings` | `%APPDATA%\Rainmeter\Rainmeter.ini` 当前是纯 LF，带行尾自检的写法会挡住写入；改用 §3 那条字节级只改 `Logging=` 一个字符的做法，不做整文件重写 | |
+| 截图每张都不同 | 半透明面板透出动态壁纸与亚像素抖动；关动态壁纸，用差异像素占比判据 |
+| 写回后行尾全乱 | `\r\n` 被写成 `\r\r\n`；补丁脚本补 `newline=""` |
+| 重启后 `Rainmeter.ini` 只剩一百多字节、皮肤全没 | 真 BOM 被写坏（残迹 `EF BF BD EF BF BD`），Rainmeter 按 CP936 读成空配置写回默认值。该文件是 UTF-16LE + 真 `FF FE` BOM，从备份恢复，别在缺 BOM 的文件上做字节级替换；行尾按实际处理（可能纯 LF） |
+| 开日志报 `ABORT (no write): file has no CRLF line endings` | 该 ini 当前是纯 LF，改 §2 的字节级只改一个字符的做法，不做整文件重写 |
 
 ## 11 维护
 
-- 本文件与触发它的代码改动进**同一个提交**，不攒批；发现本文件与代码不符时，先改本文件再继续改代码。改动以下内容必须同步本文件：验收命令、include 链、Checkbox 契约、凭据规则、分发 exe 清单与重编译命令、产品边界、§5 的在途状态。
-- 事实性数字（键数、目录数、文件大小、计数）引用前现查（编码表按 §3 规则逐个嗅探重扫，语言包键集按 §6 方法重比对），不凭记忆。交付本文件的改动前跑 `python C:\Users\Administrator\.dsh\skills\agent-onboarding\scripts\check_agents_md.py --root D:\WorkSpace\Github\ReOmnimo`（error 必须为 0），并人工核对：链接目标说的是不是同一回事、每条规则的触发条件是否明确、有没有把「我们用了 X」写成规则。
+- 本文件与触发它的改动进同一个提交，不攒批；发现与代码不符时先改本文件。必须同步：验收命令、include 链、Checkbox 契约、凭据规则、分发 exe 清单与重编译命令、风险区。
+- 事实性数字（键数、目录数、文件大小）引用前现查，不凭记忆。
