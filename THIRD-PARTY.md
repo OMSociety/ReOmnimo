@@ -1,8 +1,9 @@
 # Third-Party Notices
 
-This repository is a fork of [fediaFedia/Omnimo](https://github.com/fediaFedia/Omnimo). It carries the
-upstream tree essentially verbatim, plus a Simplified Chinese localization and a small set of source
-fixes. This file records where every part comes from and under what terms it is redistributed.
+This repository is a fork of [fediaFedia/Omnimo](https://github.com/fediaFedia/Omnimo). It keeps the
+upstream skin tree as its base and has since diverged: a Simplified Chinese localization, rewritten
+C# helper executables, reworked panels and defaults, and a reorganized gallery. This file records
+where every part comes from and under what terms it is redistributed.
 
 The repository root [`LICENSE`](LICENSE) holds the **GNU General Public License version 2** text, which
 governs the software and components, exactly as upstream declares it in its `readme.md`.
@@ -77,8 +78,8 @@ Added:
 | `AGENTS.md` | A working guide to this fork: encodings, Rainmeter pitfalls, credential rules |
 | `CHANGELOG.md` | Per-release notes for the fork |
 | `THIRD-PARTY.md` | This file |
-| `README.md` | The repository's own README, English primary, under the name ReOmnimo |
-| `README.zh.md` | The same README in Chinese, standalone |
+| `README.md` | The repository's own README, Chinese primary, under the name ReOmnimo |
+| `README_en.md` | The same README in English, standalone |
 | `REO/@Resources/Common/Variables/Languages/Chinese.inc` | Simplified Chinese UI language pack, 280 unique keys, mirroring `English.inc` |
 | `REO/@Resources/Common/Background/Language/Chinese.cfg` | Simplified Chinese strings for the C# tools, 54 keys |
 | `REO/Panels/Agenda/` (`Item.ini`, `Item2.ini`, `Item3.ini`, `agenda.lua`, `Agenda.png`) | The Agenda calendar panel: published ICS subscriptions, merged, deduplicated and sorted |
@@ -116,7 +117,7 @@ Deleted: the Corona panel — four files under `REO/Panels/Corona/` and six unde
 `REO/@Resources/Config/Panels/Corona/`, with the gallery row
 and the icon layer reflowed to match; and the six Microsoft Segoe `.ttf` files under
 `REO/@Resources/Fonts/`, not licensed for redistribution (see
-section 4); and upstream's `readme.md`, which this repository replaces with its own `README.md` (English) and `README.zh.md` (Chinese); and the AutoIt source tree `AutoIT/` (every executable ships as the C# rewrite, section 3); plus, in the 0.8.0 pass, dead tiers of the structure presets, redundant icon copies and other files with no remaining reference in the tree.
+section 4); and upstream's `readme.md`, which this repository replaces with its own `README.md` (Chinese) and `README_en.md` (English); and the AutoIt source tree `AutoIT/` (every executable ships as the C# rewrite, section 3); plus, in the 0.8.0 pass, dead tiers of the structure presets, redundant icon copies and other files with no remaining reference in the tree.
 
 Our changes inherit the terms of the file they touch: GPL-2.0 where upstream puts that file under
 GPL-2.0, CC BY-NC-SA 3.0 where the file self-declares it. No rights are claimed over upstream

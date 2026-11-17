@@ -3,7 +3,7 @@
 适用范围：本仓库全部目录（单文件，无子目录级 AGENTS.md）。
 最后更新：2026-11-17。
 
-Rainmeter 皮肤套件：WP7/Metro 磁贴布局，接手 fediaFedia/Omnimo 后独立演进。文档索引：`README.md`（英文）、`README.zh.md`（中文）、`CHANGELOG.md`、`THIRD-PARTY.md`（含差异集逐文件清单）。改用户可见行为时同步两份 README。
+Rainmeter 皮肤套件：WP7/Metro 磁贴布局，接手 fediaFedia/Omnimo 后独立演进。文档索引：`README.md`（中文）、`README_en.md`（英文）、`CHANGELOG.md`、`THIRD-PARTY.md`（含差异集逐文件清单）。改用户可见行为时同步两份 README。
 
 ## 1 环境与工具
 
@@ -22,7 +22,7 @@ Rainmeter 皮肤套件：WP7/Metro 磁贴布局，接手 fediaFedia/Omnimo 后�
 | 目的 | 命令 |
 |---|---|
 | 核对改动面（提交前必跑） | `git status --porcelain`，逐条确认与意图一致 |
-| 查 skip-worktree 标记 | `git ls-files -v`，行首 `S` 为已标记（现查 5 个：`Config\Panels\Slideshow\UserVariables.inc`、`Config\Panels\WorldClock\UserVariables.inc`、`Config\TextItems\MultiManager\UserVariables.inc`、`Gallery\MultiManager\Saved\2\screenshot.png`、`Gallery\MultiManager\TimeSettings.inc`） |
+| 查 skip-worktree 标记 | `git ls-files -v`，行首 `S` 为已标记（现查无）；个人面板配置（`Config\Panels\Agenda\UserVariables.inc`、`Config\Panels\Slideshow\UserVariables.inc`）表现为普通脏改动，提交时逐条排除 |
 | 找残留旧路径 | `git grep -In "wp7" -- 'REO/*'` |
 | 刷新全部并重扫描 | `& "$env:ProgramFiles\Rainmeter\Rainmeter.exe" !RefreshApp`，等约 9 秒再 Activate（未扫描完会找不到 config） |
 | 激活单个面板 | `cmd /c '"%ProgramFiles%\Rainmeter\Rainmeter.exe" !ActivateConfig "REO\Panels\Agenda" "Item.ini"'`——pwsh 的 `&` 会吃掉带引号 bang 的内层引号；带引号参数的 bang 一律 `cmd /c` 包装，无参 bang（`!RefreshApp`/`!Quit`）`&` 直传 |
@@ -105,7 +105,7 @@ REO\                              皮肤根（Rainmeter 加载此目录后即桌
 - 禁止手改分发 exe，或只改源码不重编译就发版。原因：用户运行的是二进制，源码修复不重编译等于没修。要改 exe 必须先按 §6 构建 C# 源并部署单文件产物。
 - 禁止为「修语义反转」改 `Hidden=#ShowSeconds#` / `Hidden=#ShowExternalIP#` 一类写法：前者配 `Checkbox:1:0`（勾选写 0，启用即显示，正确）；后者是外网/内网 IP 同位互换设计（靠 `Formula=-1*#ShowExternalIP#+1` 反转配合）。改前先读该面板 `RainConfigure.cfg` 的 Checkbox 规约。
 - 禁止「顺手修复」上游遗留死文件：`Languages\Backup\`、`Languages\lang.inc`、`Common\Settings\UserVariables.inc`（只有写入者无读取者）。清理需单独提案，混进功能改动会污染 diff。
-- 禁止在文档与提交里放凭据、真实邮箱；对外文档零 emoji，提示块写 `> **注意**:`；commit message 用英文说清 Why，一个提交只做一件事。
+- 禁止在文档与提交里放凭据、真实邮箱；对外文档零 emoji，提示块写 `> **注意**：`；commit message 用英文说清 Why，一个提交只做一件事。
 - 面板 ini 的 `License=` 统一写 `Creative Commons Attribution-Noncommercial-Share Alike 3.0 License`；不许改动 `TextItems\Search\` 三份 NoDerivs 文件的许可声明。
 
 ## 8 验收标准
@@ -113,9 +113,9 @@ REO\                              皮肤根（Rainmeter 加载此目录后即桌
 改动完成 = 下列全部通过：
 
 1. `git status --porcelain` 改动面与意图一致，不含运行时文件与 skip-worktree 文件（`git ls-files -v` 逐条核对）。
-2. 改过 C# 工程：`dotnet build -c Release` 零 error，按 §6 部署后实机验证——`VersionInfo.FileVersion` 等于本次发布号；`CreateProcess` 带 `CREATE_SUSPENDED` 映射镜像后立刻 `TerminateProcess` 过可加载性自检；命令行工具实机跑 `missing` 与一条未知命令（退出码 0、日志无新增 `ERRO`），GUI 工具用真实皮肤参数启动确认界面与控件齐全；`SettingsCenter` 另需右键皮肤实机验证设置窗口与写回。
+2. 改过 C# 工程：`dotnet build -c Release` 零 error，按 §6 部署后实机验证——`VersionInfo.FileVersion` 等于本次发布号（C# 工程的 `<Version>`/`<FileVersion>`/`<ProductVersion>` 随发布号同步，现为 `1.0.0.0`）；`CreateProcess` 带 `CREATE_SUSPENDED` 映射镜像后立刻 `TerminateProcess` 过可加载性自检；命令行工具实机跑 `missing` 与一条未知命令（退出码 0、日志无新增 `ERRO`），GUI 工具用真实皮肤参数启动确认界面与控件齐全；`SettingsCenter` 另需右键皮肤实机验证设置窗口与写回。
 3. 动过皮肤行为：开日志（§2）实机验证无新增 `ERRO`，验完把 `Logging` 关回。日志验收判据：出现任何 `ERRO` 都按新缺陷处理；已知噪声仅变量为空时的 `ImageName: Unable to open: …\OverlayBorder\` 一条。视觉对比用差异像素占比给阈值，不要求逐字节相同（截图前关动态壁纸、移开光标、等 WebParser 完成）。
-4. 发版一次闭口：改动全提交 → `git tag -a X.Y.Z -m "…"`（不带 `v` 前缀）→ `git push origin main X.Y.Z` → `gh release create X.Y.Z -R OMSociety/ReOmnimo --title X.Y.Z -F 【正文文件】`（双 remote 下必须显式 `-R`；正文 = 一句中文摘要 + `CHANGELOG.md` 对应小节）。发布号只活在 tag + `CHANGELOG.md` 标题 + GitHub Release 三处；仓库内 `Version=` 字段（`Rainstaller.cfg` 10.0.4、`OmnimoVersion` 10.0、`Settings` 6.0.1、`RMSKIN.inc` 1.0）属上游自有体系，不要动；号码动手前先向用户确认。
+4. 发版一次闭口：改动全提交 → `git tag -a X.Y.Z -m "…"`（不带 `v` 前缀）→ `git push origin main X.Y.Z` → `gh release create X.Y.Z -R OMSociety/ReOmnimo --title X.Y.Z --notes ""`（双 remote 下必须显式 `-R`）。首个 `1.0.0` 的 `CHANGELOG.md` 只有标准头部、正文留空，Release 正文同样留空；自 `1.0.1` 起 Release 正文 = 一句中文摘要 + `CHANGELOG.md` 对应小节。发布号只活在 tag 与 GitHub Release 标题两处，`CHANGELOG.md` 自 `1.0.1` 起才有版本条目；仓库内 `Version=` 字段（`Rainstaller.cfg` 10.0.4、`OmnimoVersion` 10.0、`Settings` 6.0.1、`RMSKIN.inc` 1.0）属上游自有体系，不要动；号码动手前先向用户确认。
 
 ## 9 已知风险区
 
