@@ -1,7 +1,7 @@
 # AGENTS.md — ReOmnimo
 
 适用范围：本仓库全部目录（单文件，无子目录级 AGENTS.md）。
-最后更新：2026-10-20（0.8.0 修复轮）。
+最后更新：2026-11-17。
 
 一句话定位：Rainmeter 皮肤套装 ReOmnimo，起于接手 fediaFedia/Omnimo，现已脱离上游独立演进，持续做现代化。
 
@@ -9,7 +9,7 @@
 
 - **乐见对旧代码的大幅度现代化改动。** 把 2013 年的 AutoIt 工具迁到 C#、把插件改成 Rainmeter 5.0 原生 measure、换用 SMTC 这类改造即此方向，属本职范围内的工作；不要为了「与上游保持一致」而保留过时实现，也不要以「上游就是这么写的」为由拒绝重构。判断标准是当前代码的正确性与可维护性，不是与 upstream 的差异大小。
 - 设计层是**用户的既定设计理念，不是待还的技术债**：不重画视觉、不复刻面板、不改设计语言、不换字体。磁贴表面（面板内容）保持英文并按英文宽度排版；磁贴名走语言包（`Gallery\cat*.inc` 的 `Text="#键#"`）。不要以「现代化」为由改这四样。
-- 发版：发布号与 tag 的对应关系以 `git tag` 现查为准；`CHANGELOG.md` 里没有对应 tag 的历史条目属于正常形态，不要为它们补 tag。`0.7.0` tag 2026-10-19 推送，Release 说明涵盖 0.6.0 与 0.7.0 两节；`0.8.0` 2026-10-21 发布（深度审查驱动的修复轮，见 `CHANGELOG.md` 0.8.0 节）。**tag 名自 `0.4.0` 起不带 `v` 前缀**，已发布的 tag 不移动。发布号只活在 tag + `CHANGELOG.md` 标题 + GitHub Release 三处（外加 exe 版本资源）；仓库内 `Version=` 字段（`Rainstaller.cfg` 的 10.0.4、`OmnimoVersion` 10.0、`Settings` 6.0.1、`RMSKIN.inc` 1.0）属上游自有体系，不要动。动手前先向用户确认号码。
+- 发版：版本号从 `1.0.0` 起算，`CHANGELOG.md` 只收 `1.0.0` 及之后的版本（更早的改动查 `git log`）。发布号与 tag 的对应关系以 `git tag` 现查为准，**tag 名不带 `v` 前缀**，已发布的 tag 不移动。发布号只活在 tag + `CHANGELOG.md` 标题 + GitHub Release 三处（外加 exe 版本资源）；仓库内 `Version=` 字段（`Rainstaller.cfg` 的 10.0.4、`OmnimoVersion` 10.0、`Settings` 6.0.1、`RMSKIN.inc` 1.0）属上游自有体系，不要动。动手前先向用户确认号码。
 - 文档索引：`README.md`（英文）与 `README.zh.md`（中文）、`CHANGELOG.md`、`LICENSE`、`THIRD-PARTY.md`（含差异集逐文件清单）。改用户可见行为时同步两份 README。
 - 仓库 `OMSociety/ReOmnimo`（2026-10-02 由 `OMSociety/Omnimo` 改名）。双 remote：`origin` = 本 fork，`upstream` = `fediaFedia/Omnimo`；`gh` 命令必须显式带 `-R OMSociety/ReOmnimo`，否则默认解析到 upstream。旧全名与 `raw.githubusercontent.com` 旧路径仍重定向（`gh api repos/OMSociety/Omnimo` 现查解析为 `OMSociety/ReOmnimo`），历史链接无需批量改写。`upstream` 仅作历史来源保留、**不作对照基准**——皮肤根 `WP7\` 改名 `REO\` 后全树分叉，与上游的 diff 计数、与上游的实现方式都不构成理由。
 - 桌面映射：`%USERPROFILE%\Documents\Rainmeter\Skins\REO` 是指向本仓库 `REO\` 的 junction（现查已确认）。改仓库即改用户的桌面皮肤。
@@ -42,7 +42,7 @@
 
 改皮肤文件（`ini` / `inc` / `cfg` / `lua`）必须用编码感知的补丁脚本：二进制读入 → 按嗅探到的编码解码 → 替换 → 按**同一编码**写回且 `newline=""`。直接用文本工具写会把 `\r\n` 写成 `\r\r\n`（实测过）。嗅探顺序：UTF-16LE+BOM → UTF-8+BOM → **会抛异常的**严格 UTF-8 → cp936 → cp1252；纯 ASCII 文件会同时通过多种编码，另看是否含 `>= 0x80` 字节。控制台是 GBK，`print` 中文会抛 `UnicodeEncodeError`，结果写 UTF-8 文件再看。
 
-**编码不能按目录或扩展名假定，逐个嗅探。** 2026-10-20 复扫（0.8.0 修复轮，REO 树 `ini`/`inc`/`cfg`/`lua` 共 1194 个）：1092 个 UTF-8 无 BOM（含纯 ASCII 1083）、75 个 UTF-16LE+BOM、18 个 cp1252、5 个 cp936、4 个 UTF-8+BOM。按模式看主流与例外：
+**编码不能按目录或扩展名假定，逐个嗅探。** 2026-10-20 复扫（REO 树 `ini`/`inc`/`cfg`/`lua` 共 1194 个）：1092 个 UTF-8 无 BOM（含纯 ASCII 1083）、75 个 UTF-16LE+BOM、18 个 cp1252、5 个 cp936、4 个 UTF-8+BOM。按模式看主流与例外：
 
 | 模式（文件数） | 现查编码分布 |
 |---|---|
@@ -89,7 +89,7 @@ REO\                              皮肤根（桌面 junction 指到这里）
 
 ## 5 当前状态：在途工作与待办
 
-> **接手先读本节。** 当前无在途工作：最近一轮大改是 0.8.0（2026-10-21，深度审查驱动的五批修复，见 `CHANGELOG.md` 0.8.0 节），七份分发 exe 已重编译部署为 0.8.0.0。`Tools\` 31 文件、`SettingsCenter\` 7 文件均已跟踪。`git status --porcelain` 若只剩 `REO/Gallery/scroll.inc` 一条脏，是运行时波动（Rainmeter 会写它，§7 清单成员），`git checkout --` 还原即可。
+> **接手先读本节。** 当前无在途工作：最近一轮大改是 2026-10-21 的深度审查五批修复，七份分发 exe 已重编译部署为 0.8.0.0。`Tools\` 31 文件、`SettingsCenter\` 7 文件均已跟踪。`git status --porcelain` 若只剩 `REO/Gallery/scroll.inc` 一条脏，是运行时波动（Rainmeter 会写它，§7 清单成员），`git checkout --` 还原即可。
 
 待办：无（有新工作时在此登记）。
 
@@ -130,7 +130,7 @@ REO\                              皮肤根（桌面 junction 指到这里）
 1. `git status --porcelain` 改动面与意图一致，不含运行时文件与 exclude 列出的已跟踪文件。用 `git ls-files -ci --exclude-standard` 全量枚举、逐个确认。
 2. 改过 C# 工程（`Tools\` 六个工具 / `SettingsCenter\`）：`dotnet build -c Release` 零 error，按 §6 部署到对应位置，再实机验证——PowerShell 读 `VersionInfo.FileVersion` 等于本次发布号；`CreateProcess` 带 `CREATE_SUSPENDED` 映射镜像后立刻 `TerminateProcess` 过可加载性自检（与真实启动同一套校验、零副作用，`D:\WorkSpace\WorkBench\_exe_loadcheck.ps1`）；`Tools\` 里的命令行工具实机跑 `missing` 与一条未知命令（退出码 0、日志无新增 `ERRO`），GUI 工具用真实皮肤参数启动确认界面与控件齐全。`SettingsCenter\` 另需右键皮肤实机验证（设置窗口打开、改值写回、面板刷新）。
 3. 动过皮肤行为：开日志（§3）实机验证，无新增 `ERRO`；**验完把 `Rainmeter.ini` 的 `Logging` 关回**。日志验收判据（2026-10-20 实测全量刷新 `ERRO=0`）：出现任何 `ERRO` 行都按新缺陷处理；已知残留噪声仅「变量为空时的 `ImageName: Unable to open: …\OverlayBorder\`」一条。视觉对比用差异像素占比给阈值，不要要求逐字节相同（半透明面板会透出动态壁纸与亚像素抖动；截图前关掉动态壁纸、把光标移离面板、等 WebParser 完成）。历史参考阈值：滚动生效 14.2%、静置回顶 0.04%（0.4.0 时期实测，未复测）。
-4. 发版一次闭口：改动全提交 → `git tag -a X.Y.Z -m "…"`（不带 `v` 前缀）→ `git push origin master X.Y.Z` → `gh release create X.Y.Z -R OMSociety/ReOmnimo --title X.Y.Z -F 【正文文件】`（双 remote 下必须显式 `-R`；正文走 `-F` 文件传，避免命令行对中文的引号与编码损耗）。正文 = 一句中文摘要 + `CHANGELOG.md` 对应小节原文。
+4. 发版一次闭口：改动全提交 → `git tag -a X.Y.Z -m "…"`（不带 `v` 前缀）→ `git push origin main X.Y.Z` → `gh release create X.Y.Z -R OMSociety/ReOmnimo --title X.Y.Z -F 【正文文件】`（双 remote 下必须显式 `-R`；正文走 `-F` 文件传，避免命令行对中文的引号与编码损耗）。正文 = 一句中文摘要 + `CHANGELOG.md` 对应小节原文。
 
 ## 9 已知风险区
 
@@ -138,8 +138,8 @@ REO\                              皮肤根（桌面 junction 指到这里）
 
 | 位置 | 风险 | 前置动作 |
 |---|---|---|
-| `agenda.lua` 数据通路 | WebParser `Download=1` 时字符串的值是下载文件路径而不是正文（实测 58–64 字符） | 必须 `RegExp=(?s)^(.*)$` + `StringIndex=1` 整页捕获；改前先读 `CHANGELOG.md` 0.4.0 |
-| `agenda.lua` 窗口计算 | 0.4.0 起窗口 = 恰好 `RangeDays` 个日历日（闭区间），不再是定长推进；`RangeDays=6` 由 7 天变 6 天是有意的行为变更 | 改窗口逻辑先读 `CHANGELOG.md` 0.4.0 |
+| `agenda.lua` 数据通路 | WebParser `Download=1` 时字符串的值是下载文件路径而不是正文（实测 58–64 字符） | 必须 `RegExp=(?s)^(.*)$` + `StringIndex=1` 整页捕获；改前先读 0.4.0 的提交（`git log`） |
+| `agenda.lua` 窗口计算 | 0.4.0 起窗口 = 恰好 `RangeDays` 个日历日（闭区间），不再是定长推进；`RangeDays=6` 由 7 天变 6 天是有意的行为变更 | 改窗口逻辑先读 0.4.0 的提交（`git log`） |
 | `agenda.lua` 时区偏移表 | 表内是**标准时**偏移，夏令时期间会偏 1 小时；未知 TZID 按本机墙上时间显示并只记一次 Notice | 不要引入完整 IANA 库 |
 | `agenda.lua` 每秒门控 | `Update()` 里的两级缓存不能拆（旧代码每 tick 推约 120 条 bang） | 用仓库外探针皮肤验证，读数只能取 `SKIN:GetMeter('Row1'):GetOption('Text')` |
 | `[Clip]` 裁剪 | 被指定为 Container 的表自身不绘制，拿 `[bg]` 当遮罩会让磁贴背景消失 | 另建不透明独立遮罩表（Agenda 的 `[Clip]` 即此法） |
